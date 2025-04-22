@@ -1,7 +1,7 @@
-import FederationInfo from "../../components/federation/overview/FederationInfo";
-import ResourceInfo from "../../components/federation/overview/ResourceInfo";
-import HostClusterInfo from "../../components/federation/overview/HostClusterInfo";
-import MemberClusterInfo from "../../components/federation/overview/MemberClusterInfo";
+import FederationInfo from "./components/FederationInfo";
+import HostClusterInfo from "./components/HostClusterInfo";
+import MemberClusterInfo from "./components/MemberClusterInfo";
+import ResourceInfo from "./components/ResourceInfo";
 
 export default function Overview() {
   return (

@@ -3,16 +3,22 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { Provider } from "./components/ui/provider";
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+
+// keycloak에서 토큰 가져오는 로직 추가해야함
+
+// if (!sessionStorage.getItem("token")) {
+//   sessionStorage.setItem("token", "testvalue");
+// }
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <Provider>
+    <ChakraProvider value={defaultSystem}>
       <App />
-    </Provider>
+    </ChakraProvider>
   </React.StrictMode>
 );
 

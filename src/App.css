@@ -3,7 +3,7 @@
 }
 .component-title {
   color: #47494d;
-  margin-bottom: 20px;
+  margin-bottom: 17px;
   padding-top: 9px;
   font-weight: 300;
   font-family: "Apple SD Gothic Neo", "Noto Sans KR", "맑은 고딕",
@@ -12,10 +12,10 @@
 }
 
 .table-root {
-  margin-bottom: 25px;
+  margin-bottom: 17px;
   border-top: 2px solid #333333;
   background-color: #fff;
-  padding-bottom: 20px;
+  padding-bottom: 17px;
 }
 .table-column-header {
   text-align: center;
@@ -40,7 +40,7 @@
 }
 
 .large-card-root {
-  margin-bottom: 25px;
+  margin-bottom: 17px;
   color: #47494d;
 }
 
@@ -59,7 +59,7 @@
   width: 40px;
 }
 .flex-card-list {
-  max-height: 365px;
+  max-height: 350px;
   overflow-x: auto;
 }
 .flex-clusters-header {
@@ -70,4 +70,17 @@
 .pagination-root {
   text-align: center;
   padding-top: 50px;
+}
+
+.flex-policy-header {
+  padding-top: 9px;
+  padding-bottom: 50px;
+}
+
+.basic-font {
+  color: #47494d;
+  font-weight: 300;
+  font-family: "Apple SD Gothic Neo", "Noto Sans KR", "맑은 고딕",
+    "Font Awesome 5 Free", monospace;
+  font-style: normal;
 }

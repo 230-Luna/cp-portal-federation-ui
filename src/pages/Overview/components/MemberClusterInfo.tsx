@@ -1,5 +1,8 @@
-import { Text } from "@chakra-ui/react";
-import { Card, Stack, Flex, Status } from "@chakra-ui/react";
+import { Text } from "@/components/Text";
+import { Card } from "@/components/Card";
+import { Status, StatusValue } from "@/components/Status";
+import { Flex } from "@/components/Flex";
+import { Stack } from "@chakra-ui/react";
 import { BarList, type BarListData, useChart } from "@chakra-ui/charts";
 
 export default function MemberClusterInfo() {
@@ -14,31 +17,24 @@ export default function MemberClusterInfo() {
     series: [{ name: "name", color: "green.solid" }],
   });
 
-  const items = [0, 1, 2, 3];
-
   return (
     <>
-      <Text textStyle="2xl" className="component-title">
-        Member Cluster Info
-      </Text>
-      <Flex gap="3" wrap="wrap" className="flex-card-list">
+      <Text type="title">Member Cluster Info</Text>
+      <Flex maxH="350px" overflowX="auto">
         {items.map((item) => (
-          <Card.Root variant="elevated" key={item} height="270px" width="345px">
+          <Card.Root type="medium">
             <Card.Header>
               <Card.Title>
-                <Flex gap="5">
-                  member1 cluster
-                  <Flex gap="2">
-                    <Status.Root colorPalette="green">
-                      <Status.Indicator />
-                    </Status.Root>
-                    <Text textStyle="sm" lineHeight="3" fontWeight="500">
-                      running
-                    </Text>
+                <Flex>
+                  {item.name}
+                  <Flex>
+                    <Status value={item.status as StatusValue} />
                   </Flex>
                 </Flex>
               </Card.Title>
-              <Card.Description>Nodes 2/4</Card.Description>
+              <Card.Description>
+                Nodes {item.readyNum}/{item.totalNum}
+              </Card.Description>
             </Card.Header>
             <Card.Body>
               <Stack>
@@ -62,3 +58,30 @@ export default function MemberClusterInfo() {
     </>
   );
 }
+
+const items = [
+  {
+    name: "member1",
+    status: "ready",
+    totalNum: 3,
+    readyNum: 2,
+  },
+  {
+    name: "member2",
+    status: "ready",
+    totalNum: 5,
+    readyNum: 1,
+  },
+  {
+    name: "member3",
+    status: "ready",
+    totalNum: 4,
+    readyNum: 4,
+  },
+  {
+    name: "member4",
+    status: "notready",
+    totalNum: 3,
+    readyNum: 2,
+  },
+];

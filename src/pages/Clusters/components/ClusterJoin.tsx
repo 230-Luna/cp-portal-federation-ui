@@ -1,0 +1,85 @@
+import { Grid } from "@/components/Grid";
+import { Button } from "@/components/Button";
+import { Dialog } from "@/components/Dialog";
+import { Heading } from "@/components/Heading";
+import { CheckboxCard } from "@/components/CheckboxCard";
+import { CloseButton } from "@/components/CloseButton";
+import { Portal } from "@chakra-ui/react";
+import { FaPlus } from "react-icons/fa";
+
+export default function ClusterJoin() {
+  function handleClick() {}
+  return (
+    <Dialog.Root type="resourceSetUp">
+      <Dialog.Trigger>
+        <Button buttonStyle="largeBlue">
+          <FaPlus /> Join
+        </Button>
+      </Dialog.Trigger>
+      <Portal>
+        <Dialog.Backdrop />
+        <Dialog.Positioner>
+          <Dialog.Content type="resourceSetUp">
+            <Heading>Cluster Join</Heading>
+            <Dialog.Body type="resourceSetUp">
+              <Grid>
+                {items.map((item) => (
+                  <CheckboxCard.Root
+                    key={item.id}
+                    onChange={() => handleClick()}
+                    size="lg"
+                  >
+                    <CheckboxCard.HiddenInput />
+                    <CheckboxCard.Control>
+                      <CheckboxCard.Content>
+                        <CheckboxCard.Label>{item.name}</CheckboxCard.Label>
+                      </CheckboxCard.Content>
+                      <CheckboxCard.Indicator />
+                    </CheckboxCard.Control>
+                  </CheckboxCard.Root>
+                ))}
+              </Grid>
+            </Dialog.Body>
+            <Dialog.Footer>
+              <Dialog.ActionTrigger>
+                <Button buttonStyle="blueOutline">Cancel</Button>
+              </Dialog.ActionTrigger>
+              <Button buttonStyle="blue">Apply</Button>
+            </Dialog.Footer>
+            <Dialog.CloseTrigger>
+              <CloseButton />
+            </Dialog.CloseTrigger>
+          </Dialog.Content>
+        </Dialog.Positioner>
+      </Portal>
+    </Dialog.Root>
+  );
+}
+
+const items = [
+  {
+    id: 1,
+    name: "nhn-cluster",
+    clustername: "not yet",
+  },
+  {
+    id: 2,
+    name: "kt-cluster",
+    clustername: "",
+  },
+  {
+    id: 3,
+    name: "aws-cluster",
+    clustername: "",
+  },
+  {
+    id: 4,
+    name: "ncp-cluster",
+    clustername: "",
+  },
+  {
+    id: 5,
+    name: "google-cluster",
+    clustername: "",
+  },
+];

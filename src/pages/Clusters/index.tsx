@@ -1,18 +1,24 @@
-import SearchBar from "components/federation/clusters/SearchBar";
-import ClusterJoin from "components/federation/clusters/ClusterJoin";
-import ClusterList from "components/federation/clusters/ClusterList";
-import Pages from "components/federation/clusters/Pages";
-import { Flex } from "@chakra-ui/react";
+import { Flex } from "@/components/Flex";
+import SearchBar from "@/components/SearchBar";
+import ClusterJoin from "pages/Clusters/components/ClusterJoin";
+import ClusterList from "@/pages/Clusters/components/ClusterList";
+import Pagination from "@/components/Pagination";
+import { toaster } from "@/components/Toaster";
 
 export default function Clusters() {
+  toaster.create({
+    description: "멤버클러스터에서 제외되었습니다.",
+    type: "info",
+  });
+
   return (
     <>
-      <Flex className="flex-clusters-header" justify="space-between">
+      <Flex justify="flex-end" pt="9px" pb="50px">
         <SearchBar />
         <ClusterJoin />
       </Flex>
       <ClusterList />
-      <Pages />
+      <Pagination />
     </>
   );
 }
