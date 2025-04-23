@@ -34,7 +34,7 @@ interface MultistepProps {
 export default function Multistep({ step, progress }: MultistepProps) {
   return (
     <>
-      <Progress.Root value={progress} mb="5%" mx="5%" colorPalette="blue">
+      <Progress.Root value={progress} mb="1%" mx="5%" colorPalette="blue">
         <Progress.Track>
           <Progress.Range />
         </Progress.Track>
@@ -246,7 +246,7 @@ const Form2 = () => {
         <Heading>
           Resource Selectors
           <Dialog.Trigger asChild>
-            <Button buttonStyle="smallFaPlus" ml="3%">
+            <Button buttonStyle="smallFaPlus" marginLeft="3%">
               <FaPlus />
             </Button>
           </Dialog.Trigger>
@@ -258,9 +258,9 @@ const Form2 = () => {
           gap="2"
           flexWrap="wrap"
         >
-          <Card.Root type="small">
-            <Card.Body type="small">
-              <CloseButton closeButtonStyle="inbox" />
+          <Card.Root cardStyle="small">
+            <Card.Body cardStyle="small">
+              <CloseButton closeButtonStyle="inbox" marginRight="2.5%" />
               <Field.Root>
                 <HStack>
                   <FieldLabel>Kind</FieldLabel>
@@ -301,8 +301,8 @@ const Form2 = () => {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content type="resourceSetUp">
-              <Dialog.Body type="resourceSetUp">
+            <Dialog.Content type="resourceSetUp" margin="10px auto">
+              <Dialog.Body type="resourceSetUp" margin="2%">
                 <Field.Root
                   mt="2%"
                   className="basic-font"
@@ -533,7 +533,7 @@ const Form2 = () => {
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
                       <Dialog.Content type="alert">
-                        <Dialog.Body type="alert">
+                        <Dialog.Body type="alert" marginTop="8%">
                           <p>
                             host-cluster에 배포되어 있는 리소스인 경우 삭제를
                             진행할까요?
@@ -717,7 +717,7 @@ const Form3 = () => {
       </Field.Root>
       <Flex overflowY="auto" maxH="250px">
         <Box p="2%" bg="gray.100" m="1%" position="relative">
-          <CloseButton closeButtonStyle="inbox" />
+          <CloseButton closeButtonStyle="inbox" marginRight="2.5%" />
           <Box width="680px">
             <Flex>
               <Field.Root

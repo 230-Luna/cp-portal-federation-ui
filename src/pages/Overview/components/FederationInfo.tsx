@@ -1,11 +1,14 @@
 import { Table } from "@/components/Table";
 import { Text } from "@/components/Text";
+import { Heading } from "@/components/Heading";
 import { Status, StatusValue } from "@/components/Status";
 
 export default function FederationInfo() {
   return (
     <>
-      <Text type="title">Federation Info</Text>
+      <Heading textAlign="" size="2xl">
+        Federation Info
+      </Heading>
       <Table.Root>
         <Table.Header>
           <Table.Row>

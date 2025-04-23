@@ -22,8 +22,8 @@ export default function PolicyAdd() {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content type="resourceSetUp">
-            <Dialog.Body type="resourceSetUp">
+          <Dialog.Content type="resourceSetUp" margin="10px auto">
+            <Dialog.Body type="resourceSetUp" margin="2%">
               <Multistep step={step} progress={progress} />
             </Dialog.Body>
             <Dialog.Footer>
@@ -32,14 +32,13 @@ export default function PolicyAdd() {
                   <Flex>
                     {step !== 1 ? (
                       <Button
-                        buttonStyle="blueOutline"
-                        w="7rem"
-                        mr="5px"
                         disabled={step === 1}
                         onClick={() => {
                           setStep(step - 1);
                           setProgress(progress - 33.33);
                         }}
+                        buttonStyle="blueOutline"
+                        marginRight="5px"
                       >
                         Back
                       </Button>

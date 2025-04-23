@@ -19,9 +19,9 @@ export default function ClusterJoin() {
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content type="resourceSetUp">
+          <Dialog.Content type="resourceSetUp" margin="10px auto">
             <Heading>Cluster Join</Heading>
-            <Dialog.Body type="resourceSetUp">
+            <Dialog.Body type="resourceSetUp" margin="2%">
               <Grid>
                 {items.map((item) => (
                   <CheckboxCard.Root

@@ -13,7 +13,7 @@ export default function ClusterExclude() {
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content type="alert">
-            <Dialog.Body type="alert">
+            <Dialog.Body type="alert" marginTop="8%">
               <p>멤버 클러스터에서 제외시키겠습니까?</p>
             </Dialog.Body>
             <Dialog.Footer>

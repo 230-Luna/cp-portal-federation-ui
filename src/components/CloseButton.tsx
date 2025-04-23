@@ -7,15 +7,15 @@ type CloseButtonProps = ComponentProps<typeof ChakraCloseButton> & {
   closeButtonStyle?: CloseButtonStyle;
 };
 
-const closeButtonStyles: Record<
+const closeButtonStyleConfig: Record<
   CloseButtonStyle,
-  Partial<ComponentProps<typeof ChakraCloseButton>>
+  ComponentProps<typeof ChakraCloseButton>
 > = {
   inbox: {
+    size: "sm",
     position: "absolute",
     top: "2",
     right: "2",
-    mr: "2.5%",
   },
 };
 
@@ -23,8 +23,10 @@ export const CloseButton = ({
   closeButtonStyle,
   ...props
 }: CloseButtonProps) => {
-  const styleProps = closeButtonStyle
-    ? closeButtonStyles[closeButtonStyle]
-    : {};
-  return <ChakraCloseButton size="sm" {...styleProps} {...props} />;
+  return (
+    <ChakraCloseButton
+      {...(closeButtonStyle ? closeButtonStyleConfig[closeButtonStyle] : {})}
+      {...props}
+    />
+  );
 };

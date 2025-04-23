@@ -1,10 +1,22 @@
 import { Dialog as ChakraDialog } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type Type = "alert" | "resourceSetUp";
+type DialogStyle = "alert" | "resourceSetUp";
 
-const rootStyleMap: Record<
-  Type,
+type DialogSubComponent =
+  | typeof ChakraDialog.Root
+  | typeof ChakraDialog.Body
+  | typeof ChakraDialog.Header
+  | typeof ChakraDialog.Title
+  | typeof ChakraDialog.Footer
+  | typeof ChakraDialog.Description;
+
+type DialogProps<T extends DialogSubComponent> = ComponentProps<T> & {
+  dialogStyle: DialogStyle;
+};
+
+const rootStyleConfig: Record<
+  DialogStyle,
   Omit<ComponentProps<typeof ChakraDialog.Root>, "children">
 > = {
   alert: { size: "sm", placement: "center" },
@@ -16,7 +28,7 @@ const rootStyleMap: Record<
 };
 
 const contentStyleMap: Record<
-  Type,
+  DialogStyle,
   ComponentProps<typeof ChakraDialog.Content>
 > = {
   alert: {},
@@ -26,15 +38,17 @@ const contentStyleMap: Record<
     shadow: "1px 1px 3px rgba(0,0,0,0.3)",
     maxWidth: "800px",
     padding: "6px",
-    margin: "10px auto",
     as: "form",
     maxHeight: "850px",
   },
 };
 
-const bodyStyleMap: Record<Type, ComponentProps<typeof ChakraDialog.Body>> = {
-  alert: { textAlign: "center", paddingTop: "20px", marginTop: "8%" },
-  resourceSetUp: { margin: "2%" },
+const bodyStyleMap: Record<
+  DialogStyle,
+  ComponentProps<typeof ChakraDialog.Body>
+> = {
+  alert: { textAlign: "center", paddingTop: "20px" },
+  resourceSetUp: {},
 };
 
 export const Dialog = {
@@ -42,7 +56,7 @@ export const Dialog = {
     type,
     children,
     ...props
-  }: { type: Type } & ComponentProps<typeof ChakraDialog.Root>) => (
+  }: { type: DialogStyle } & ComponentProps<typeof ChakraDialog.Root>) => (
     <ChakraDialog.Root {...rootStyleMap[type]} {...props}>
       {children}
     </ChakraDialog.Root>
@@ -56,7 +70,7 @@ export const Dialog = {
     type,
     children,
     ...props
-  }: { type: Type } & ComponentProps<typeof ChakraDialog.Content>) => (
+  }: { type: DialogStyle } & ComponentProps<typeof ChakraDialog.Content>) => (
     <ChakraDialog.Content {...contentStyleMap[type]} {...props}>
       {children}
     </ChakraDialog.Content>
@@ -65,7 +79,7 @@ export const Dialog = {
   Body: ({
     type,
     ...props
-  }: { type: Type } & ComponentProps<typeof ChakraDialog.Body>) => (
+  }: { type: DialogStyle } & ComponentProps<typeof ChakraDialog.Body>) => (
     <ChakraDialog.Body {...bodyStyleMap[type]} {...props} />
   ),
   Title: ChakraDialog.Title,

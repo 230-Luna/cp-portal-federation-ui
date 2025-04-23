@@ -22,7 +22,7 @@ export default function MemberClusterInfo() {
       <Text type="title">Member Cluster Info</Text>
       <Flex maxH="350px" overflowX="auto">
         {items.map((item) => (
-          <Card.Root type="medium">
+          <Card.Root cardStyle="medium">
             <Card.Header>
               <Card.Title>
                 <Flex>
@@ -36,7 +36,7 @@ export default function MemberClusterInfo() {
                 Nodes {item.readyNum}/{item.totalNum}
               </Card.Description>
             </Card.Header>
-            <Card.Body>
+            <Card.Body cardStyle="medium">
               <Stack>
                 <BarList.Root chart={CPUChart}>
                   <BarList.Content>

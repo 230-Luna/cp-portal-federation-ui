@@ -9,7 +9,7 @@ export default function HostClusterInfo() {
   return (
     <>
       <Text type="title">Host Cluster Info</Text>
-      <Card.Root type="wide">
+      <Card.Root cardStyle="wide" marginBottom="17px">
         <Card.Header>
           <Card.Title>
             <Flex>
@@ -23,7 +23,7 @@ export default function HostClusterInfo() {
             Nodes {item.readyNum}/{item.totalNum}
           </Card.Description>
         </Card.Header>
-        <Card.Body>
+        <Card.Body cardStyle="wide">
           <Stack>
             <Progress name="CPU" value={73.5} />
             <Progress name="Memory" value={23.52} />

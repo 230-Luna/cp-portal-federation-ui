@@ -1,13 +1,27 @@
 import { Card as ChakraCard } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type Type = "wide" | "medium" | "small";
+type CardStyle = "wide" | "medium" | "small";
 
-const rootStyleMap: Record<Type, ComponentProps<typeof ChakraCard.Root>> = {
+type CardSubComponent =
+  | typeof ChakraCard.Root
+  | typeof ChakraCard.Body
+  | typeof ChakraCard.Header
+  | typeof ChakraCard.Title
+  | typeof ChakraCard.Footer
+  | typeof ChakraCard.Description;
+
+type CardProps<T extends CardSubComponent> = ComponentProps<T> & {
+  cardStyle: CardStyle;
+};
+
+const rootStyleConfig: Record<
+  CardStyle,
+  ComponentProps<typeof ChakraCard.Root>
+> = {
   wide: {
-    size: "lg",
-    marginBottom: "17px",
     color: "#47494d",
+    size: "lg",
   },
   medium: {
     variant: "elevated",
@@ -15,16 +29,19 @@ const rootStyleMap: Record<Type, ComponentProps<typeof ChakraCard.Root>> = {
     width: "345px",
   },
   small: {
-    overflow: "auto",
-    width: "350px",
     variant: "outline",
+    width: "350px",
     maxW: "350px",
     maxH: "200px",
     position: "relative",
+    overflow: "auto",
   },
 };
 
-const bodyStyleMap: Record<Type, ComponentProps<typeof ChakraCard.Body>> = {
+const bodyStyleConfig: Record<
+  CardStyle,
+  ComponentProps<typeof ChakraCard.Body>
+> = {
   wide: {},
   medium: {},
   small: {
@@ -35,21 +52,14 @@ const bodyStyleMap: Record<Type, ComponentProps<typeof ChakraCard.Body>> = {
 };
 
 export const Card = {
-  Root: ({
-    type,
-    ...props
-  }: { type: Type } & ComponentProps<typeof ChakraCard.Root>) => (
-    <ChakraCard.Root {...rootStyleMap[type]} {...props} />
+  Root: ({ cardStyle, ...props }: CardProps<typeof ChakraCard.Root>) => (
+    <ChakraCard.Root {...rootStyleConfig[cardStyle]} {...props} />
   ),
-
   Header: ChakraCard.Header,
   Title: ChakraCard.Title,
   Description: ChakraCard.Description,
-
-  Body: ({
-    type,
-    ...props
-  }: { type?: Type } & ComponentProps<typeof ChakraCard.Body>) => (
-    <ChakraCard.Body {...(type ? bodyStyleMap[type] : {})} {...props} />
+  Body: ({ cardStyle, ...props }: CardProps<typeof ChakraCard.Body>) => (
+    <ChakraCard.Body {...bodyStyleConfig[cardStyle]} {...props} />
   ),
+  Footer: ChakraCard.Footer,
 };

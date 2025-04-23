@@ -2,38 +2,42 @@ import { Button as ChakraButton } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
 type ButtonStyle =
+  | "blue"
   | "largeBlue"
   | "blueOutline"
-  | "blue"
   | "blueSurface"
-  | "redOutline"
-  | "red"
   | "blueGhost"
+  | "red"
+  | "redOutline"
   | "redGhost"
   | "smallFaPlus"
   | "mediumFaPlus";
 
 type ButtonProps = ComponentProps<typeof ChakraButton> & {
-  buttonStyle?: ButtonStyle;
+  buttonStyle: ButtonStyle;
 };
 
-const buttonStyles: Record<
+const buttonStyleConfig: Record<
   ButtonStyle,
-  Partial<ComponentProps<typeof ChakraButton>>
+  ComponentProps<typeof ChakraButton>
 > = {
-  largeBlue: { size: "lg", colorPalette: "blue", fontSize: "xl" },
-  blueOutline: { variant: "outline", colorPalette: "blue" },
-  blue: { colorPalette: "blue" },
-  blueSurface: { colorPalette: "blue", variant: "surface" },
-  redOutline: { variant: "outline", colorPalette: "red" },
-  red: { colorPalette: "red" },
-  blueGhost: { variant: "ghost", color: "blue.600", textStyle: "md" },
-  redGhost: { variant: "ghost", color: "red.600", textStyle: "md" },
-  smallFaPlus: { size: "2xs", fontSize: "lg", colorPalette: "blue" },
-  mediumFaPlus: { size: "sm", colorPalette: "blue", fontSize: "xl" },
+  blue: { colorPalette: "blue", width: "7rem" },
+  largeBlue: { colorPalette: "blue", size: "lg", fontSize: "xl" },
+  blueOutline: { colorPalette: "blue", width: "7rem", variant: "outline" },
+  blueSurface: { colorPalette: "blue", width: "7rem", variant: "surface" },
+  blueGhost: { color: "blue.600", variant: "ghost", textStyle: "md" },
+  red: { colorPalette: "red", width: "7rem" },
+  redOutline: { colorPalette: "red", width: "7rem", variant: "outline" },
+  redGhost: {
+    color: "red.600",
+    width: "7rem",
+    variant: "ghost",
+    textStyle: "md",
+  },
+  smallFaPlus: { colorPalette: "blue", size: "2xs", fontSize: "lg" },
+  mediumFaPlus: { colorPalette: "blue", size: "sm", fontSize: "xl" },
 };
 
 export const Button = ({ buttonStyle, ...props }: ButtonProps) => {
-  const styleProps = buttonStyle ? buttonStyles[buttonStyle] : {};
-  return <ChakraButton {...styleProps} {...props} />;
+  return <ChakraButton {...buttonStyleConfig[buttonStyle]} {...props} />;
 };
