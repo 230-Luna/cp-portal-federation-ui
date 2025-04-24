@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { FaPlus } from "react-icons/fa";
 import { Flex } from "@/components/Flex";
 import { Progress } from "@/components/Progress";
+import { SegmentGroup } from "@/components/SegmentGroup";
 import {
   Field,
   FieldLabel,
@@ -19,7 +20,6 @@ import {
   Checkbox,
   NativeSelect,
   Tag,
-  SegmentGroup,
   Collapsible,
   Badge,
   Box,
@@ -49,11 +49,11 @@ const Form1 = () => {
         Metadata
       </Heading>
       <Field.Root
-        mt="2%"
+        required
         className="basic-font"
         orientation="horizontal"
-        mb="1%"
-        required
+        marginTop="2%"
+        marginBottom="1%"
       >
         <FieldLabel>
           Level
@@ -312,7 +312,7 @@ const Form2 = () => {
                     Kind
                     <Field.RequiredIndicator />
                   </FieldLabel>
-                  <SegmentGroup.Root defaultValue="Deployment" size="lg">
+                  <SegmentGroup.Root defaultValue="Deployment" variant="large">
                     <SegmentGroup.Indicator />
                     <SegmentGroup.Items
                       items={[

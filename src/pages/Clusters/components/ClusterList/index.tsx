@@ -1,7 +1,7 @@
 import { Table } from "@/components/Table";
 import { Status, Variant } from "@/components/Status";
 import { Flex } from "@/components/Flex";
-import CusterView from "./CusterView";
+import CusterView from "./ClusterView";
 import ClusterExclude from "./ClusterExclude";
 
 export default function ClusterList() {

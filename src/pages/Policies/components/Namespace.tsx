@@ -1,4 +1,4 @@
-import { Text, Portal, Select, createListCollection } from "@chakra-ui/react";
+import { Portal, Select, createListCollection } from "@chakra-ui/react";
 export default function Namespace() {
   return (
     <>

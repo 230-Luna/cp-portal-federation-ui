@@ -3,7 +3,7 @@ import { Dialog } from "@/components/Dialog";
 import { Flex } from "@/components/Flex";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal, ButtonGroup } from "@chakra-ui/react";
-import Multistep from "pages/Policies/components/Multistep";
+import Multistep from "@/pages/Policies/components/PolicyAdd/Multistep";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
@@ -27,7 +27,7 @@ export default function PolicyAdd() {
               <Multistep step={step} progress={progress} />
             </Dialog.Body>
             <Dialog.Footer>
-              <ButtonGroup w="100%">
+              <ButtonGroup width="100%">
                 <Flex justifyContent="flex-end" width="100%">
                   <Flex>
                     {step !== 1 ? (

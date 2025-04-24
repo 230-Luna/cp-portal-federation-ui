@@ -5,7 +5,7 @@ import { Status, Variant } from "@/components/Status";
 export default function FederationInfo() {
   return (
     <>
-      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
+      <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
         Federation Info
       </Heading>
       <Table.Root>

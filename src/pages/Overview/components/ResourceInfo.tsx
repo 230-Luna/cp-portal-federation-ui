@@ -4,7 +4,7 @@ import { Table } from "@/components/Table";
 export default function ResourceInfo() {
   return (
     <>
-      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
+      <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
         Resource Info
       </Heading>
       <Table.Root>

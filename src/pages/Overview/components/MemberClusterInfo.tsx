@@ -19,7 +19,7 @@ export default function MemberClusterInfo() {
 
   return (
     <>
-      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
+      <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
         Member Cluster Info
       </Heading>
       <Flex overflowX="auto" maxHeight="550px">

@@ -1,7 +1,7 @@
 import { Heading as ChakraHeading } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type Variant = "left" | "center";
+type Variant = "leftSide" | "center";
 
 type HeadingProps = ComponentProps<typeof ChakraHeading> & {
   variant: Variant;
@@ -11,7 +11,7 @@ const headingStyleConfig: Record<
   Variant,
   ComponentProps<typeof ChakraHeading>
 > = {
-  left: {},
+  leftSide: {},
   center: {
     textAlign: "center",
   },

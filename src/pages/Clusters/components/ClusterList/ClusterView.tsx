@@ -6,7 +6,7 @@ import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
 export default function CusterView() {
   return (
     <Drawer.Root size="xl">
-      <Drawer.Trigger asChild>
+      <Drawer.Trigger>
         <Button variant="blueGhost">View</Button>
       </Drawer.Trigger>
       <Portal>
@@ -19,7 +19,7 @@ export default function CusterView() {
             <Drawer.Body>
               <YamlMaker />
             </Drawer.Body>
-            <Drawer.CloseTrigger asChild>
+            <Drawer.CloseTrigger>
               <CloseButton />
             </Drawer.CloseTrigger>
           </Drawer.Content>

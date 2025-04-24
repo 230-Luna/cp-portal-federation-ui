@@ -8,7 +8,7 @@ import { Stack } from "@chakra-ui/react";
 export default function HostClusterInfo() {
   return (
     <>
-      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
+      <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
         Host Cluster Info
       </Heading>
       <Card.Root variant="wide" marginBottom="17px">
