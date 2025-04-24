@@ -1,20 +1,21 @@
 import type { ColorPalette } from "@chakra-ui/react";
 import { Status as ChakraStatus } from "@chakra-ui/react";
+import type { ComponentProps } from "react";
 
-export type Type = "ready" | "notready" | "unknown";
+export type Variant = "ready" | "notready" | "unknown";
 
-interface StatusProps extends ChakraStatus.RootProps {
-  value?: Type;
-}
+type StatusProps = ComponentProps<typeof ChakraStatus.Root> & {
+  variant?: Variant;
+};
 
-const statusColor: Record<Type, ColorPalette> = {
+const statusColor: Record<Variant, ColorPalette> = {
   ready: "green",
   notready: "red",
   unknown: "gray",
 };
 
-export const Status = ({ value = "unknown", ...props }: StatusProps) => {
-  const colorPalette = statusColor[value];
+export const Status = ({ variant = "unknown", ...props }: StatusProps) => {
+  const colorPalette = statusColor[variant];
   return (
     <ChakraStatus.Root
       fontWeight="500"
@@ -23,7 +24,7 @@ export const Status = ({ value = "unknown", ...props }: StatusProps) => {
       {...props}
     >
       <ChakraStatus.Indicator />
-      {value}
+      {variant}
     </ChakraStatus.Root>
   );
 };

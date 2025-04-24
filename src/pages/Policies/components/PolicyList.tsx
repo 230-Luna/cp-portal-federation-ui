@@ -31,7 +31,7 @@ export default function PolicyList() {
               <Flex justify="space-evenly">
                 <Drawer.Root size="xl">
                   <Drawer.Trigger asChild>
-                    <Button buttonStyle="blueGhost">View</Button>
+                    <Button variant="blueGhost">View</Button>
                   </Drawer.Trigger>
                   <Portal>
                     <Drawer.Backdrop />
@@ -44,8 +44,8 @@ export default function PolicyList() {
                           <YamlMaker />
                         </Drawer.Body>
                         <Drawer.Footer>
-                          <Button buttonStyle="blueOutline">Cancel</Button>
-                          <Button buttonStyle="blue">Apply</Button>
+                          <Button variant="blueOutline">Cancel</Button>
+                          <Button variant="blue">Apply</Button>
                         </Drawer.Footer>
                         <Drawer.CloseTrigger asChild>
                           <CloseButton />
@@ -54,22 +54,22 @@ export default function PolicyList() {
                     </Drawer.Positioner>
                   </Portal>
                 </Drawer.Root>
-                <Dialog.Root type="alert">
+                <Dialog.Root variant="alert">
                   <Dialog.Trigger>
-                    <Button buttonStyle="redGhost">Delete</Button>
+                    <Button variant="redGhost">Delete</Button>
                   </Dialog.Trigger>
                   <Portal>
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
-                      <Dialog.Content type="alert">
-                        <Dialog.Body type="alert" marginTop="8%">
+                      <Dialog.Content variant="alert">
+                        <Dialog.Body variant="alert" marginTop="8%">
                           <p>정책을 삭제시키겠습니까?</p>
                         </Dialog.Body>
                         <Dialog.Footer>
                           <Dialog.ActionTrigger>
-                            <Button buttonStyle="redOutline">Cancel</Button>
+                            <Button variant="redOutline">Cancel</Button>
                           </Dialog.ActionTrigger>
-                          <Button buttonStyle="red">Delete</Button>
+                          <Button variant="red">Delete</Button>
                         </Dialog.Footer>
                         <Dialog.CloseTrigger>
                           <CloseButton />

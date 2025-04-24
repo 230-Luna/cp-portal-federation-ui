@@ -1,6 +1,6 @@
-import { Text } from "@/components/Text";
+import { Heading } from "@/components/Heading";
 import { Card } from "@/components/Card";
-import { Status, StatusValue } from "@/components/Status";
+import { Status, Variant } from "@/components/Status";
 import { Progress } from "@/components/Progress";
 import { Flex } from "@/components/Flex";
 import { Stack } from "@chakra-ui/react";
@@ -8,14 +8,16 @@ import { Stack } from "@chakra-ui/react";
 export default function HostClusterInfo() {
   return (
     <>
-      <Text type="title">Host Cluster Info</Text>
-      <Card.Root cardStyle="wide" marginBottom="17px">
+      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
+        Host Cluster Info
+      </Heading>
+      <Card.Root variant="wide" marginBottom="17px">
         <Card.Header>
           <Card.Title>
             <Flex>
               {item.name}
               <Flex>
-                <Status value={item.status as StatusValue} />
+                <Status variant={item.status as Variant} />
               </Flex>
             </Flex>
           </Card.Title>
@@ -23,10 +25,10 @@ export default function HostClusterInfo() {
             Nodes {item.readyNum}/{item.totalNum}
           </Card.Description>
         </Card.Header>
-        <Card.Body cardStyle="wide">
+        <Card.Body variant="wide">
           <Stack>
-            <Progress name="CPU" value={73.5} />
-            <Progress name="Memory" value={23.52} />
+            <Progress kind="CPU" value={73.5} />
+            <Progress kind="Memory" value={23.52} />
           </Stack>
         </Card.Body>
       </Card.Root>

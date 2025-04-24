@@ -5,22 +5,22 @@ import { Portal } from "@chakra-ui/react";
 
 export default function ClusterExclude() {
   return (
-    <Dialog.Root type="alert">
+    <Dialog.Root variant="alert">
       <Dialog.Trigger>
-        <Button buttonStyle="redGhost">Exclude</Button>
+        <Button variant="redGhost">Exclude</Button>
       </Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content type="alert">
-            <Dialog.Body type="alert" marginTop="8%">
+          <Dialog.Content variant="alert">
+            <Dialog.Body variant="alert" marginTop="8%">
               <p>멤버 클러스터에서 제외시키겠습니까?</p>
             </Dialog.Body>
             <Dialog.Footer>
               <Dialog.ActionTrigger>
-                <Button buttonStyle="redOutline">Cancel</Button>
+                <Button variant="redOutline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button buttonStyle="red">Exloude</Button>
+              <Button variant="red">Exloude</Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger>
               <CloseButton />

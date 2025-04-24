@@ -7,7 +7,7 @@ export default function CusterView() {
   return (
     <Drawer.Root size="xl">
       <Drawer.Trigger asChild>
-        <Button buttonStyle="blueGhost">View</Button>
+        <Button variant="blueGhost">View</Button>
       </Drawer.Trigger>
       <Portal>
         <Drawer.Backdrop />

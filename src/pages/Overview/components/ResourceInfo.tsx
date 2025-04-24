@@ -1,10 +1,12 @@
-import { Text } from "@/components/Text";
+import { Heading } from "@/components/Heading";
 import { Table } from "@/components/Table";
 
 export default function ResourceInfo() {
   return (
     <>
-      <Text type="title">Resource Info</Text>
+      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
+        Resource Info
+      </Heading>
       <Table.Root>
         <Table.Header>
           <Table.Row>

@@ -1,7 +1,7 @@
 import { Button as ChakraButton } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type ButtonStyle =
+type Variant =
   | "blue"
   | "largeBlue"
   | "blueOutline"
@@ -13,12 +13,13 @@ type ButtonStyle =
   | "smallFaPlus"
   | "mediumFaPlus";
 
-type ButtonProps = ComponentProps<typeof ChakraButton> & {
-  buttonStyle: ButtonStyle;
+type ButtonProps = Omit<ComponentProps<typeof ChakraButton>, "variant"> & {
+  variant: Variant;
+  chakraVariant?: ComponentProps<typeof ChakraButton>["variant"];
 };
 
 const buttonStyleConfig: Record<
-  ButtonStyle,
+  Variant,
   ComponentProps<typeof ChakraButton>
 > = {
   blue: { colorPalette: "blue", width: "7rem" },
@@ -38,6 +39,12 @@ const buttonStyleConfig: Record<
   mediumFaPlus: { colorPalette: "blue", size: "sm", fontSize: "xl" },
 };
 
-export const Button = ({ buttonStyle, ...props }: ButtonProps) => {
-  return <ChakraButton {...buttonStyleConfig[buttonStyle]} {...props} />;
+export const Button = ({ variant, chakraVariant, ...props }: ButtonProps) => {
+  return (
+    <ChakraButton
+      {...buttonStyleConfig[variant]}
+      {...(chakraVariant != null ? { variant: chakraVariant } : {})}
+      {...props}
+    />
+  );
 };

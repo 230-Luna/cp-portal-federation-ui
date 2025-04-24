@@ -15,7 +15,12 @@ export default function Policies() {
   });
   return (
     <>
-      <Flex pt="9px" pb="50px" justify="space-between" align="center">
+      <Flex
+        justify="space-between"
+        align="center"
+        paddingTop="9px"
+        paddingBottom="50px"
+      >
         <Flex>
           <LevelSelect />
           <Namespace />

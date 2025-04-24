@@ -1,14 +1,18 @@
 import { CloseButton as ChakraCloseButton } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type CloseButtonStyle = "inbox";
+type Variant = "inbox";
 
-type CloseButtonProps = ComponentProps<typeof ChakraCloseButton> & {
-  closeButtonStyle?: CloseButtonStyle;
+type CloseButtonProps = Omit<
+  ComponentProps<typeof ChakraCloseButton>,
+  "variant"
+> & {
+  variant?: Variant;
+  chakraVariant?: ComponentProps<typeof ChakraCloseButton>["variant"];
 };
 
 const closeButtonStyleConfig: Record<
-  CloseButtonStyle,
+  Variant,
   ComponentProps<typeof ChakraCloseButton>
 > = {
   inbox: {
@@ -20,12 +24,14 @@ const closeButtonStyleConfig: Record<
 };
 
 export const CloseButton = ({
-  closeButtonStyle,
+  variant,
+  chakraVariant,
   ...props
 }: CloseButtonProps) => {
   return (
     <ChakraCloseButton
-      {...(closeButtonStyle ? closeButtonStyleConfig[closeButtonStyle] : {})}
+      {...(variant != null ? closeButtonStyleConfig[variant] : {})}
+      {...(chakraVariant != null ? { variant: chakraVariant } : {})}
       {...props}
     />
   );

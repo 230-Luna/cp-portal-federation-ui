@@ -1,12 +1,11 @@
 import { Table } from "@/components/Table";
-import { Text } from "@/components/Text";
 import { Heading } from "@/components/Heading";
-import { Status, StatusValue } from "@/components/Status";
+import { Status, Variant } from "@/components/Status";
 
 export default function FederationInfo() {
   return (
     <>
-      <Heading textAlign="" size="2xl">
+      <Heading variant="left" marginTop="1%" marginBottom="1.2%">
         Federation Info
       </Heading>
       <Table.Root>
@@ -22,7 +21,7 @@ export default function FederationInfo() {
             <Table.Row key={item.id}>
               <Table.Cell>{item.version}</Table.Cell>
               <Table.Cell>
-                <Status value={item.status as StatusValue} />
+                <Status variant={item.status as Variant} />
               </Table.Cell>
               <Table.Cell>{item.time}</Table.Cell>
             </Table.Row>

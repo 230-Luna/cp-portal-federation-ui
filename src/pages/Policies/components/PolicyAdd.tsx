@@ -13,22 +13,22 @@ export default function PolicyAdd() {
   const [progress, setProgress] = useState(33.33);
 
   return (
-    <Dialog.Root type="resourceSetUp">
+    <Dialog.Root variant="resourceSetUp">
       <Dialog.Trigger>
-        <Button buttonStyle="largeBlue">
+        <Button variant="largeBlue">
           <FaPlus /> Add
         </Button>
       </Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content type="resourceSetUp" margin="10px auto">
-            <Dialog.Body type="resourceSetUp" margin="2%">
+          <Dialog.Content variant="resourceSetUp" margin="10px auto">
+            <Dialog.Body variant="resourceSetUp" margin="2%">
               <Multistep step={step} progress={progress} />
             </Dialog.Body>
             <Dialog.Footer>
               <ButtonGroup w="100%">
-                <Flex w="100%" justifyContent="flex-end">
+                <Flex justifyContent="flex-end" width="100%">
                   <Flex>
                     {step !== 1 ? (
                       <Button
@@ -37,7 +37,7 @@ export default function PolicyAdd() {
                           setStep(step - 1);
                           setProgress(progress - 33.33);
                         }}
-                        buttonStyle="blueOutline"
+                        variant="blueOutline"
                         marginRight="5px"
                       >
                         Back
@@ -45,10 +45,6 @@ export default function PolicyAdd() {
                     ) : null}
                     {step !== 3 ? (
                       <Button
-                        buttonStyle="blueSurface"
-                        ml="5px"
-                        mr="5px"
-                        w="7rem"
                         disabled={step === 3}
                         onClick={() => {
                           setStep(step + 1);
@@ -58,6 +54,9 @@ export default function PolicyAdd() {
                             setProgress(progress + 33.33);
                           }
                         }}
+                        variant="blueSurface"
+                        marginLeft="5px"
+                        marginRight="5px"
                       >
                         Next
                       </Button>
@@ -65,9 +64,6 @@ export default function PolicyAdd() {
                   </Flex>
                   {step !== 1 ? (
                     <Button
-                      buttonStyle="blue"
-                      ml="5px"
-                      w="7rem"
                       onClick={() => {
                         toaster.create({
                           description: "Policy가 생성되었습니다.",
@@ -76,6 +72,8 @@ export default function PolicyAdd() {
                           closable: true,
                         });
                       }}
+                      variant="blue"
+                      marginLeft="5px"
                     >
                       Apply
                     </Button>

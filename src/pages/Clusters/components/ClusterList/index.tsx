@@ -1,5 +1,5 @@
 import { Table } from "@/components/Table";
-import { Status, StatusValue } from "@/components/Status";
+import { Status, Variant } from "@/components/Status";
 import { Flex } from "@/components/Flex";
 import CusterView from "./CusterView";
 import ClusterExclude from "./ClusterExclude";
@@ -25,7 +25,7 @@ export default function ClusterList() {
             <Table.Cell>{item.kubernetesVersion}</Table.Cell>
             <Table.Cell>
               <Flex justify="center">
-                <Status value={item.status as StatusValue} />
+                <Status variant={item.status as Variant} />
               </Flex>
             </Table.Cell>
             <Table.Cell>

@@ -13,7 +13,7 @@ export default function Clusters() {
 
   return (
     <>
-      <Flex justify="flex-end" pt="9px" pb="50px">
+      <Flex justify="flex-end" paddingTop="9px" paddingBottom="50px">
         <SearchBar />
         <ClusterJoin />
       </Flex>

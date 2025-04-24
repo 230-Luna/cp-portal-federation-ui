@@ -4,8 +4,12 @@ import { Dialog } from "@/components/Dialog";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
+import { Text } from "@/components/Text";
+import { Button } from "@/components/Button";
+import { FaPlus } from "react-icons/fa";
+import { Flex } from "@/components/Flex";
+import { Progress } from "@/components/Progress";
 import {
-  Progress,
   Field,
   FieldLabel,
   Input,
@@ -21,10 +25,6 @@ import {
   Box,
   CheckboxGroup,
 } from "@chakra-ui/react";
-import { Text } from "@/components/Text";
-import { Button } from "@/components/Button";
-import { FaPlus } from "react-icons/fa";
-import { Flex } from "@/components/Flex";
 
 interface MultistepProps {
   step: number;
@@ -34,11 +34,7 @@ interface MultistepProps {
 export default function Multistep({ step, progress }: MultistepProps) {
   return (
     <>
-      <Progress.Root value={progress} mb="1%" mx="5%" colorPalette="blue">
-        <Progress.Track>
-          <Progress.Range />
-        </Progress.Track>
-      </Progress.Root>
+      <Progress kind="bar" value={progress} />
       {step === 1 ? <Form1 /> : step === 2 ? <Form2 /> : <Form3 />}
     </>
   );
@@ -49,7 +45,9 @@ const Form1 = () => {
 
   return (
     <>
-      <Heading>Metadata</Heading>
+      <Heading variant="center" marginTop="2%" marginBottom="3%">
+        Metadata
+      </Heading>
       <Field.Root
         mt="2%"
         className="basic-font"
@@ -132,7 +130,7 @@ const Form1 = () => {
           <HStack gap="3">
             <FieldLabel>Labels</FieldLabel>
             <Collapsible.Trigger boxSize="10">
-              <Button buttonStyle="smallFaPlus">
+              <Button variant="smallFaPlus">
                 <FaPlus />
               </Button>
             </Collapsible.Trigger>
@@ -179,7 +177,7 @@ const Form1 = () => {
                 </Field.Label>
                 <Input bg="white" />
               </Field.Root>
-              <Button buttonStyle="mediumFaPlus">
+              <Button variant="mediumFaPlus">
                 <FaPlus />
               </Button>
             </HStack>
@@ -191,7 +189,7 @@ const Form1 = () => {
           <HStack gap="3">
             <FieldLabel>Annotaions</FieldLabel>
             <Collapsible.Trigger boxSize="10">
-              <Button buttonStyle="smallFaPlus">
+              <Button variant="smallFaPlus">
                 <FaPlus />
               </Button>
             </Collapsible.Trigger>
@@ -226,7 +224,7 @@ const Form1 = () => {
                 </Field.Label>
                 <Input bg="white" />
               </Field.Root>
-              <Button buttonStyle="mediumFaPlus">
+              <Button variant="mediumFaPlus">
                 <FaPlus />
               </Button>
             </HStack>
@@ -242,41 +240,41 @@ const Form2 = () => {
 
   return (
     <>
-      <Dialog.Root type="resourceSetUp">
-        <Heading>
+      <Dialog.Root variant="resourceSetUp">
+        <Heading variant="center" marginTop="2%" marginBottom="3%">
           Resource Selectors
-          <Dialog.Trigger asChild>
-            <Button buttonStyle="smallFaPlus" marginLeft="3%">
+          <Dialog.Trigger>
+            <Button variant="smallFaPlus" marginLeft="3%">
               <FaPlus />
             </Button>
           </Dialog.Trigger>
         </Heading>
         <Flex
-          height="400px"
-          maxHeight="400px"
-          overflow="auto"
           gap="2"
           flexWrap="wrap"
+          overflow="auto"
+          height="400px"
+          maxHeight="400px"
         >
-          <Card.Root cardStyle="small">
-            <Card.Body cardStyle="small">
-              <CloseButton closeButtonStyle="inbox" marginRight="2.5%" />
+          <Card.Root variant="small">
+            <Card.Body variant="small">
+              <CloseButton variant="inbox" marginRight="2.5%" />
               <Field.Root>
                 <HStack>
                   <FieldLabel>Kind</FieldLabel>
-                  <Text type="small">Deployment</Text>
+                  <Text variant="small">Deployment</Text>
                 </HStack>
               </Field.Root>
               <Field.Root>
                 <HStack>
                   <FieldLabel>Name</FieldLabel>
-                  <Text type="small">test</Text>
+                  <Text variant="small">test</Text>
                 </HStack>
               </Field.Root>
               <Field.Root>
                 <HStack>
                   <FieldLabel>Namespace</FieldLabel>
-                  <Text type="small">default</Text>
+                  <Text variant="small">default</Text>
                 </HStack>
               </Field.Root>
               <Field.Root>
@@ -301,8 +299,8 @@ const Form2 = () => {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content type="resourceSetUp" margin="10px auto">
-              <Dialog.Body type="resourceSetUp" margin="2%">
+            <Dialog.Content variant="resourceSetUp" margin="10px auto">
+              <Dialog.Body variant="resourceSetUp" margin="2%">
                 <Field.Root
                   mt="2%"
                   className="basic-font"
@@ -417,7 +415,7 @@ const Form2 = () => {
                     <HStack gap="3">
                       <FieldLabel>Labels</FieldLabel>
                       <Collapsible.Trigger boxSize="10">
-                        <Button buttonStyle="smallFaPlus">
+                        <Button variant="smallFaPlus">
                           <FaPlus />
                         </Button>
                       </Collapsible.Trigger>
@@ -466,7 +464,7 @@ const Form2 = () => {
                           </Field.Label>
                           <Input bg="white" />
                         </Field.Root>
-                        <Button buttonStyle="mediumFaPlus">
+                        <Button variant="mediumFaPlus">
                           <FaPlus />
                         </Button>
                       </HStack>
@@ -478,7 +476,7 @@ const Form2 = () => {
                     <HStack gap="3">
                       <FieldLabel>Annotaions</FieldLabel>
                       <Collapsible.Trigger boxSize="10">
-                        <Button buttonStyle="smallFaPlus">
+                        <Button variant="smallFaPlus">
                           <FaPlus />
                         </Button>
                       </Collapsible.Trigger>
@@ -513,7 +511,7 @@ const Form2 = () => {
                           </Field.Label>
                           <Input bg="white" />
                         </Field.Root>
-                        <Button buttonStyle="mediumFaPlus">
+                        <Button variant="mediumFaPlus">
                           <FaPlus />
                         </Button>
                       </HStack>
@@ -523,17 +521,17 @@ const Form2 = () => {
               </Dialog.Body>
               <Dialog.Footer>
                 <Dialog.ActionTrigger>
-                  <Button buttonStyle="blueOutline">Cancel</Button>
+                  <Button variant="blueOutline">Cancel</Button>
                 </Dialog.ActionTrigger>
-                <Dialog.Root type="alert">
+                <Dialog.Root variant="alert">
                   <Dialog.Trigger>
-                    <Button buttonStyle="blue">Save</Button>
+                    <Button variant="blue">Save</Button>
                   </Dialog.Trigger>
                   <Portal>
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
-                      <Dialog.Content type="alert">
-                        <Dialog.Body type="alert" marginTop="8%">
+                      <Dialog.Content variant="alert">
+                        <Dialog.Body variant="alert" marginTop="8%">
                           <p>
                             host-cluster에 배포되어 있는 리소스인 경우 삭제를
                             진행할까요?
@@ -541,9 +539,9 @@ const Form2 = () => {
                         </Dialog.Body>
                         <Dialog.Footer>
                           <Dialog.ActionTrigger>
-                            <Button buttonStyle="blueOutline">No</Button>
+                            <Button variant="blueOutline">No</Button>
                           </Dialog.ActionTrigger>
-                          <Button buttonStyle="blue">Yes</Button>
+                          <Button variant="blue">Yes</Button>
                         </Dialog.Footer>
                         <Dialog.CloseTrigger>
                           <CloseButton />
@@ -571,8 +569,12 @@ const Form3 = () => {
 
   return (
     <>
-      <Heading>Placement</Heading>
-      <Text type="subTitle">Cluster Affinity</Text>
+      <Heading variant="center" marginTop="2%" marginBottom="3%">
+        Placement
+      </Heading>
+      <Text variant="subTitle" marginTop="1.5%">
+        Cluster Affinity
+      </Text>
       <Flex>
         <Field.Root
           mt="2%"
@@ -626,8 +628,10 @@ const Form3 = () => {
           </CheckboxGroup>
         )}
       </Flex>
-      <Text type="subTitle">Replica Scheduling</Text>
-      <Flex mb="2%">
+      <Text variant="subTitle" marginTop="1.5%">
+        Replica Scheduling
+      </Text>
+      <Flex marginBottom="2%">
         <Field.Root
           mt="2%"
           className="basic-font"
@@ -667,7 +671,7 @@ const Form3 = () => {
           </RadioCard.Root>
         )}
       </Flex>
-      <Flex mb="2%">
+      <Flex marginBottom="2%">
         <Field.Root
           mt="2%"
           className="basic-font"
@@ -710,14 +714,14 @@ const Form3 = () => {
       <Field.Root className="basic-font" mb="1%">
         <HStack gap="3">
           <FieldLabel> Weight Preference</FieldLabel>
-          <Button buttonStyle="smallFaPlus">
+          <Button variant="smallFaPlus">
             <FaPlus />
           </Button>
         </HStack>
       </Field.Root>
-      <Flex overflowY="auto" maxH="250px">
+      <Flex overflowY="auto" maxHeight="250px">
         <Box p="2%" bg="gray.100" m="1%" position="relative">
-          <CloseButton closeButtonStyle="inbox" marginRight="2.5%" />
+          <CloseButton variant="inbox" marginRight="2.5%" />
           <Box width="680px">
             <Flex>
               <Field.Root

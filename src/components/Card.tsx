@@ -1,7 +1,7 @@
 import { Card as ChakraCard } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type CardStyle = "wide" | "medium" | "small";
+type Variant = "wide" | "medium" | "small";
 
 type CardSubComponent =
   | typeof ChakraCard.Root
@@ -11,12 +11,17 @@ type CardSubComponent =
   | typeof ChakraCard.Footer
   | typeof ChakraCard.Description;
 
-type CardProps<T extends CardSubComponent> = ComponentProps<T> & {
-  cardStyle: CardStyle;
-};
+type CardProps<T extends CardSubComponent> = Omit<
+  ComponentProps<T>,
+  "variant"
+> & {
+  variant: Variant;
+} & (T extends typeof ChakraCard.Root
+    ? { chakraVariant?: ComponentProps<typeof ChakraCard.Root>["variant"] }
+    : {});
 
 const rootStyleConfig: Record<
-  CardStyle,
+  Variant,
   ComponentProps<typeof ChakraCard.Root>
 > = {
   wide: {
@@ -39,7 +44,7 @@ const rootStyleConfig: Record<
 };
 
 const bodyStyleConfig: Record<
-  CardStyle,
+  Variant,
   ComponentProps<typeof ChakraCard.Body>
 > = {
   wide: {},
@@ -52,14 +57,22 @@ const bodyStyleConfig: Record<
 };
 
 export const Card = {
-  Root: ({ cardStyle, ...props }: CardProps<typeof ChakraCard.Root>) => (
-    <ChakraCard.Root {...rootStyleConfig[cardStyle]} {...props} />
+  Root: ({
+    variant,
+    chakraVariant,
+    ...props
+  }: CardProps<typeof ChakraCard.Root>) => (
+    <ChakraCard.Root
+      {...rootStyleConfig[variant]}
+      {...(chakraVariant != null ? { variant: chakraVariant } : {})}
+      {...props}
+    />
   ),
   Header: ChakraCard.Header,
   Title: ChakraCard.Title,
   Description: ChakraCard.Description,
-  Body: ({ cardStyle, ...props }: CardProps<typeof ChakraCard.Body>) => (
-    <ChakraCard.Body {...bodyStyleConfig[cardStyle]} {...props} />
+  Body: ({ variant, ...props }: CardProps<typeof ChakraCard.Body>) => (
+    <ChakraCard.Body {...bodyStyleConfig[variant]} {...props} />
   ),
   Footer: ChakraCard.Footer,
 };

@@ -17,7 +17,7 @@ export default function SearchBar() {
               setValue("");
               inputRef.current?.focus();
             }}
-            me="-2"
+            marginEnd="-2"
           />
         ) : undefined
       }

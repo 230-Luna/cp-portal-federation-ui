@@ -1,7 +1,7 @@
 import { Dialog as ChakraDialog } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type DialogStyle = "alert" | "resourceSetUp";
+type Variant = "alert" | "resourceSetUp";
 
 type DialogSubComponent =
   | typeof ChakraDialog.Root
@@ -12,11 +12,11 @@ type DialogSubComponent =
   | typeof ChakraDialog.Description;
 
 type DialogProps<T extends DialogSubComponent> = ComponentProps<T> & {
-  dialogStyle: DialogStyle;
+  variant: Variant;
 };
 
 const rootStyleConfig: Record<
-  DialogStyle,
+  Variant,
   Omit<ComponentProps<typeof ChakraDialog.Root>, "children">
 > = {
   alert: { size: "sm", placement: "center" },
@@ -27,24 +27,24 @@ const rootStyleConfig: Record<
   },
 };
 
-const contentStyleMap: Record<
-  DialogStyle,
+const contentStyleConfig: Record<
+  Variant,
   ComponentProps<typeof ChakraDialog.Content>
 > = {
   alert: {},
   resourceSetUp: {
-    borderWidth: "1px",
     rounded: "lg",
-    shadow: "1px 1px 3px rgba(0,0,0,0.3)",
+    borderWidth: "1px",
     maxWidth: "800px",
+    maxHeight: "850px",
+    shadow: "1px 1px 3px rgba(0,0,0,0.3)",
     padding: "6px",
     as: "form",
-    maxHeight: "850px",
   },
 };
 
-const bodyStyleMap: Record<
-  DialogStyle,
+const bodyStyleConfig: Record<
+  Variant,
   ComponentProps<typeof ChakraDialog.Body>
 > = {
   alert: { textAlign: "center", paddingTop: "20px" },
@@ -52,46 +52,40 @@ const bodyStyleMap: Record<
 };
 
 export const Dialog = {
-  Root: ({
-    type,
-    children,
-    ...props
-  }: { type: DialogStyle } & ComponentProps<typeof ChakraDialog.Root>) => (
-    <ChakraDialog.Root {...rootStyleMap[type]} {...props}>
-      {children}
-    </ChakraDialog.Root>
+  Root: ({ variant, ...props }: DialogProps<typeof ChakraDialog.Root>) => (
+    <ChakraDialog.Root
+      {...rootStyleConfig[variant]}
+      {...props}
+    ></ChakraDialog.Root>
   ),
   Trigger: ({ ...props }: ComponentProps<typeof ChakraDialog.Trigger>) => (
-    <ChakraDialog.Trigger asChild {...props} />
+    <ChakraDialog.Trigger asChild={true} {...props} />
   ),
   Backdrop: ChakraDialog.Backdrop,
   Positioner: ChakraDialog.Positioner,
   Content: ({
-    type,
-    children,
+    variant,
     ...props
-  }: { type: DialogStyle } & ComponentProps<typeof ChakraDialog.Content>) => (
-    <ChakraDialog.Content {...contentStyleMap[type]} {...props}>
-      {children}
-    </ChakraDialog.Content>
+  }: DialogProps<typeof ChakraDialog.Content>) => (
+    <ChakraDialog.Content
+      {...contentStyleConfig[variant]}
+      {...props}
+    ></ChakraDialog.Content>
   ),
   Header: ChakraDialog.Header,
-  Body: ({
-    type,
-    ...props
-  }: { type: DialogStyle } & ComponentProps<typeof ChakraDialog.Body>) => (
-    <ChakraDialog.Body {...bodyStyleMap[type]} {...props} />
+  Body: ({ variant, ...props }: DialogProps<typeof ChakraDialog.Body>) => (
+    <ChakraDialog.Body {...bodyStyleConfig[variant]} {...props} />
   ),
   Title: ChakraDialog.Title,
   Footer: ChakraDialog.Footer,
   ActionTrigger: ({
     ...props
   }: ComponentProps<typeof ChakraDialog.ActionTrigger>) => (
-    <ChakraDialog.ActionTrigger asChild {...props} />
+    <ChakraDialog.ActionTrigger asChild={true} {...props} />
   ),
   CloseTrigger: ({
     ...props
   }: ComponentProps<typeof ChakraDialog.CloseTrigger>) => (
-    <ChakraDialog.CloseTrigger asChild {...props} />
+    <ChakraDialog.CloseTrigger asChild={true} {...props} />
   ),
 };

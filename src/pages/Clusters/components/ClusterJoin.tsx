@@ -10,24 +10,25 @@ import { FaPlus } from "react-icons/fa";
 export default function ClusterJoin() {
   function handleClick() {}
   return (
-    <Dialog.Root type="resourceSetUp">
+    <Dialog.Root variant="resourceSetUp">
       <Dialog.Trigger>
-        <Button buttonStyle="largeBlue">
+        <Button variant="largeBlue">
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content type="resourceSetUp" margin="10px auto">
-            <Heading>Cluster Join</Heading>
-            <Dialog.Body type="resourceSetUp" margin="2%">
+          <Dialog.Content variant="resourceSetUp" margin="10px auto">
+            <Heading variant="center" marginTop="2%">
+              Cluster Join
+            </Heading>
+            <Dialog.Body variant="resourceSetUp" margin="2%">
               <Grid>
                 {items.map((item) => (
                   <CheckboxCard.Root
                     key={item.id}
                     onChange={() => handleClick()}
-                    size="lg"
                   >
                     <CheckboxCard.HiddenInput />
                     <CheckboxCard.Control>
@@ -42,9 +43,9 @@ export default function ClusterJoin() {
             </Dialog.Body>
             <Dialog.Footer>
               <Dialog.ActionTrigger>
-                <Button buttonStyle="blueOutline">Cancel</Button>
+                <Button variant="blueOutline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button buttonStyle="blue">Apply</Button>
+              <Button variant="blue">Apply</Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger>
               <CloseButton />
