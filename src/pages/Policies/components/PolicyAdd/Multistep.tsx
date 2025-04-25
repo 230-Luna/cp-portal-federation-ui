@@ -10,17 +10,17 @@ import { FaPlus } from "react-icons/fa";
 import { Flex } from "@/components/Flex";
 import { Progress } from "@/components/Progress";
 import { SegmentGroup } from "@/components/SegmentGroup";
+import { RadioCard } from "@/components/RadioCard";
+import { Collapsible } from "@/components/Collapsible";
+import { Input } from "@/components/Input";
+import { Field } from "@/components/Field";
 import {
-  Field,
   FieldLabel,
-  Input,
   Portal,
-  RadioCard,
   HStack,
   Checkbox,
   NativeSelect,
   Tag,
-  Collapsible,
   Badge,
   Box,
   CheckboxGroup,
@@ -48,31 +48,21 @@ const Form1 = () => {
       <Heading variant="center" marginTop="2%" marginBottom="3%">
         Metadata
       </Heading>
-      <Field.Root
-        required
-        className="basic-font"
-        orientation="horizontal"
-        marginTop="2%"
-        marginBottom="1%"
-      >
-        <FieldLabel>
+      <Field.Root required variant="horizontal">
+        <Field.Label>
           Level
           <Field.RequiredIndicator />
-        </FieldLabel>
-        <RadioCard.Root
-          width="100%"
-          defaultValue="namespace"
-          colorPalette="blue"
-        >
+        </Field.Label>
+        <RadioCard.Root defaultValue="namespace">
           <HStack gap="5">
-            <RadioCard.Item key="namespace" value="namespace" width="100%">
+            <RadioCard.Item key="namespace" value="namespace">
               <RadioCard.ItemHiddenInput />
               <RadioCard.ItemControl>
                 <RadioCard.ItemText>Namespace</RadioCard.ItemText>
                 <RadioCard.ItemIndicator />
               </RadioCard.ItemControl>
             </RadioCard.Item>
-            <RadioCard.Item key="cluster" value="cluster" width="100%">
+            <RadioCard.Item key="cluster" value="cluster">
               <RadioCard.ItemHiddenInput />
               <RadioCard.ItemControl>
                 <RadioCard.ItemText>Cluster</RadioCard.ItemText>
@@ -82,25 +72,19 @@ const Form1 = () => {
           </HStack>
         </RadioCard.Root>
       </Field.Root>
-      <Field.Root
-        mt="2%"
-        className="basic-font"
-        orientation="horizontal"
-        mb="1%"
-        required
-      >
+      <Field.Root required variant="horizontal">
         <FieldLabel>
           Name
           <Field.RequiredIndicator />
         </FieldLabel>
         <Input placeholder="이름 입력" />
       </Field.Root>
-      <Field.Root mt="2%" className="basic-font" mb="1%" required>
+      <Field.Root required variant="vertical">
         <HStack gap="3" mb="1%">
-          <FieldLabel>
+          <Field.Label>
             Namespace
             <Field.RequiredIndicator />
-          </FieldLabel>
+          </Field.Label>
           <Checkbox.Root
             colorPalette="blue"
             onChange={() => setIsNewNamespace(!isNewNamespace)}
@@ -113,7 +97,7 @@ const Form1 = () => {
           </Checkbox.Root>
         </HStack>
         {isNewNamespace ? (
-          <Input id="namespace" />
+          <Input id="namespace" bg="white" />
         ) : (
           <NativeSelect.Root>
             <NativeSelect.Field>
@@ -125,11 +109,11 @@ const Form1 = () => {
           </NativeSelect.Root>
         )}
       </Field.Root>
-      <Field.Root mt="2%" className="basic-font" mb="1%">
-        <Collapsible.Root width="100%">
+      <Field.Root variant="horizontal">
+        <Collapsible.Root>
           <HStack gap="3">
-            <FieldLabel>Labels</FieldLabel>
-            <Collapsible.Trigger boxSize="10">
+            <Field.Label>Labels</Field.Label>
+            <Collapsible.Trigger>
               <Button variant="smallFaPlus">
                 <FaPlus />
               </Button>
@@ -163,7 +147,7 @@ const Form1 = () => {
               </Tag.Root>
             </Flex>
           </HStack>
-          <Collapsible.Content mt="2%" bg="gray.100">
+          <Collapsible.Content marginTop="2%">
             <HStack gap="4" m="2%">
               <Field.Root required>
                 <Field.Label>
@@ -184,11 +168,11 @@ const Form1 = () => {
           </Collapsible.Content>
         </Collapsible.Root>
       </Field.Root>
-      <Field.Root mt="2%" className="basic-font" mb="1%">
-        <Collapsible.Root width="100%">
+      <Field.Root variant="horizontal">
+        <Collapsible.Root>
           <HStack gap="3">
-            <FieldLabel>Annotaions</FieldLabel>
-            <Collapsible.Trigger boxSize="10">
+            <Field.Label>Annotaions</Field.Label>
+            <Collapsible.Trigger>
               <Button variant="smallFaPlus">
                 <FaPlus />
               </Button>
@@ -208,7 +192,7 @@ const Form1 = () => {
               </Tag.Root>
             </Flex>
           </HStack>
-          <Collapsible.Content mt="2%" bg="gray.100">
+          <Collapsible.Content marginTop="2%">
             <HStack gap="4" m="2%">
               <Field.Root required>
                 <Field.Label>
@@ -259,34 +243,34 @@ const Form2 = () => {
           <Card.Root variant="small">
             <Card.Body variant="small">
               <CloseButton variant="inbox" marginRight="2.5%" />
-              <Field.Root>
+              <Field.Root variant="horizontal">
                 <HStack>
-                  <FieldLabel>Kind</FieldLabel>
+                  <Field.Label>Kind</Field.Label>
                   <Text variant="small">Deployment</Text>
                 </HStack>
               </Field.Root>
-              <Field.Root>
+              <Field.Root variant="horizontal">
                 <HStack>
-                  <FieldLabel>Name</FieldLabel>
+                  <Field.Label>Name</Field.Label>
                   <Text variant="small">test</Text>
                 </HStack>
               </Field.Root>
-              <Field.Root>
+              <Field.Root variant="horizontal">
                 <HStack>
-                  <FieldLabel>Namespace</FieldLabel>
+                  <Field.Label>Namespace</Field.Label>
                   <Text variant="small">default</Text>
                 </HStack>
               </Field.Root>
-              <Field.Root>
-                <HStack>
-                  <FieldLabel>LabelSelectors</FieldLabel>
+              <Field.Root variant="horizontal">
+                <HStack flexWrap="wrap">
+                  <Field.Label>LabelSelectors</Field.Label>
                   <Badge>karmada.policy=samle</Badge>
                   <Badge>app=nginx</Badge>
                 </HStack>
               </Field.Root>
-              <Field.Root>
+              <Field.Root variant="horizontal">
                 <HStack flexWrap="wrap">
-                  <FieldLabel>Annotaions</FieldLabel>
+                  <Field.Label>Annotaions</Field.Label>
                   <Badge>karmada.policy=samle</Badge>
                   <Badge>karmada.policy=samle</Badge>
                   <Badge>karmada.policy=samle</Badge>
@@ -301,17 +285,11 @@ const Form2 = () => {
           <Dialog.Positioner>
             <Dialog.Content variant="resourceSetUp" margin="10px auto">
               <Dialog.Body variant="resourceSetUp" margin="2%">
-                <Field.Root
-                  mt="2%"
-                  className="basic-font"
-                  orientation="horizontal"
-                  mb="1%"
-                  required
-                >
-                  <FieldLabel>
+                <Field.Root required variant="horizontal">
+                  <Field.Label>
                     Kind
                     <Field.RequiredIndicator />
-                  </FieldLabel>
+                  </Field.Label>
                   <SegmentGroup.Root defaultValue="Deployment" variant="large">
                     <SegmentGroup.Indicator />
                     <SegmentGroup.Items
@@ -325,22 +303,12 @@ const Form2 = () => {
                     />
                   </SegmentGroup.Root>
                 </Field.Root>
-                <Field.Root
-                  mt="2%"
-                  className="basic-font"
-                  orientation="horizontal"
-                  mb="1%"
-                  required
-                >
-                  <FieldLabel>
+                <Field.Root required variant="horizontal">
+                  <Field.Label>
                     Level
                     <Field.RequiredIndicator />
-                  </FieldLabel>
-                  <RadioCard.Root
-                    width="100%"
-                    defaultValue="namespace"
-                    colorPalette="blue"
-                  >
+                  </Field.Label>
+                  <RadioCard.Root defaultValue="namespace">
                     <HStack gap="5">
                       <RadioCard.Item
                         key="namespace"
@@ -367,25 +335,19 @@ const Form2 = () => {
                     </HStack>
                   </RadioCard.Root>
                 </Field.Root>
-                <Field.Root
-                  mt="2%"
-                  className="basic-font"
-                  orientation="horizontal"
-                  mb="1%"
-                  required
-                >
-                  <FieldLabel>
+                <Field.Root required variant="horizontal">
+                  <Field.Label>
                     Name
                     <Field.RequiredIndicator />
-                  </FieldLabel>
+                  </Field.Label>
                   <Input placeholder="이름 입력" />
                 </Field.Root>
-                <Field.Root mt="2%" className="basic-font" mb="1%" required>
+                <Field.Root required variant="vertical">
                   <HStack gap="3" mb="1%">
-                    <FieldLabel>
+                    <Field.Label>
                       Namespace
                       <Field.RequiredIndicator />
-                    </FieldLabel>
+                    </Field.Label>
                     <Checkbox.Root
                       colorPalette="blue"
                       onChange={() => setIsNewNamespace(!isNewNamespace)}
@@ -410,11 +372,11 @@ const Form2 = () => {
                     </NativeSelect.Root>
                   )}
                 </Field.Root>
-                <Field.Root mt="2%" className="basic-font" mb="1%">
-                  <Collapsible.Root width="100%">
+                <Field.Root variant="horizontal">
+                  <Collapsible.Root>
                     <HStack gap="3">
-                      <FieldLabel>Labels</FieldLabel>
-                      <Collapsible.Trigger boxSize="10">
+                      <Field.Label>Labels</Field.Label>
+                      <Collapsible.Trigger>
                         <Button variant="smallFaPlus">
                           <FaPlus />
                         </Button>
@@ -450,7 +412,7 @@ const Form2 = () => {
                         </Tag.Root>
                       </Flex>
                     </HStack>
-                    <Collapsible.Content mt="2%" bg="gray.100">
+                    <Collapsible.Content marginTop="2%">
                       <HStack gap="4" m="2%">
                         <Field.Root required>
                           <Field.Label>
@@ -471,11 +433,11 @@ const Form2 = () => {
                     </Collapsible.Content>
                   </Collapsible.Root>
                 </Field.Root>
-                <Field.Root mt="2%" className="basic-font" mb="1%">
-                  <Collapsible.Root width="100%">
+                <Field.Root variant="horizontal">
+                  <Collapsible.Root>
                     <HStack gap="3">
-                      <FieldLabel>Annotaions</FieldLabel>
-                      <Collapsible.Trigger boxSize="10">
+                      <Field.Label>Annotaions</Field.Label>
+                      <Collapsible.Trigger>
                         <Button variant="smallFaPlus">
                           <FaPlus />
                         </Button>
@@ -495,7 +457,7 @@ const Form2 = () => {
                         </Tag.Root>
                       </Flex>
                     </HStack>
-                    <Collapsible.Content mt="2%" bg="gray.100">
+                    <Collapsible.Content marginTop="2%">
                       <HStack gap="4" m="2%">
                         <Field.Root required>
                           <Field.Label>
@@ -576,13 +538,7 @@ const Form3 = () => {
         Cluster Affinity
       </Text>
       <Flex>
-        <Field.Root
-          mt="2%"
-          className="basic-font"
-          orientation="horizontal"
-          mb="1%"
-          width="180px"
-        >
+        <Field.Root variant="horizontal" width="180px">
           <FieldLabel>
             <Checkbox.Root
               colorPalette="blue"
@@ -632,13 +588,7 @@ const Form3 = () => {
         Replica Scheduling
       </Text>
       <Flex marginBottom="2%">
-        <Field.Root
-          mt="2%"
-          className="basic-font"
-          orientation="horizontal"
-          mb="1%"
-          width="180px"
-        >
+        <Field.Root variant="horizontal" width="180px">
           <FieldLabel>
             <Checkbox.Root
               colorPalette="blue"
@@ -646,21 +596,21 @@ const Form3 = () => {
             >
               <Checkbox.HiddenInput />
               <Checkbox.Control />
-              <Checkbox.Label width="180px">Type</Checkbox.Label>
+              <Checkbox.Label>Type</Checkbox.Label>
             </Checkbox.Root>
           </FieldLabel>
         </Field.Root>
         {isType && (
-          <RadioCard.Root width="100%" colorPalette="blue">
+          <RadioCard.Root>
             <Flex justify="flex-start">
-              <RadioCard.Item value="duplicated" width="100%">
+              <RadioCard.Item value="duplicated">
                 <RadioCard.ItemHiddenInput />
                 <RadioCard.ItemControl>
                   <RadioCard.ItemText>Duplicated</RadioCard.ItemText>
                   <RadioCard.ItemIndicator />
                 </RadioCard.ItemControl>
               </RadioCard.Item>
-              <RadioCard.Item value="divided" width="100%">
+              <RadioCard.Item value="divided">
                 <RadioCard.ItemHiddenInput />
                 <RadioCard.ItemControl>
                   <RadioCard.ItemText>Divided</RadioCard.ItemText>
@@ -672,13 +622,7 @@ const Form3 = () => {
         )}
       </Flex>
       <Flex marginBottom="2%">
-        <Field.Root
-          mt="2%"
-          className="basic-font"
-          orientation="horizontal"
-          mb="1%"
-          width="180px"
-        >
+        <Field.Root variant="horizontal" width="180px">
           <FieldLabel>
             <Checkbox.Root
               colorPalette="blue"
@@ -691,16 +635,16 @@ const Form3 = () => {
           </FieldLabel>
         </Field.Root>
         {isDivisionPreference && (
-          <RadioCard.Root width="100%" colorPalette="blue">
+          <RadioCard.Root>
             <Flex justify="flex-start">
-              <RadioCard.Item value="aggregated" width="100%">
+              <RadioCard.Item value="aggregated">
                 <RadioCard.ItemHiddenInput />
                 <RadioCard.ItemControl>
                   <RadioCard.ItemText>Aggregated</RadioCard.ItemText>
                   <RadioCard.ItemIndicator />
                 </RadioCard.ItemControl>
               </RadioCard.Item>
-              <RadioCard.Item value="weighted" width="100%">
+              <RadioCard.Item value="weighted">
                 <RadioCard.ItemHiddenInput />
                 <RadioCard.ItemControl>
                   <RadioCard.ItemText>Weighted</RadioCard.ItemText>
@@ -711,7 +655,7 @@ const Form3 = () => {
           </RadioCard.Root>
         )}
       </Flex>
-      <Field.Root className="basic-font" mb="1%">
+      <Field.Root variant="horizontal" marginBottom="1%">
         <HStack gap="3">
           <FieldLabel> Weight Preference</FieldLabel>
           <Button variant="smallFaPlus">
@@ -725,11 +669,11 @@ const Form3 = () => {
           <Box width="680px">
             <Flex>
               <Field.Root
-                mt="2%"
+                required
                 className="basic-font"
                 orientation="horizontal"
-                mb="1%"
-                required
+                paddingTop="2%"
+                paddingBottom="1%"
                 width="130px"
               >
                 <FieldLabel whiteSpace="nowrap">
@@ -770,11 +714,11 @@ const Form3 = () => {
               </CheckboxGroup>
             </Flex>
             <Field.Root
-              mt="2%"
+              required
               className="basic-font"
               orientation="horizontal"
-              mb="1%"
-              required
+              paddingTop="2%"
+              paddingBottom="1%"
               width="650px"
             >
               <FieldLabel mr="7%">

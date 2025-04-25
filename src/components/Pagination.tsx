@@ -11,8 +11,8 @@ export default function Pagination() {
       count={20}
       pageSize={2}
       defaultPage={1}
-      text-align="center"
-      padding-top="50px"
+      textAlign="center"
+      paddingTop="50px"
     >
       <ButtonGroup variant="ghost" size="lg">
         <ChakraPagination.PrevTrigger asChild>
