@@ -47,13 +47,3 @@ export default function useApi<T>({
 
   return { data, loading, error, refetch };
 }
-
-const httpClient = axios.create();
-httpClient.interceptors.request.use(
-  (config) => {
-    config.headers.Authorization = sessionStorage.getItem("token");
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-httpClient.interceptors.response.use((value) => value.data);
