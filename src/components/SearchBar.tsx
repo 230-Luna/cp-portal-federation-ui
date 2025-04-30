@@ -1,6 +1,6 @@
 import { CloseButton } from "@/components/CloseButton";
 import { Input } from "@/components/Input";
-import { InputGroup, IconButton } from "@chakra-ui/react";
+import { InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { useRef, useState } from "react";
 

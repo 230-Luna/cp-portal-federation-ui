@@ -3,8 +3,45 @@ import { Status, Variant } from "@/components/Status";
 import { Flex } from "@/components/Flex";
 import CusterView from "./ClusterView";
 import ClusterExclude from "./ClusterExclude";
+import { getClusterList } from "@/apis/cluster";
+import { useEffect, useState } from "react";
+
+interface Cluster {
+  temp: number;
+}
 
 export default function ClusterList() {
+  const [clusters, setClusters] = useState<Cluster[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchClusters = async () => {
+      try {
+        const data = await getClusterList();
+        if (Array.isArray(data)) {
+          setClusters(data); // 성공적으로 데이터를 가져오면 상태 업데이트
+        } else {
+          setClusters([data]); // 단일 객체라면 배열로 감싸서 전달
+        }
+      } catch (error) {
+        setError("API 요청 실패: " + error); // 오류 처리
+      } finally {
+        setLoading(false); // 로딩 상태 종료
+      }
+    };
+
+    fetchClusters();
+  }, []);
+
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <Table.Root>
       <Table.Header>

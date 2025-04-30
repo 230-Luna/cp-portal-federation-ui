@@ -1,7 +1,6 @@
-import Overview from "pages/Overview";
-import Clusters from "pages/Clusters";
-import Policies from "pages/Policies";
-import "./App.css";
+import Overview from "@/pages/Overview";
+import Clusters from "@/pages/Clusters";
+import Policies from "@/pages/Policies";
 import { Tabs } from "@/components/Tabs";
 import { Toaster } from "@/components/Toaster";
 import { ReactNode } from "react";

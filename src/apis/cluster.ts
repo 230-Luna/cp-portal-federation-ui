@@ -1,14 +1,8 @@
 import { httpClient } from "@/utils/httpClient";
 
-export const getClusterList = async () => {
-  try {
-    const response = await httpClient.get("/clusters");
-    return response.data;
-  } catch (error) {
-    console.error("API 요청 실패:", error);
-    throw error;
-  }
-};
+export async function getClusterList() {
+  return httpClient.get<{ temp: 1 }>("/clusters");
+}
 
 // "listMeta": {
 //             "totalItems": 3

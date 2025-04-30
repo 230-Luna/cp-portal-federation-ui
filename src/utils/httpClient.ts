@@ -1,22 +1,29 @@
-import axios from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { FEDERATION_API_BASE_URL } from "@/config/config";
 
-export const httpClient = axios.create({
+interface FederationHttpClient extends AxiosInstance {
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+}
+
+const config: AxiosRequestConfig = {
+  baseURL: FEDERATION_API_BASE_URL,
+  headers: {},
+};
+
+const _httpClient = axios.create({
   baseURL: FEDERATION_API_BASE_URL,
 });
 
-httpClient.interceptors.request.use(
+_httpClient.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("token");
 
     if (token) {
       if (config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
-      } else {
-        config.headers = { Authorization: `Bearer ${token}` };
       }
     } else {
-      console.warn("토큰이 없다");
+      // token 재발급?
     }
 
     return config;
@@ -36,8 +43,8 @@ httpClient.interceptors.request.use(
   }
 );
 
-httpClient.interceptors.response.use(
-  (response) => response,
+_httpClient.interceptors.response.use(
+  (response) => response.data,
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
@@ -52,6 +59,8 @@ httpClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const httpClient: FederationHttpClient = _httpClient;
 
 // error code
 // 200

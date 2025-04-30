@@ -1,6 +1,6 @@
 import { Flex } from "@/components/Flex";
 import SearchBar from "@/components/SearchBar";
-import ClusterJoin from "pages/Clusters/components/ClusterJoin";
+import ClusterJoin from "@/pages/Clusters/components/ClusterJoin";
 import ClusterList from "@/pages/Clusters/components/ClusterList";
 import Pagination from "@/components/Pagination";
 import { toaster } from "@/components/Toaster";

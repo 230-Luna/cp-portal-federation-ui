@@ -1,10 +1,10 @@
 import SearchBar from "@/components/SearchBar";
-import LevelSelect from "pages/Policies/components/LevelSelect";
-import Namespace from "pages/Policies/components/Namespace";
+import LevelSelect from "@/pages/Policies/components/LevelSelect";
+import Namespace from "@/pages/Policies/components/Namespace";
 import PolicyAdd from "@/pages/Policies/components/PolicyAdd";
-import PolicyList from "pages/Policies/components/PolicyList";
+import PolicyList from "@/pages/Policies/components/PolicyList";
 import Pagination from "@/components/Pagination";
-import { FEDERATION_API_BASE_URL } from "../../config/config";
+import { FEDERATION_API_BASE_URL } from "@/config/config";
 import { Flex } from "@/components/Flex";
 import { toaster } from "@/components/Toaster";
 
