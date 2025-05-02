@@ -3,20 +3,9 @@ import { Card } from "@/components/Card";
 import { Status, Variant } from "@/components/Status";
 import { Flex } from "@/components/Flex";
 import { Stack } from "@chakra-ui/react";
-import { BarList, type BarListData, useChart } from "@chakra-ui/charts";
+import { ProgressWithMarker } from "@/components/ProgressWithMarker";
 
 export default function MemberClusterInfo() {
-  const CPUChart = useChart<BarListData>({
-    sort: { by: "value", direction: "desc" },
-    data: [{ name: "CPU", value: 72.5 }],
-    series: [{ name: "name", color: "yellow.solid" }],
-  });
-  const memoryChart = useChart<BarListData>({
-    sort: { by: "value", direction: "desc" },
-    data: [{ name: "Memory", value: 2.44 }],
-    series: [{ name: "name", color: "green.solid" }],
-  });
-
   return (
     <>
       <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
@@ -40,18 +29,16 @@ export default function MemberClusterInfo() {
             </Card.Header>
             <Card.Body variant="medium">
               <Stack>
-                <BarList.Root chart={CPUChart}>
-                  <BarList.Content>
-                    <BarList.Bar />
-                    <BarList.Value />
-                  </BarList.Content>
-                </BarList.Root>
-                <BarList.Root chart={memoryChart}>
-                  <BarList.Content>
-                    <BarList.Bar />
-                    <BarList.Value />
-                  </BarList.Content>
-                </BarList.Root>
+                <ProgressWithMarker
+                  realTimeUsage={item.cpuUsage}
+                  requestUsage={item.cpuRequests}
+                  kind="CPU"
+                />
+                <ProgressWithMarker
+                  realTimeUsage={item.memoryUsage}
+                  requestUsage={item.memoryRequests}
+                  kind="Memory"
+                />
               </Stack>
             </Card.Body>
           </Card.Root>
@@ -68,6 +55,10 @@ const items = [
     status: "ready",
     totalNum: 3,
     readyNum: 2,
+    cpuUsage: 0.1,
+    cpuRequests: 99,
+    memoryUsage: 20,
+    memoryRequests: 30,
   },
   {
     id: 2,
@@ -75,6 +66,10 @@ const items = [
     status: "ready",
     totalNum: 5,
     readyNum: 1,
+    cpuUsage: 75,
+    cpuRequests: 50,
+    memoryUsage: 30,
+    memoryRequests: 10,
   },
   {
     id: 3,
@@ -83,6 +78,10 @@ const items = [
     status: "ready",
     totalNum: 4,
     readyNum: 4,
+    cpuUsage: 99,
+    cpuRequests: 0.5,
+    memoryUsage: 5,
+    memoryRequests: 70,
   },
   {
     id: 4,
@@ -91,6 +90,10 @@ const items = [
     status: "notready",
     totalNum: 3,
     readyNum: 2,
+    cpuUsage: 39,
+    cpuRequests: 49,
+    memoryUsage: 60,
+    memoryRequests: 30,
   },
   {
     id: 5,
@@ -99,6 +102,10 @@ const items = [
     status: "ready",
     totalNum: 4,
     readyNum: 4,
+    cpuUsage: 79,
+    cpuRequests: 99,
+    memoryUsage: 32,
+    memoryRequests: 2,
   },
 
   {
@@ -107,6 +114,10 @@ const items = [
     status: "notready",
     totalNum: 3,
     readyNum: 2,
+    cpuUsage: 17,
+    cpuRequests: 37,
+    memoryUsage: 20,
+    memoryRequests: 30,
   },
   {
     id: 7,
@@ -114,6 +125,10 @@ const items = [
     status: "ready",
     totalNum: 4,
     readyNum: 4,
+    cpuUsage: 29,
+    cpuRequests: 59,
+    memoryUsage: 30,
+    memoryRequests: 10,
   },
   {
     id: 8,
@@ -121,5 +136,9 @@ const items = [
     status: "notready",
     totalNum: 3,
     readyNum: 2,
+    cpuUsage: 39,
+    cpuRequests: 49,
+    memoryUsage: 50,
+    memoryRequests: 20,
   },
 ];

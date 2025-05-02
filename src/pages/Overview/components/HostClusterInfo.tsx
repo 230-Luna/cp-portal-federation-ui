@@ -1,9 +1,9 @@
 import { Heading } from "@/components/Heading";
 import { Card } from "@/components/Card";
 import { Status, Variant } from "@/components/Status";
-import { Progress } from "@/components/Progress";
 import { Flex } from "@/components/Flex";
 import { Stack } from "@chakra-ui/react";
+import { ProgressWithMarker } from "@/components/ProgressWithMarker";
 
 export default function HostClusterInfo() {
   return (
@@ -27,8 +27,16 @@ export default function HostClusterInfo() {
         </Card.Header>
         <Card.Body variant="wide">
           <Stack>
-            <Progress kind="CPU" value={73.5} />
-            <Progress kind="Memory" value={23.52} />
+            <ProgressWithMarker
+              realTimeUsage={item.cpuUsage}
+              requestUsage={item.cpuRequests}
+              kind="CPU"
+            />
+            <ProgressWithMarker
+              realTimeUsage={item.memoryUsage}
+              requestUsage={item.memoryRequests}
+              kind="Memory"
+            />
           </Stack>
         </Card.Body>
       </Card.Root>
@@ -40,5 +48,9 @@ const item = {
   name: "host-cluster",
   totalNum: 4,
   readyNum: 3,
+  cpuUsage: 39,
+  cpuRequests: 49,
+  memoryUsage: 60,
+  memoryRequests: 30,
   status: "ready",
 };

@@ -1,6 +1,7 @@
 import { Table } from "@/components/Table";
 import { Status, Variant } from "@/components/Status";
 import { Flex } from "@/components/Flex";
+import { ProgressWithMarker } from "@/components/ProgressWithMarker";
 import CusterView from "./ClusterView";
 import ClusterExclude from "./ClusterExclude";
 import { getClusterList } from "@/apis/cluster";
@@ -11,36 +12,36 @@ interface Cluster {
 }
 
 export default function ClusterList() {
-  const [clusters, setClusters] = useState<Cluster[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [clusters, setClusters] = useState<Cluster[]>([]);
+  // const [loading, setLoading] = useState<boolean>(true);
+  // const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchClusters = async () => {
-      try {
-        const data = await getClusterList();
-        if (Array.isArray(data)) {
-          setClusters(data); // 성공적으로 데이터를 가져오면 상태 업데이트
-        } else {
-          setClusters([data]); // 단일 객체라면 배열로 감싸서 전달
-        }
-      } catch (error) {
-        setError("API 요청 실패: " + error); // 오류 처리
-      } finally {
-        setLoading(false); // 로딩 상태 종료
-      }
-    };
+  // useEffect(() => {
+  //   const fetchClusters = async () => {
+  //     try {
+  //       const data = await getClusterList();
+  //       if (Array.isArray(data)) {
+  //         setClusters(data); // 성공적으로 데이터를 가져오면 상태 업데이트
+  //       } else {
+  //         setClusters([data]); // 단일 객체라면 배열로 감싸서 전달
+  //       }
+  //     } catch (error) {
+  //       setError("API 요청 실패: " + error); // 오류 처리
+  //     } finally {
+  //       setLoading(false); // 로딩 상태 종료
+  //     }
+  //   };
 
-    fetchClusters();
-  }, []);
+  //   fetchClusters();
+  // }, []);
 
-  if (loading) {
-    return <div>로딩 중...</div>;
-  }
+  // if (loading) {
+  //   return <div>로딩 중...</div>;
+  // }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  // if (error) {
+  //   return <div>{error}</div>;
+  // }
 
   return (
     <Table.Root>
@@ -68,8 +69,20 @@ export default function ClusterList() {
             <Table.Cell>
               {item.nodeSummary.readyNum}/{item.nodeSummary.totalNum}
             </Table.Cell>
-            <Table.Cell>{item.cpuUsage}</Table.Cell>
-            <Table.Cell>{item.memoryUsage}</Table.Cell>
+            <Table.Cell>
+              <ProgressWithMarker
+                realTimeUsage={item.realTimeUsage.cpu}
+                requestUsage={item.requestUsage.cpu}
+                kind="CPU"
+              />
+            </Table.Cell>
+            <Table.Cell>
+              <ProgressWithMarker
+                realTimeUsage={item.realTimeUsage.memory}
+                requestUsage={item.requestUsage.memory}
+                kind="Memory"
+              />
+            </Table.Cell>
             <Table.Cell>
               <Flex justify="space-evenly"></Flex>
               <CusterView />
@@ -93,8 +106,14 @@ const items = [
       readyNum: 2,
     },
     syncMode: "Push",
-    cpuUsage: 44.19,
-    memoryUsage: 6.85,
+    realTimeUsage: {
+      cpu: 80.09,
+      memory: 23.25,
+    },
+    requestUsage: {
+      cpu: 0.1,
+      memory: 75,
+    },
   },
   {
     name: "member2",
@@ -106,8 +125,14 @@ const items = [
       readyNum: 2,
     },
     syncMode: "Push",
-    cpuUsage: 44.19,
-    memoryUsage: 6.85,
+    realTimeUsage: {
+      cpu: 99.9,
+      memory: 10.25,
+    },
+    requestUsage: {
+      cpu: 25,
+      memory: 50,
+    },
   },
   {
     name: "wow",
@@ -119,7 +144,13 @@ const items = [
       readyNum: 3,
     },
     syncMode: "Push",
-    cpuUsage: 67.05,
-    memoryUsage: 17.08,
+    realTimeUsage: {
+      cpu: 80.09,
+      memory: 23.25,
+    },
+    requestUsage: {
+      cpu: 50,
+      memory: 99.99,
+    },
   },
 ];
