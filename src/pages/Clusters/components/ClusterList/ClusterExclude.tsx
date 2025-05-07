@@ -6,7 +6,7 @@ import { Portal } from "@chakra-ui/react";
 export default function ClusterExclude() {
   return (
     <Dialog.Root variant="alert">
-      <Dialog.Trigger>
+      <Dialog.Trigger asChild>
         <Button variant="redGhost">Exclude</Button>
       </Dialog.Trigger>
       <Portal>
@@ -22,7 +22,7 @@ export default function ClusterExclude() {
               </Dialog.ActionTrigger>
               <Button variant="red">Exloude</Button>
             </Dialog.Footer>
-            <Dialog.CloseTrigger>
+            <Dialog.CloseTrigger asChild>
               <CloseButton />
             </Dialog.CloseTrigger>
           </Dialog.Content>

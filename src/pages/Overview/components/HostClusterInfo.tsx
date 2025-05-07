@@ -31,11 +31,13 @@ export default function HostClusterInfo() {
               realTimeUsage={item.cpuUsage}
               requestUsage={item.cpuRequests}
               kind="CPU"
+              label={true}
             />
             <ProgressWithMarker
               realTimeUsage={item.memoryUsage}
               requestUsage={item.memoryRequests}
               kind="Memory"
+              label={true}
             />
           </Stack>
         </Card.Body>

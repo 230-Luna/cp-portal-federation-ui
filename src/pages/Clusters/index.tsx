@@ -4,6 +4,9 @@ import ClusterJoin from "@/pages/Clusters/components/ClusterJoin";
 import ClusterList from "@/pages/Clusters/components/ClusterList";
 import Pagination from "@/components/Pagination";
 import { toaster } from "@/components/Toaster";
+import { ErrorBoundary } from "react-error-boundary";
+import { Suspense } from "react";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function Clusters() {
   toaster.create({
@@ -17,7 +20,18 @@ export default function Clusters() {
         <SearchBar />
         <ClusterJoin />
       </Flex>
-      <ClusterList />
+      <ErrorBoundary
+        fallbackRender={({ error }) => (
+          <div>
+            There was an error!{" "}
+            <pre style={{ whiteSpace: "normal" }}>{error.message}</pre>
+          </div>
+        )}
+      >
+        <Suspense fallback={<LoadingSkeleton />}>
+          <ClusterList />
+        </Suspense>
+      </ErrorBoundary>
       <Pagination />
     </>
   );

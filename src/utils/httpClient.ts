@@ -19,7 +19,7 @@ function createHttpClient() {
 
       if (token) {
         if (config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
+          config.headers.Authorization = `${token}`;
         }
       } else {
         // token 재발급?
@@ -28,16 +28,6 @@ function createHttpClient() {
       return config;
     },
     (error) => {
-      if (error.message === "Network Error") {
-        console.error("서버에 연결할 수 없습니다. 네트워크 상태를 확인하세요.");
-      } else if (error.response && error.response.status === 400) {
-        console.error("잘못된 요청입니다. 요청 형식을 확인해주세요.");
-      } else if (error.response && error.response.status === 404) {
-        console.error("요청한 API 엔드포인트를 찾을 수 없습니다.");
-      } else {
-        console.error("알 수 없는 오류가 발생했습니다.");
-      }
-
       return Promise.reject(error);
     }
   );
@@ -46,10 +36,31 @@ function createHttpClient() {
     (response) => response.data,
     (error) => {
       if (error.response) {
-        if (error.response.status === 401) {
-          console.error("토큰이 만료되었거나 유효하지 않습니다.");
-        } else if (error.response.status === 500) {
-          console.error(`예상치 못한 오류 발생: ${error.response.status}`);
+        switch (error.response.status) {
+          case 400:
+            console.error("잘못된 요청입니다. 요청 형식을 확인해주세요.");
+            break;
+          case 401:
+            console.error("토큰이 만료되었거나 유효하지 않습니다.");
+            break;
+          case 403:
+            console.error(
+              "접근 권한이 없습니다. 해당 리소스에 접근할 권한이 부족합니다."
+            );
+            break;
+          case 404:
+            console.error("요청한 API 엔드포인트를 찾을 수 없습니다.");
+            break;
+          case 409:
+            console.error(
+              "리소스 충돌이 발생했습니다. 중복된 데이터가 존재합니다."
+            );
+            break;
+          case 500:
+            console.error(`서버 오류 발생: ${error.response.status}`);
+            break;
+          default:
+            console.error("알 수 없는 서버 오류 발생");
         }
       } else {
         console.error("서버에 응답이 없습니다. 네트워크 상태를 확인하세요.");
@@ -63,11 +74,3 @@ function createHttpClient() {
 }
 
 export const httpClient: FederationHttpClient = createHttpClient();
-
-// error code
-// 200
-// 400
-// 401
-// 403
-// 404
-// 500

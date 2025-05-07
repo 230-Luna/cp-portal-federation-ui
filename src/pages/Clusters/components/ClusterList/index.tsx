@@ -5,43 +5,53 @@ import { ProgressWithMarker } from "@/components/ProgressWithMarker";
 import CusterView from "./ClusterView";
 import ClusterExclude from "./ClusterExclude";
 import { getClusterList } from "@/apis/cluster";
-import { useEffect, useState } from "react";
-
-interface Cluster {
-  temp: number;
-}
+<<<<<<< HEAD
+import { Clusters, Cluster } from "@/models/clustersModel";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export default function ClusterList() {
-  // const [clusters, setClusters] = useState<Cluster[]>([]);
-  // const [loading, setLoading] = useState<boolean>(true);
-  // const [error, setError] = useState<string | null>(null);
+  const { data: clusterList } = useSuspenseQuery<Clusters>({
+    queryKey: ["clusters"],
+    queryFn: getClusterList,
+  });
+=======
+import { useEffect, useState } from "react";
+import { Cluster } from "@/models/clustersModel";
 
-  // useEffect(() => {
-  //   const fetchClusters = async () => {
-  //     try {
-  //       const data = await getClusterList();
-  //       if (Array.isArray(data)) {
-  //         setClusters(data); // 성공적으로 데이터를 가져오면 상태 업데이트
-  //       } else {
-  //         setClusters([data]); // 단일 객체라면 배열로 감싸서 전달
-  //       }
-  //     } catch (error) {
-  //       setError("API 요청 실패: " + error); // 오류 처리
-  //     } finally {
-  //       setLoading(false); // 로딩 상태 종료
-  //     }
-  //   };
+export default function ClusterList() {
+  const [clusters, setClusters] = useState<Cluster[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  //   fetchClusters();
-  // }, []);
+  useEffect(() => {
+    const fetchClusters = async () => {
+      try {
+        const data = (await getClusterList()).clusters;
+        if (Array.isArray(data)) {
+          setClusters(data);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError("알 수 없는 오류가 발생했습니다.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // if (loading) {
-  //   return <div>로딩 중...</div>;
-  // }
+    fetchClusters();
+  }, []);
 
-  // if (error) {
-  //   return <div>{error}</div>;
-  // }
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+>>>>>>> 1bf4f6da2372dffe5e231f3fd93ae46db221d8ef
 
   return (
     <Table.Root>
@@ -57,29 +67,33 @@ export default function ClusterList() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {items.map((item) => (
-          <Table.Row key={item.uid}>
-            <Table.Cell>{item.name}</Table.Cell>
-            <Table.Cell>{item.kubernetesVersion}</Table.Cell>
+<<<<<<< HEAD
+        {clusterList?.clusters.map((cluster: Cluster) => (
+=======
+        {clusters.map((cluster) => (
+>>>>>>> 1bf4f6da2372dffe5e231f3fd93ae46db221d8ef
+          <Table.Row key={cluster.uid}>
+            <Table.Cell>{cluster.name}</Table.Cell>
+            <Table.Cell>{cluster.kubernetesVersion}</Table.Cell>
             <Table.Cell>
               <Flex justify="center">
-                <Status variant={item.status as Variant} />
+                <Status variant={cluster.status as Variant} />
               </Flex>
             </Table.Cell>
             <Table.Cell>
-              {item.nodeSummary.readyNum}/{item.nodeSummary.totalNum}
+              {cluster.nodeSummary.readyNum}/{cluster.nodeSummary.totalNum}
             </Table.Cell>
             <Table.Cell>
               <ProgressWithMarker
-                realTimeUsage={item.realTimeUsage.cpu}
-                requestUsage={item.requestUsage.cpu}
+                realTimeUsage={cluster.realTimeUsage.cpu}
+                requestUsage={cluster.requestUsage.cpu}
                 kind="CPU"
               />
             </Table.Cell>
             <Table.Cell>
               <ProgressWithMarker
-                realTimeUsage={item.realTimeUsage.memory}
-                requestUsage={item.requestUsage.memory}
+                realTimeUsage={cluster.realTimeUsage.memory}
+                requestUsage={cluster.requestUsage.memory}
                 kind="Memory"
               />
             </Table.Cell>
@@ -94,63 +108,3 @@ export default function ClusterList() {
     </Table.Root>
   );
 }
-
-const items = [
-  {
-    name: "member1",
-    uid: "d4593f68-847d-4a9b-bc48-a4c55e743fd9",
-    kubernetesVersion: "v1.30.4",
-    status: "ready",
-    nodeSummary: {
-      totalNum: 2,
-      readyNum: 2,
-    },
-    syncMode: "Push",
-    realTimeUsage: {
-      cpu: 80.09,
-      memory: 23.25,
-    },
-    requestUsage: {
-      cpu: 0.1,
-      memory: 75,
-    },
-  },
-  {
-    name: "member2",
-    uid: "45935b30-2d23-46a7-b165-18e12072350f",
-    kubernetesVersion: "v1.30.4",
-    status: "ready",
-    nodeSummary: {
-      totalNum: 2,
-      readyNum: 2,
-    },
-    syncMode: "Push",
-    realTimeUsage: {
-      cpu: 99.9,
-      memory: 10.25,
-    },
-    requestUsage: {
-      cpu: 25,
-      memory: 50,
-    },
-  },
-  {
-    name: "wow",
-    uid: "8a59321c-dc29-455d-a812-1ac283296762",
-    kubernetesVersion: "v1.30.4",
-    status: "notready",
-    nodeSummary: {
-      totalNum: 3,
-      readyNum: 3,
-    },
-    syncMode: "Push",
-    realTimeUsage: {
-      cpu: 80.09,
-      memory: 23.25,
-    },
-    requestUsage: {
-      cpu: 50,
-      memory: 99.99,
-    },
-  },
-];
