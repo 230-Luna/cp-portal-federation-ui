@@ -3,19 +3,15 @@ import Clusters from "@/pages/Clusters";
 import Policies from "@/pages/Policies";
 import { Tabs } from "@/components/Tabs";
 import { Toaster } from "@/components/Toaster";
-import { ReactNode } from "react";
-import {
-  BrowserRouter,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { ReactNode, Suspense, useMemo } from "react";
+import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import LoadingSkeleton from "./components/LoadingSkeleton";
+import PageNotFound from "./error/pageNotFound";
 
 const queryClient = new QueryClient();
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
@@ -24,41 +20,6 @@ function App() {
         </Container>
       </QueryClientProvider>
     </BrowserRouter>
-  );
-}
-
-function FederationTabs() {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const currentTab = (() => {
-    if (location.pathname.startsWith("/clusters")) {
-      return "clusters";
-    }
-    if (location.pathname.startsWith("/policies")) {
-      return "policies";
-    }
-    return "overview";
-  })();
-
-  const handleTabChange = (details: { value: string }) => {
-    navigate(`/${details.value}`);
-  };
-  return (
-    <Tabs.Root value={currentTab} onValueChange={handleTabChange}>
-      <Tabs.List>
-        <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
-        <Tabs.Trigger value="clusters">Clusters</Tabs.Trigger>
-        <Tabs.Trigger value="policies">Policies</Tabs.Trigger>
-      </Tabs.List>
-
-      <Routes>
-        <Route path="/" element={<Overview />} />
-        <Route path="/overview" element={<Overview />} />
-        <Route path="/clusters" element={<Clusters />} />
-        <Route path="/policies" element={<Policies />} />
-      </Routes>
-    </Tabs.Root>
   );
 }
 
@@ -71,4 +32,56 @@ function Container({ children }: { children: ReactNode }) {
   );
 }
 
-export default App;
+function FederationTabs() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const currentTab = useMemo(() => {
+    const path = location.pathname.split("/")[1];
+    return path;
+  }, [location.pathname]);
+
+  if (!["overview", "clusters", "policies"].includes(location.pathname)) {
+  }
+
+  const handleTabChange = (details: { value: string }) => {
+    navigate(`/${details.value}`);
+  };
+
+  return (
+    <Tabs.Root
+      value={currentTab}
+      onValueChange={handleTabChange}
+      navigate={({ value }) => navigate(`/${value}`)}
+    >
+      <Tabs.List>
+        <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
+        <Tabs.Trigger value="clusters">Clusters</Tabs.Trigger>
+        <Tabs.Trigger value="policies">Policies</Tabs.Trigger>
+      </Tabs.List>
+
+      <Suspense fallback={<LoadingSkeleton />}>
+        {currentTab === "overview" && (
+          <Tabs.Content value="overview">
+            <Overview />
+          </Tabs.Content>
+        )}
+        {currentTab === "clusters" && (
+          <Tabs.Content value="clusters">
+            <Clusters />
+          </Tabs.Content>
+        )}
+        {currentTab === "policies" && (
+          <Tabs.Content value="policies">
+            <Policies />
+          </Tabs.Content>
+        )}
+        {!["overview", "clusters", "policies"].includes(currentTab) && (
+          <Tabs.Content value={location.pathname.split("/")[1]}>
+            <PageNotFound />
+          </Tabs.Content>
+        )}
+      </Suspense>
+    </Tabs.Root>
+  );
+}

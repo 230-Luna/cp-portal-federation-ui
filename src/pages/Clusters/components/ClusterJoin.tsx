@@ -6,9 +6,17 @@ import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
+import { toaster } from "@/components/Toaster";
 
 export default function ClusterJoin() {
   function handleClick() {}
+
+  function handleApplyClick() {
+    toaster.create({
+      description: "멤버클러스터에서 제외되었습니다.",
+      type: "info",
+    });
+  }
   return (
     <Dialog.Root variant="resourceSetUp">
       <Dialog.Trigger>
@@ -45,7 +53,9 @@ export default function ClusterJoin() {
               <Dialog.ActionTrigger>
                 <Button variant="blueOutline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button variant="blue">Apply</Button>
+              <Button variant="blue" onClick={handleApplyClick}>
+                Apply
+              </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger>
               <CloseButton />

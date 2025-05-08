@@ -33,3 +33,18 @@ export interface Clusters {
   listMeta: ListMeta;
   clusters: Cluster[];
 }
+
+export interface ClusterDetail {
+  clusterId: string;
+  name: string;
+  uid: string;
+  yaml: string;
+}
+
+export interface ClusterIdProps {
+  clusterId: string;
+}
+
+export interface ClusterYamlProps {
+  clusterYaml: string;
+}
