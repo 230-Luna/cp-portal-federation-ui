@@ -1,4 +1,4 @@
-import { getClusterDetail } from "@/apis/cluster";
+import { getClusterDetailApi } from "@/apis/cluster";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { useQuery } from "@tanstack/react-query";
@@ -23,15 +23,15 @@ export default function ClusterView({ clusterId }: ClusterIdProps) {
       <Drawer.Trigger asChild>
         <Button variant="blueGhost">View</Button>
       </Drawer.Trigger>
-      {open && <ClusterPortal clusterId={clusterId} />}
+      {open && <ClusterViewPortal clusterId={clusterId} />}
     </Drawer.Root>
   );
 }
 
-export function ClusterPortal({ clusterId }: ClusterIdProps) {
+function ClusterViewPortal({ clusterId }: ClusterIdProps) {
   const { data: clusterDetail } = useQuery<ClusterDetail>({
     queryKey: ["clusterDetail", clusterId],
-    queryFn: () => getClusterDetail(clusterId),
+    queryFn: () => getClusterDetailApi(clusterId),
   });
 
   return (
@@ -44,7 +44,7 @@ export function ClusterPortal({ clusterId }: ClusterIdProps) {
               <Drawer.Title>{clusterDetail.clusterId}</Drawer.Title>
             </Drawer.Header>
             <Drawer.Body>
-              <YamlMaker clusterYaml={clusterDetail.yaml} />
+              <ClusterViewYaml clusterYaml={clusterDetail.yaml} />
             </Drawer.Body>
             <Drawer.CloseTrigger asChild>
               <CloseButton />
@@ -55,7 +55,7 @@ export function ClusterPortal({ clusterId }: ClusterIdProps) {
     )
   );
 }
-export function YamlMaker({ clusterYaml }: ClusterYamlProps) {
+function ClusterViewYaml({ clusterYaml }: ClusterYamlProps) {
   return (
     <div style={{ height: "92vh" }}>
       <Editor

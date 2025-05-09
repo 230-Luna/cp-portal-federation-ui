@@ -6,8 +6,8 @@ import { Toaster } from "@/components/Toaster";
 import { ReactNode, Suspense, useMemo } from "react";
 import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import LoadingSkeleton from "./components/LoadingSkeleton";
-import PageNotFound from "./error/pageNotFound";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import PageNotFound from "@/error/PageNotFound";
 
 const queryClient = new QueryClient();
 
@@ -37,12 +37,12 @@ function FederationTabs() {
   const navigate = useNavigate();
 
   const currentTab = useMemo(() => {
-    const path = location.pathname.split("/")[1];
+    let path = location.pathname.split("/")[1];
+    if (path === "") {
+      path = "overview";
+    }
     return path;
   }, [location.pathname]);
-
-  if (!["overview", "clusters", "policies"].includes(location.pathname)) {
-  }
 
   const handleTabChange = (details: { value: string }) => {
     navigate(`/${details.value}`);
@@ -76,7 +76,7 @@ function FederationTabs() {
             <Policies />
           </Tabs.Content>
         )}
-        {!["overview", "clusters", "policies"].includes(currentTab) && (
+        {!["", "overview", "clusters", "policies"].includes(currentTab) && (
           <Tabs.Content value={location.pathname.split("/")[1]}>
             <PageNotFound />
           </Tabs.Content>

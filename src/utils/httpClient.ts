@@ -3,6 +3,12 @@ import { FEDERATION_API_BASE_URL } from "@/config/config";
 
 interface FederationHttpClient extends AxiosInstance {
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  post<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T>;
 }
 
 const config: AxiosRequestConfig = {

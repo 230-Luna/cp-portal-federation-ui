@@ -7,90 +7,102 @@ import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
+import { useState } from "react";
+import {
+  getRegisterableClusterListApi,
+  registerClustersApi,
+} from "@/apis/cluster";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export default function ClusterJoin() {
-  function handleClick() {}
+  const [open, setOpen] = useState(false);
 
-  function handleApplyClick() {
-    toaster.create({
-      description: "멤버클러스터에서 제외되었습니다.",
-      type: "info",
-    });
-  }
+  function handleApplyClick() {}
   return (
-    <Dialog.Root variant="resourceSetUp">
-      <Dialog.Trigger>
+    <Dialog.Root
+      variant="resourceSetUp"
+      open={open}
+      onOpenChange={(details) => setOpen(details.open)}
+    >
+      <Dialog.Trigger asChild>
         <Button variant="largeBlue">
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>
-      <Portal>
-        <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content variant="resourceSetUp" margin="10px auto">
-            <Heading variant="center" marginTop="2%">
-              Cluster Join
-            </Heading>
-            <Dialog.Body variant="resourceSetUp" margin="2%">
-              <Grid>
-                {items.map((item) => (
-                  <CheckboxCard.Root
-                    key={item.id}
-                    onChange={() => handleClick()}
-                  >
-                    <CheckboxCard.HiddenInput />
-                    <CheckboxCard.Control>
-                      <CheckboxCard.Content>
-                        <CheckboxCard.Label>{item.name}</CheckboxCard.Label>
-                      </CheckboxCard.Content>
-                      <CheckboxCard.Indicator />
-                    </CheckboxCard.Control>
-                  </CheckboxCard.Root>
-                ))}
-              </Grid>
-            </Dialog.Body>
-            <Dialog.Footer>
-              <Dialog.ActionTrigger>
-                <Button variant="blueOutline">Cancel</Button>
-              </Dialog.ActionTrigger>
-              <Button variant="blue" onClick={handleApplyClick}>
-                Apply
-              </Button>
-            </Dialog.Footer>
-            <Dialog.CloseTrigger>
-              <CloseButton />
-            </Dialog.CloseTrigger>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Portal>
+      {open && <ClusterJoinPortal />}
     </Dialog.Root>
   );
 }
 
-const items = [
-  {
-    id: 1,
-    name: "nhn-cluster",
-    clustername: "not yet",
-  },
-  {
-    id: 2,
-    name: "kt-cluster",
-    clustername: "",
-  },
-  {
-    id: 3,
-    name: "aws-cluster",
-    clustername: "",
-  },
-  {
-    id: 4,
-    name: "ncp-cluster",
-    clustername: "",
-  },
-  {
-    id: 5,
-    name: "google-cluster",
-    clustername: "",
-  },
-];
+function ClusterJoinPortal() {
+  const { mutate: registerClusters } = useMutation({
+    mutationFn: () => registerClustersApi(),
+    onSuccess: () => {
+      console.log("등록 성공");
+    },
+    onError: (error) => {
+      console.error("error : ", error);
+    },
+  });
+
+  function handleApplyClick() {
+    toaster.create({
+      description: "클러스터 등록에 성공했습니다.",
+      type: "success",
+    });
+  }
+
+  return (
+    <Portal>
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content variant="resourceSetUp" margin="10px auto">
+          <Heading variant="center" marginTop="2%">
+            Cluster Join
+          </Heading>
+          <Dialog.Body variant="resourceSetUp" margin="2%">
+            <RegisterSelectedClusters />
+          </Dialog.Body>
+          <Dialog.Footer>
+            <Dialog.ActionTrigger>
+              <Button variant="blueOutline">Cancel</Button>
+            </Dialog.ActionTrigger>
+            <Button variant="blue" onClick={handleApplyClick}>
+              Apply
+            </Button>
+          </Dialog.Footer>
+          <Dialog.CloseTrigger>
+            <CloseButton />
+          </Dialog.CloseTrigger>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Portal>
+  );
+}
+
+function RegisterSelectedClusters() {
+  const { data: registerableClusterList } = useQuery({
+    queryKey: ["registerableClusterList"],
+    queryFn: () => getRegisterableClusterListApi(),
+  });
+
+  function handleClusterSelect(clusterId: string) {}
+  return (
+    <Grid>
+      {registerableClusterList?.clusters.map((cluster) => (
+        <CheckboxCard.Root
+          key={cluster.clusterId}
+          onChange={() => handleClusterSelect(cluster.clusterId)}
+        >
+          <CheckboxCard.HiddenInput />
+          <CheckboxCard.Control>
+            <CheckboxCard.Content>
+              <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
+            </CheckboxCard.Content>
+            <CheckboxCard.Indicator />
+          </CheckboxCard.Control>
+        </CheckboxCard.Root>
+      ))}
+    </Grid>
+  );
+}

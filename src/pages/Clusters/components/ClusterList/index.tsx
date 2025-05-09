@@ -4,15 +4,23 @@ import { Flex } from "@/components/Flex";
 import { ProgressWithMarker } from "@/components/ProgressWithMarker";
 import ClusterView from "./ClusterView";
 import ClusterExclude from "./ClusterExclude";
-import { getClusterList } from "@/apis/cluster";
+import { getClusterListApi } from "@/apis/cluster";
 import { Clusters, Cluster } from "@/models/clustersModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function ClusterList() {
   const { data: clusterList } = useSuspenseQuery<Clusters>({
     queryKey: ["clusters"],
-    queryFn: getClusterList,
+    queryFn: getClusterListApi,
   });
+
+  const [excludingMap, setExcludingMap] = useState<Record<string, boolean>>({});
+  console.log("excludingMap: ", excludingMap);
+
+  const setIsExcluding = (clusterId: string, value: boolean) => {
+    setExcludingMap((prev) => ({ ...prev, [clusterId]: value }));
+  };
 
   return (
     <Table.Root>
@@ -57,7 +65,11 @@ export default function ClusterList() {
             <Table.Cell>
               <Flex justify="space-evenly"></Flex>
               <ClusterView clusterId={cluster.clusterId} />
-              <ClusterExclude />
+              <ClusterExclude
+                clusterId={cluster.clusterId}
+                isExcluding={excludingMap[cluster.clusterId]}
+                setIsExcluding={setIsExcluding}
+              />
             </Table.Cell>
           </Table.Row>
         ))}
