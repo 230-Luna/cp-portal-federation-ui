@@ -2,8 +2,12 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
-import { useState } from "react";
-import { useIsMutating, useMutation } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { deleteClusterApi } from "@/apis/cluster";
 import { toaster } from "@/components/Toaster";
 
@@ -15,9 +19,16 @@ export default function ClusterExcludeButton({
   clusterName: string;
 }) {
   const [open, setOpen] = useState(false);
+  // const [isDisabled, setIsDisabled] = useState(false);
   const excludeClusterMutationCount = useIsMutating({
     mutationKey: ["handleExcludeCluster", clusterId],
   });
+
+  // useEffect(() => {
+  //   if (excludeClusterMutationCount > 0) {
+  //     setIsDisabled(true);
+  //   }
+  // }, [excludeClusterMutationCount]);
 
   return (
     <Dialog.Root
@@ -50,6 +61,7 @@ function ClusterExcludeConfirmDialog({
   clusterName: string;
   onClose: () => void;
 }) {
+  const queryClient = useQueryClient();
   const handleExcludeCluster = useMutation({
     mutationKey: ["handleExcludeCluster", clusterId],
     mutationFn: async () => {
@@ -64,6 +76,7 @@ function ClusterExcludeConfirmDialog({
         toaster.success({
           description: `${clusterName}가 멤버 클러스터에서 제외되었습니다.`,
         });
+        queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
       } catch {
         toaster.error({
           description: `${clusterName}를 제외하는 데 오류가 발생했습니다.`,
