@@ -2,10 +2,15 @@ import { CloseButton } from "@/components/CloseButton";
 import { Input } from "@/components/Input";
 import { InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
-export default function SearchBar() {
-  const [value, setValue] = useState("");
+export default function SearchBar({
+  value,
+  setValue,
+}: {
+  value: string;
+  setValue: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (

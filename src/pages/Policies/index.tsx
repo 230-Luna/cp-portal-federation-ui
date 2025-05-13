@@ -7,8 +7,11 @@ import Pagination from "@/components/Pagination";
 import { FEDERATION_API_BASE_URL } from "@/config/config";
 import { Flex } from "@/components/Flex";
 import { toaster } from "@/components/Toaster";
+import { useState } from "react";
 
 export default function Policies() {
+  const [value, setValue] = useState("");
+
   toaster.create({
     description: "정책이 삭제되었습니다.",
     type: "info",
@@ -26,7 +29,8 @@ export default function Policies() {
           <Namespace />
         </Flex>
         <Flex justify="flex-end">
-          <SearchBar />
+          <SearchBar value={value} setValue={setValue} />
+
           <PolicyAdd />
         </Flex>
       </Flex>
@@ -40,6 +44,5 @@ function apitest() {
   const apiUrl = FEDERATION_API_BASE_URL + `/api/v1/overview`;
 
   const token = sessionStorage.getItem("token");
-  console.log(`token : ${token}`);
   return <div>{token}</div>;
 }

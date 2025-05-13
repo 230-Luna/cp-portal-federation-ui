@@ -8,10 +8,15 @@ import { getClusterListApi } from "@/apis/cluster";
 import { Cluster } from "@/models/clustersModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-export default function ClusterList() {
+export default function ClusterList({ value }: { value: string }) {
   const { data: clusterList } = useSuspenseQuery({
-    queryKey: ["getClusterListApi"],
-    queryFn: getClusterListApi,
+    queryKey: ["getClusterListApi", value],
+    queryFn: () => {
+      if (value === "") {
+        return getClusterListApi();
+      }
+      return getClusterListApi(value);
+    },
   });
 
   return (
@@ -28,42 +33,44 @@ export default function ClusterList() {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {clusterList?.clusters.map((cluster: Cluster) => (
-          <Table.Row key={cluster.uid}>
-            <Table.Cell>{cluster.name}</Table.Cell>
-            <Table.Cell>{cluster.kubernetesVersion}</Table.Cell>
-            <Table.Cell>
-              <Flex justify="center">
-                <Status variant={cluster.status} />
-              </Flex>
-            </Table.Cell>
-            <Table.Cell>
-              {cluster.nodeSummary.readyNum}/{cluster.nodeSummary.totalNum}
-            </Table.Cell>
-            <Table.Cell>
-              <ProgressWithMarker
-                realTimeUsage={cluster.realTimeUsage.cpu}
-                requestUsage={cluster.requestUsage.cpu}
-                kind="CPU"
-              />
-            </Table.Cell>
-            <Table.Cell>
-              <ProgressWithMarker
-                realTimeUsage={cluster.realTimeUsage.memory}
-                requestUsage={cluster.requestUsage.memory}
-                kind="Memory"
-              />
-            </Table.Cell>
-            <Table.Cell>
-              <Flex justify="space-evenly"></Flex>
-              <ClusterViewButton clusterId={cluster.clusterId} />
-              <ClusterExcludeButton
-                clusterId={cluster.clusterId}
-                clusterName={cluster.name}
-              />
-            </Table.Cell>
-          </Table.Row>
-        ))}
+        {clusterList == null
+          ? null
+          : clusterList.clusters.map((cluster: Cluster) => (
+              <Table.Row key={cluster.uid}>
+                <Table.Cell>{cluster.name}</Table.Cell>
+                <Table.Cell>{cluster.kubernetesVersion}</Table.Cell>
+                <Table.Cell>
+                  <Flex justify="center">
+                    <Status variant={cluster.status} />
+                  </Flex>
+                </Table.Cell>
+                <Table.Cell>
+                  {cluster.nodeSummary.readyNum}/{cluster.nodeSummary.totalNum}
+                </Table.Cell>
+                <Table.Cell>
+                  <ProgressWithMarker
+                    realTimeUsage={cluster.realTimeUsage.cpu}
+                    requestUsage={cluster.requestUsage.cpu}
+                    kind="CPU"
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <ProgressWithMarker
+                    realTimeUsage={cluster.realTimeUsage.memory}
+                    requestUsage={cluster.requestUsage.memory}
+                    kind="Memory"
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                  <Flex justify="space-evenly"></Flex>
+                  <ClusterViewButton clusterId={cluster.clusterId} />
+                  <ClusterExcludeButton
+                    clusterId={cluster.clusterId}
+                    clusterName={cluster.name}
+                  />
+                </Table.Cell>
+              </Table.Row>
+            ))}
       </Table.Body>
     </Table.Root>
   );

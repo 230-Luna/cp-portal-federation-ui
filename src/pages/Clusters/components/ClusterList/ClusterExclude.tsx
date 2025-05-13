@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   useIsMutating,
   useMutation,
@@ -62,7 +62,7 @@ function ClusterExcludeConfirmDialog({
         onClose();
         const loadingToasterId = toaster.create({
           type: "loading",
-          description: `${clusterName}를 멤버 클러스터에 제외하고 있습니다.`,
+          description: `${clusterName}를 멤버 클러스터에서 제외하고 있습니다.`,
         });
         await deleteClusterApi(clusterId);
         toaster.remove(loadingToasterId);

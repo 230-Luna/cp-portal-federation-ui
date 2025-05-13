@@ -2,7 +2,6 @@ import { getClusterDetailApi } from "@/apis/cluster";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { useQuery } from "@tanstack/react-query";
-import { ClusterDetail } from "@/models/clustersModel";
 import { Drawer, Portal } from "@chakra-ui/react";
 import Editor from "@monaco-editor/react";
 import { useState } from "react";
@@ -31,12 +30,12 @@ export default function ClusterViewButton({
 }
 
 function ClusterInfoYamlViwerDrawer({ clusterId }: { clusterId: string }) {
-  const { data: clusterDetail } = useQuery<ClusterDetail>({
-    queryKey: ["clusterDetail", clusterId],
+  const { data: clusterDetail } = useQuery({
+    queryKey: ["getClusterDetailApi", clusterId],
     queryFn: () => getClusterDetailApi(clusterId),
   });
 
-  return clusterDetail ? (
+  return clusterDetail == null ? null : (
     <Portal>
       <Drawer.Backdrop />
       <Drawer.Positioner>
@@ -68,5 +67,5 @@ function ClusterInfoYamlViwerDrawer({ clusterId }: { clusterId: string }) {
         </Drawer.Content>
       </Drawer.Positioner>
     </Portal>
-  ) : null;
+  );
 }

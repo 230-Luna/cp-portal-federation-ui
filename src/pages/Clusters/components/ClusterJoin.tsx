@@ -4,7 +4,7 @@ import { Dialog } from "@/components/Dialog";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
-import { Portal } from "@chakra-ui/react";
+import { CheckboxGroup, Portal } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
 import { useState } from "react";
@@ -12,7 +12,7 @@ import {
   getRegisterableClusterListApi,
   registerClustersApi,
 } from "@/apis/cluster";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function ClusterJoin() {
   const [open, setOpen] = useState(false);
@@ -28,30 +28,54 @@ export default function ClusterJoin() {
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>
-      {open === true ? <ClusterJoinDialog /> : null}
+      {open === true ? (
+        <ClusterJoinDialog onClose={() => setOpen(false)} />
+      ) : null}
     </Dialog.Root>
   );
 }
 
-function ClusterJoinDialog() {
-  let selectedData: string[] = [];
+function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
+  const [selectedData, setSelectedData] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   const handleRegisterCluster = useMutation({
     mutationFn: async () => {
       try {
-        console.log("api 전 selectedData: ", selectedData);
-        await registerClustersApi(selectedData);
-
-        toaster.create({
-          type: "success",
-          description: "클러스터 등록에 성공했습니다.",
+        onClose();
+        const loadingToasterId = toaster.create({
+          type: "loading",
+          description: `멤버 클러스터를 추가하고 있습니다.`,
         });
+        const response = await registerClustersApi({
+          clusterIds: selectedData,
+        });
+        toaster.remove(loadingToasterId);
+        response.clusters.map(
+          (cluster: {
+            clusterId: string;
+            name: string;
+            message: string;
+            code: number;
+          }) => {
+            if (cluster.code !== 201) {
+              toaster.create({
+                type: "error",
+                description: `${cluster.clusterId}가 멤버클러스터 등록에 실패하였습니다.`,
+              });
+            } else {
+              toaster.create({
+                type: "success",
+                description: `${cluster.clusterId}가 멤버클러스터로 등록되었습니다.`,
+              });
+            }
+          }
+        );
+        queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
       } catch (error) {
-        console.error("에러가 발생했습니다 ", error);
-
         toaster.error({
           type: "error",
-          description: `에러가 발생했습니다.`,
+          description: `에러가 발생했습니다. ${error || "알 수 없는 오류"}`,
         });
       }
     },
@@ -66,7 +90,7 @@ function ClusterJoinDialog() {
             Cluster Join
           </Heading>
           <Dialog.Body variant="resourceSetUp" margin="2%">
-            <RegisterSelectedClusters />
+            <RegisterSelectedClusters setSelectedData={setSelectedData} />
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
@@ -89,44 +113,31 @@ function ClusterJoinDialog() {
   );
 }
 
-function RegisterSelectedClusters() {
+function RegisterSelectedClusters({
+  setSelectedData,
+}: {
+  setSelectedData: (newData: string[]) => void;
+}) {
   const { data: registerableClusterList } = useQuery({
     queryKey: ["registerableClusterList"],
     queryFn: () => getRegisterableClusterListApi(),
   });
 
-  function handleClusterSelect(
-    event: React.ChangeEvent<HTMLInputElement>,
-    clusterId: string
-  ) {
-    const isChecked = event.target.checked;
-
-    if (isChecked) {
-      if (!selectedData.includes(clusterId)) {
-        selectedData.push(clusterId);
-      }
-    } else {
-      selectedData = selectedData.filter((v) => v !== clusterId);
-    }
-  }
-
   return (
     <Grid>
-      {registerableClusterList?.clusters.map((cluster) => (
-        <CheckboxCard.Root key={cluster.clusterId}>
-          <CheckboxCard.HiddenInput />
-          <CheckboxCard.Control
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              handleClusterSelect(event, cluster.clusterId)
-            }
-          >
-            <CheckboxCard.Content>
-              <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
-            </CheckboxCard.Content>
-            <CheckboxCard.Indicator />
-          </CheckboxCard.Control>
-        </CheckboxCard.Root>
-      ))}
+      <CheckboxGroup onValueChange={(e) => setSelectedData(e)}>
+        {registerableClusterList?.clusters.map((cluster) => (
+          <CheckboxCard.Root key={cluster.clusterId} value={cluster.clusterId}>
+            <CheckboxCard.HiddenInput />
+            <CheckboxCard.Control>
+              <CheckboxCard.Content>
+                <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
+              </CheckboxCard.Content>
+              <CheckboxCard.Indicator />
+            </CheckboxCard.Control>
+          </CheckboxCard.Root>
+        ))}
+      </CheckboxGroup>
     </Grid>
   );
 }
