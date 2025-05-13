@@ -2,23 +2,22 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
-import {
-  ClusterExcludeProps,
-  ClusterExcludeProtalProps,
-} from "@/models/clustersModel";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useIsMutating, useMutation } from "@tanstack/react-query";
 import { deleteClusterApi } from "@/apis/cluster";
 import { toaster } from "@/components/Toaster";
 
-export default function ClusterExclude({
+export default function ClusterExcludeButton({
   clusterId,
-  isExcluding = false,
-  setIsExcluding = () => {},
-}: ClusterExcludeProps) {
+  clusterName,
+}: {
+  clusterId: string;
+  clusterName: string;
+}) {
   const [open, setOpen] = useState(false);
-
-  console.log(`${clusterId} isExcluding: ${isExcluding} `);
+  const excludeClusterMutationCount = useIsMutating({
+    mutationKey: ["handleExcludeCluster", clusterId],
+  });
 
   return (
     <Dialog.Root
@@ -27,52 +26,51 @@ export default function ClusterExclude({
       onOpenChange={(details) => setOpen(details.open)}
     >
       <Dialog.Trigger>
-        <Button variant="redGhost" disabled={isExcluding}>
+        <Button variant="redGhost" disabled={excludeClusterMutationCount > 0}>
           Exclude
         </Button>
       </Dialog.Trigger>
-      {open && (
-        <ClusterExcludePortal
+      {open === true ? (
+        <ClusterExcludeConfirmDialog
           clusterId={clusterId}
+          clusterName={clusterName}
           onClose={() => setOpen(false)}
-          setIsExcluding={setIsExcluding}
         />
-      )}
+      ) : null}
     </Dialog.Root>
   );
 }
 
-function ClusterExcludePortal({
+function ClusterExcludeConfirmDialog({
   clusterId,
+  clusterName,
   onClose,
-  setIsExcluding,
-}: ClusterExcludeProtalProps) {
-  const { mutateAsync: clusterDelete } = useMutation({
-    mutationFn: () => deleteClusterApi(clusterId),
+}: {
+  clusterId: string;
+  clusterName: string;
+  onClose: () => void;
+}) {
+  const handleExcludeCluster = useMutation({
+    mutationKey: ["handleExcludeCluster", clusterId],
+    mutationFn: async () => {
+      try {
+        onClose();
+        const loadingToasterId = toaster.create({
+          type: "loading",
+          description: `${clusterName}를 멤버 클러스터에 제외하고 있습니다.`,
+        });
+        await deleteClusterApi(clusterId);
+        toaster.remove(loadingToasterId);
+        toaster.success({
+          description: `${clusterName}가 멤버 클러스터에서 제외되었습니다.`,
+        });
+      } catch {
+        toaster.error({
+          description: `${clusterName}를 제외하는 데 오류가 발생했습니다.`,
+        });
+      }
+    },
   });
-
-  async function handleExcludeCluster() {
-    setIsExcluding(clusterId, true);
-    onClose();
-    console.log("토스트", clusterId);
-
-    try {
-      await toaster.promise(clusterDelete(), {
-        loading: {
-          description: `${clusterId}를 멤버 클러스터에서 제외하고 있습니다.`,
-        },
-        success: {
-          description: `${clusterId}가 멤버 클러스터에서 제외되었습니다.`,
-        },
-        error: {
-          description: `${clusterId}를 제외하는 데 오류가 발생했습니다.`,
-        },
-      });
-    } finally {
-      console.log("finally");
-      // setIsExcluding(clusterId, false);
-    }
-  }
 
   return (
     <Portal>
@@ -80,17 +78,17 @@ function ClusterExcludePortal({
       <Dialog.Positioner>
         <Dialog.Content variant="alert">
           <Dialog.Body variant="alert" marginTop="8%">
-            {clusterId}를 멤버 클러스터에서 제외시키겠습니까?
+            {clusterName}를 멤버 클러스터에서 제외시키겠습니까?
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
               <Button variant="redOutline">Cancel</Button>
             </Dialog.ActionTrigger>
-            <Button variant="red" onClick={handleExcludeCluster}>
+            <Button variant="red" onClick={() => handleExcludeCluster.mutate()}>
               Exclude
             </Button>
           </Dialog.Footer>
-          <Dialog.CloseTrigger asChild>
+          <Dialog.CloseTrigger>
             <CloseButton />
           </Dialog.CloseTrigger>
         </Dialog.Content>

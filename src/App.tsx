@@ -8,6 +8,7 @@ import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import PageNotFound from "@/error/PageNotFound";
+import { match } from "ts-pattern";
 
 const queryClient = new QueryClient();
 
@@ -61,26 +62,27 @@ function FederationTabs() {
       </Tabs.List>
 
       <Suspense fallback={<LoadingSkeleton />}>
-        {currentTab === "overview" && (
-          <Tabs.Content value="overview">
-            <Overview />
-          </Tabs.Content>
-        )}
-        {currentTab === "clusters" && (
-          <Tabs.Content value="clusters">
-            <Clusters />
-          </Tabs.Content>
-        )}
-        {currentTab === "policies" && (
-          <Tabs.Content value="policies">
-            <Policies />
-          </Tabs.Content>
-        )}
-        {!["", "overview", "clusters", "policies"].includes(currentTab) && (
-          <Tabs.Content value={location.pathname.split("/")[1]}>
-            <PageNotFound />
-          </Tabs.Content>
-        )}
+        {match(currentTab)
+          .with("overview", () => (
+            <Tabs.Content value="overview">
+              <Overview />
+            </Tabs.Content>
+          ))
+          .with("clusters", () => (
+            <Tabs.Content value="clusters">
+              <Clusters />
+            </Tabs.Content>
+          ))
+          .with("policies", () => (
+            <Tabs.Content value="policies">
+              <Policies />
+            </Tabs.Content>
+          ))
+          .otherwise(() => (
+            <Tabs.Content value={location.pathname.split("/")[1]}>
+              <PageNotFound />
+            </Tabs.Content>
+          ))}
       </Suspense>
     </Tabs.Root>
   );

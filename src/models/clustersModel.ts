@@ -40,21 +40,3 @@ export interface ClusterDetail {
   uid: string;
   yaml: string;
 }
-
-export interface ClusterYamlProps {
-  clusterYaml: string;
-}
-
-export interface ClusterIdProps {
-  clusterId: string;
-}
-
-export interface ClusterExcludeProps extends ClusterIdProps {
-  isExcluding?: boolean;
-  setIsExcluding?: (clusterId: string, value: boolean) => void;
-}
-
-export interface ClusterExcludeProtalProps extends ClusterIdProps {
-  onClose: () => void;
-  setIsExcluding: (clusterId: string, value: boolean) => void;
-}

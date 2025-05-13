@@ -17,40 +17,44 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 export default function ClusterJoin() {
   const [open, setOpen] = useState(false);
 
-  function handleApplyClick() {}
   return (
     <Dialog.Root
       variant="resourceSetUp"
       open={open}
       onOpenChange={(details) => setOpen(details.open)}
     >
-      <Dialog.Trigger asChild>
+      <Dialog.Trigger>
         <Button variant="largeBlue">
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>
-      {open && <ClusterJoinPortal />}
+      {open && <ClusterJoinDialog />}
     </Dialog.Root>
   );
 }
 
-function ClusterJoinPortal() {
-  const { mutate: registerClusters } = useMutation({
-    mutationFn: () => registerClustersApi(),
-    onSuccess: () => {
-      console.log("등록 성공");
-    },
-    onError: (error) => {
-      console.error("error : ", error);
+function ClusterJoinDialog() {
+  let selectedData: string[] = [];
+
+  const handleRegisterCluster = useMutation({
+    mutationFn: async () => {
+      try {
+        await registerClustersApi(selectedData);
+
+        toaster.create({
+          type: "success",
+          description: "클러스터 등록에 성공했습니다.",
+        });
+      } catch (error) {
+        console.error("에러가 발생했습니다 ", error);
+
+        toaster.error({
+          type: "error",
+          description: `에러가 발생했습니다.`,
+        });
+      }
     },
   });
-
-  function handleApplyClick() {
-    toaster.create({
-      description: "클러스터 등록에 성공했습니다.",
-      type: "success",
-    });
-  }
 
   return (
     <Portal>
@@ -67,7 +71,11 @@ function ClusterJoinPortal() {
             <Dialog.ActionTrigger>
               <Button variant="blueOutline">Cancel</Button>
             </Dialog.ActionTrigger>
-            <Button variant="blue" onClick={handleApplyClick}>
+            <Button
+              variant="blue"
+              loading={handleRegisterCluster.isPending}
+              onClick={() => handleRegisterCluster.mutate()}
+            >
               Apply
             </Button>
           </Dialog.Footer>
@@ -86,16 +94,31 @@ function RegisterSelectedClusters() {
     queryFn: () => getRegisterableClusterListApi(),
   });
 
-  function handleClusterSelect(clusterId: string) {}
+  function handleClusterSelect(
+    event: React.ChangeEvent<HTMLInputElement>,
+    clusterId: string
+  ) {
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      if (!selectedData.includes(clusterId)) {
+        selectedData.push(clusterId);
+      }
+    } else {
+      selectedData = selectedData.filter((v) => v !== clusterId);
+    }
+  }
+
   return (
     <Grid>
       {registerableClusterList?.clusters.map((cluster) => (
-        <CheckboxCard.Root
-          key={cluster.clusterId}
-          onChange={() => handleClusterSelect(cluster.clusterId)}
-        >
+        <CheckboxCard.Root key={cluster.clusterId}>
           <CheckboxCard.HiddenInput />
-          <CheckboxCard.Control>
+          <CheckboxCard.Control
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              handleClusterSelect(event, cluster.clusterId)
+            }
+          >
             <CheckboxCard.Content>
               <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
             </CheckboxCard.Content>

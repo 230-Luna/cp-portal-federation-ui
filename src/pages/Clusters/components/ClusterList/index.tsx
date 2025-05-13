@@ -1,26 +1,18 @@
 import { Table } from "@/components/Table";
-import { Status, Variant } from "@/components/Status";
+import { Status } from "@/components/Status";
 import { Flex } from "@/components/Flex";
 import { ProgressWithMarker } from "@/components/ProgressWithMarker";
-import ClusterView from "./ClusterView";
-import ClusterExclude from "./ClusterExclude";
+import ClusterViewButton from "./ClusterView";
+import ClusterExcludeButton from "./ClusterExclude";
 import { getClusterListApi } from "@/apis/cluster";
-import { Clusters, Cluster } from "@/models/clustersModel";
+import { Cluster } from "@/models/clustersModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
 
 export default function ClusterList() {
-  const { data: clusterList } = useSuspenseQuery<Clusters>({
-    queryKey: ["clusters"],
+  const { data: clusterList } = useSuspenseQuery({
+    queryKey: ["getClusterListApi"],
     queryFn: getClusterListApi,
   });
-
-  const [excludingMap, setExcludingMap] = useState<Record<string, boolean>>({});
-  console.log("excludingMap: ", excludingMap);
-
-  const setIsExcluding = (clusterId: string, value: boolean) => {
-    setExcludingMap((prev) => ({ ...prev, [clusterId]: value }));
-  };
 
   return (
     <Table.Root>
@@ -42,7 +34,7 @@ export default function ClusterList() {
             <Table.Cell>{cluster.kubernetesVersion}</Table.Cell>
             <Table.Cell>
               <Flex justify="center">
-                <Status variant={cluster.status as Variant} />
+                <Status variant={cluster.status} />
               </Flex>
             </Table.Cell>
             <Table.Cell>
@@ -64,11 +56,10 @@ export default function ClusterList() {
             </Table.Cell>
             <Table.Cell>
               <Flex justify="space-evenly"></Flex>
-              <ClusterView clusterId={cluster.clusterId} />
-              <ClusterExclude
+              <ClusterViewButton clusterId={cluster.clusterId} />
+              <ClusterExcludeButton
                 clusterId={cluster.clusterId}
-                isExcluding={excludingMap[cluster.clusterId]}
-                setIsExcluding={setIsExcluding}
+                clusterName={cluster.name}
               />
             </Table.Cell>
           </Table.Row>

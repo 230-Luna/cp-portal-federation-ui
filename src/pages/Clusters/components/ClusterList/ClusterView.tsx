@@ -2,16 +2,16 @@ import { getClusterDetailApi } from "@/apis/cluster";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { useQuery } from "@tanstack/react-query";
-import {
-  ClusterDetail,
-  ClusterIdProps,
-  ClusterYamlProps,
-} from "@/models/clustersModel";
+import { ClusterDetail } from "@/models/clustersModel";
 import { Drawer, Portal } from "@chakra-ui/react";
 import Editor from "@monaco-editor/react";
 import { useState } from "react";
 
-export default function ClusterView({ clusterId }: ClusterIdProps) {
+export default function ClusterViewButton({
+  clusterId,
+}: {
+  clusterId: string;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,12 +23,12 @@ export default function ClusterView({ clusterId }: ClusterIdProps) {
       <Drawer.Trigger asChild>
         <Button variant="blueGhost">View</Button>
       </Drawer.Trigger>
-      {open && <ClusterViewPortal clusterId={clusterId} />}
+      {open && <ClusterInfoYamlViwerDrawer clusterId={clusterId} />}
     </Drawer.Root>
   );
 }
 
-function ClusterViewPortal({ clusterId }: ClusterIdProps) {
+function ClusterInfoYamlViwerDrawer({ clusterId }: { clusterId: string }) {
   const { data: clusterDetail } = useQuery<ClusterDetail>({
     queryKey: ["clusterDetail", clusterId],
     queryFn: () => getClusterDetailApi(clusterId),
@@ -41,10 +41,25 @@ function ClusterViewPortal({ clusterId }: ClusterIdProps) {
         <Drawer.Positioner>
           <Drawer.Content>
             <Drawer.Header>
-              <Drawer.Title>{clusterDetail.clusterId}</Drawer.Title>
+              <Drawer.Title>{clusterDetail.name}</Drawer.Title>
             </Drawer.Header>
             <Drawer.Body>
-              <ClusterViewYaml clusterYaml={clusterDetail.yaml} />
+              <div style={{ height: "92vh" }}>
+                <Editor
+                  height="90vh"
+                  defaultLanguage="yaml"
+                  defaultValue={clusterDetail.yaml}
+                  options={{
+                    readOnly: true,
+                    scrollbar: {
+                      vertical: "hidden",
+                      horizontal: "hidden",
+                      handleMouseWheel: true,
+                    },
+                    overviewRulerLanes: 0,
+                  }}
+                />
+              </div>
             </Drawer.Body>
             <Drawer.CloseTrigger asChild>
               <CloseButton />
@@ -53,25 +68,5 @@ function ClusterViewPortal({ clusterId }: ClusterIdProps) {
         </Drawer.Positioner>
       </Portal>
     )
-  );
-}
-function ClusterViewYaml({ clusterYaml }: ClusterYamlProps) {
-  return (
-    <div style={{ height: "92vh" }}>
-      <Editor
-        height="90vh"
-        defaultLanguage="yaml"
-        defaultValue={clusterYaml}
-        options={{
-          readOnly: true,
-          scrollbar: {
-            vertical: "hidden",
-            horizontal: "hidden",
-            handleMouseWheel: true,
-          },
-          overviewRulerLanes: 0,
-        }}
-      />
-    </div>
   );
 }

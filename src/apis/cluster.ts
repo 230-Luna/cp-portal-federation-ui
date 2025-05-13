@@ -1,9 +1,5 @@
 import { httpClient } from "@/utils/httpClient";
-import {
-  Clusters,
-  ClusterDetail,
-  ClusterIdProps,
-} from "@/models/clustersModel";
+import { Clusters, ClusterDetail } from "@/models/clustersModel";
 
 export async function getClusterListApi() {
   return httpClient.get<Clusters>(`/api/v1/cluster`);
@@ -14,12 +10,12 @@ export async function getClusterDetailApi(clusterId: string) {
 }
 
 export async function deleteClusterApi(clusterId: string) {
-  return httpClient.delete<ClusterIdProps>(`/api/v1/cluster/${clusterId}`);
+  return httpClient.delete(`/api/v1/cluster/${clusterId}`);
 }
 
-export async function registerClustersApi() {
-  return;
-  // return httpClient.post<ClusterIdProps>(`/api/v1/cluster`);
+export async function registerClustersApi(clusterIds: string[]) {
+  console.log("clusterId: ", clusterIds);
+  return httpClient.post(`/api/v1/cluster`, clusterIds);
 }
 
 export async function getRegisterableClusterListApi() {
