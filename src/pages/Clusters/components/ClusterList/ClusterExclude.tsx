@@ -19,16 +19,9 @@ export default function ClusterExcludeButton({
   clusterName: string;
 }) {
   const [open, setOpen] = useState(false);
-  // const [isDisabled, setIsDisabled] = useState(false);
   const excludeClusterMutationCount = useIsMutating({
     mutationKey: ["handleExcludeCluster", clusterId],
   });
-
-  // useEffect(() => {
-  //   if (excludeClusterMutationCount > 0) {
-  //     setIsDisabled(true);
-  //   }
-  // }, [excludeClusterMutationCount]);
 
   return (
     <Dialog.Root

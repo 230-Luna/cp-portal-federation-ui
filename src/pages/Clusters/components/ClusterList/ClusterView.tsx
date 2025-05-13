@@ -23,7 +23,9 @@ export default function ClusterViewButton({
       <Drawer.Trigger asChild>
         <Button variant="blueGhost">View</Button>
       </Drawer.Trigger>
-      {open && <ClusterInfoYamlViwerDrawer clusterId={clusterId} />}
+      {open === true ? (
+        <ClusterInfoYamlViwerDrawer clusterId={clusterId} />
+      ) : null}
     </Drawer.Root>
   );
 }
@@ -34,39 +36,37 @@ function ClusterInfoYamlViwerDrawer({ clusterId }: { clusterId: string }) {
     queryFn: () => getClusterDetailApi(clusterId),
   });
 
-  return (
-    clusterDetail && (
-      <Portal>
-        <Drawer.Backdrop />
-        <Drawer.Positioner>
-          <Drawer.Content>
-            <Drawer.Header>
-              <Drawer.Title>{clusterDetail.name}</Drawer.Title>
-            </Drawer.Header>
-            <Drawer.Body>
-              <div style={{ height: "92vh" }}>
-                <Editor
-                  height="90vh"
-                  defaultLanguage="yaml"
-                  defaultValue={clusterDetail.yaml}
-                  options={{
-                    readOnly: true,
-                    scrollbar: {
-                      vertical: "hidden",
-                      horizontal: "hidden",
-                      handleMouseWheel: true,
-                    },
-                    overviewRulerLanes: 0,
-                  }}
-                />
-              </div>
-            </Drawer.Body>
-            <Drawer.CloseTrigger asChild>
-              <CloseButton />
-            </Drawer.CloseTrigger>
-          </Drawer.Content>
-        </Drawer.Positioner>
-      </Portal>
-    )
-  );
+  return clusterDetail ? (
+    <Portal>
+      <Drawer.Backdrop />
+      <Drawer.Positioner>
+        <Drawer.Content>
+          <Drawer.Header>
+            <Drawer.Title>{clusterDetail.name}</Drawer.Title>
+          </Drawer.Header>
+          <Drawer.Body>
+            <div style={{ height: "92vh" }}>
+              <Editor
+                height="90vh"
+                defaultLanguage="yaml"
+                defaultValue={clusterDetail.yaml}
+                options={{
+                  readOnly: true,
+                  scrollbar: {
+                    vertical: "hidden",
+                    horizontal: "hidden",
+                    handleMouseWheel: true,
+                  },
+                  overviewRulerLanes: 0,
+                }}
+              />
+            </div>
+          </Drawer.Body>
+          <Drawer.CloseTrigger asChild>
+            <CloseButton />
+          </Drawer.CloseTrigger>
+        </Drawer.Content>
+      </Drawer.Positioner>
+    </Portal>
+  ) : null;
 }

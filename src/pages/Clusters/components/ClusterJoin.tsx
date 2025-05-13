@@ -28,7 +28,7 @@ export default function ClusterJoin() {
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>
-      {open && <ClusterJoinDialog />}
+      {open === true ? <ClusterJoinDialog /> : null}
     </Dialog.Root>
   );
 }
@@ -39,6 +39,7 @@ function ClusterJoinDialog() {
   const handleRegisterCluster = useMutation({
     mutationFn: async () => {
       try {
+        console.log("api 전 selectedData: ", selectedData);
         await registerClustersApi(selectedData);
 
         toaster.create({
