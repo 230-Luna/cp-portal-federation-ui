@@ -6,7 +6,7 @@ import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
 
-export default function PolicyList() {
+export default function PolicyList({ keyword }: { keyword: string }) {
   return (
     <Table.Root>
       <Table.Header>

@@ -8,17 +8,27 @@ import { Suspense, useState } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function Clusters() {
-  const [value, setValue] = useState("");
+  const [searchClusterName, setSearchClusterName] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
+
+  const handleSearch = (keyword: string) => {
+    setSearchKeyword(keyword);
+  };
 
   return (
     <>
       <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
-        <SearchBar value={value} setValue={setValue} />
+        <SearchBar
+          value={searchClusterName}
+          onChange={setSearchClusterName}
+          onSearch={handleSearch}
+          placeholder="Search Clusters"
+        />
         <ClusterJoin />
       </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback={<LoadingSkeleton />}>
-          <ClusterList value={value} />
+          <ClusterList keyword={searchKeyword} />
         </Suspense>
       </ErrorBoundary>
       <Pagination />

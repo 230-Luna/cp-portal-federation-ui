@@ -7,17 +7,26 @@ import ClusterExcludeButton from "./ClusterExclude";
 import { getClusterListApi } from "@/apis/cluster";
 import { Cluster } from "@/models/clustersModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Heading } from "@chakra-ui/react";
 
-export default function ClusterList({ value }: { value: string }) {
+export default function ClusterList({ keyword }: { keyword: string }) {
   const { data: clusterList } = useSuspenseQuery({
-    queryKey: ["getClusterListApi", value],
+    queryKey: ["getClusterListApi", keyword],
     queryFn: () => {
-      if (value === "") {
+      if (keyword === "") {
         return getClusterListApi();
       }
-      return getClusterListApi(value);
+      return getClusterListApi(keyword);
     },
   });
+
+  if (!clusterList) {
+    return (
+      <Heading size="xl" margin="7%">
+        검색 결과가 없습니다.
+      </Heading>
+    );
+  }
 
   return (
     <Table.Root>

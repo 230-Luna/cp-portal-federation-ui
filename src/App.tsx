@@ -61,29 +61,27 @@ function FederationTabs() {
         <Tabs.Trigger value="policies">Policies</Tabs.Trigger>
       </Tabs.List>
 
-      <Suspense fallback={<LoadingSkeleton />}>
-        {match(currentTab)
-          .with("overview", () => (
-            <Tabs.Content value="overview">
-              <Overview />
-            </Tabs.Content>
-          ))
-          .with("clusters", () => (
-            <Tabs.Content value="clusters">
-              <Clusters />
-            </Tabs.Content>
-          ))
-          .with("policies", () => (
-            <Tabs.Content value="policies">
-              <Policies />
-            </Tabs.Content>
-          ))
-          .otherwise(() => (
-            <Tabs.Content value={location.pathname.split("/")[1]}>
-              <PageNotFound />
-            </Tabs.Content>
-          ))}
-      </Suspense>
+      {match(currentTab)
+        .with("overview", () => (
+          <Tabs.Content value="overview">
+            <Overview />
+          </Tabs.Content>
+        ))
+        .with("clusters", () => (
+          <Tabs.Content value="clusters">
+            <Clusters />
+          </Tabs.Content>
+        ))
+        .with("policies", () => (
+          <Tabs.Content value="policies">
+            <Policies />
+          </Tabs.Content>
+        ))
+        .otherwise(() => (
+          <Tabs.Content value={location.pathname.split("/")[1]}>
+            <PageNotFound />
+          </Tabs.Content>
+        ))}
     </Tabs.Root>
   );
 }

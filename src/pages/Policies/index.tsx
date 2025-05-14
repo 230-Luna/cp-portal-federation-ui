@@ -1,48 +1,38 @@
 import SearchBar from "@/components/SearchBar";
-import LevelSelect from "@/pages/Policies/components/LevelSelect";
-import Namespace from "@/pages/Policies/components/Namespace";
 import PolicyAdd from "@/pages/Policies/components/PolicyAdd";
 import PolicyList from "@/pages/Policies/components/PolicyList";
 import Pagination from "@/components/Pagination";
 import { FEDERATION_API_BASE_URL } from "@/config/config";
 import { Flex } from "@/components/Flex";
-import { toaster } from "@/components/Toaster";
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function Policies() {
-  const [value, setValue] = useState("");
+  const [searchClusterName, setSearchClusterName] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
 
-  toaster.create({
-    description: "정책이 삭제되었습니다.",
-    type: "info",
-  });
+  const handleSearch = (keyword: string) => {
+    setSearchKeyword(keyword);
+  };
+
   return (
     <>
-      <Flex
-        justify="space-between"
-        align="center"
-        marginTop="9px"
-        marginBottom="50px"
-      >
-        <Flex>
-          <LevelSelect />
-          <Namespace />
-        </Flex>
-        <Flex justify="flex-end">
-          <SearchBar value={value} setValue={setValue} />
-
-          <PolicyAdd />
-        </Flex>
+      <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
+        <SearchBar
+          value={searchClusterName}
+          onChange={setSearchClusterName}
+          onSearch={handleSearch}
+          placeholder="Search Policies"
+        />
+        <PolicyAdd />
       </Flex>
-      <PolicyList />
+      <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
+        <Suspense fallback={<LoadingSkeleton />}>
+          <PolicyList keyword={searchKeyword} />
+        </Suspense>
+      </ErrorBoundary>
       <Pagination />
     </>
   );
-}
-
-function apitest() {
-  const apiUrl = FEDERATION_API_BASE_URL + `/api/v1/overview`;
-
-  const token = sessionStorage.getItem("token");
-  return <div>{token}</div>;
 }
