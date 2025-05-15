@@ -2,7 +2,6 @@ import SearchBar from "@/components/SearchBar";
 import PolicyAdd from "@/pages/Policies/components/PolicyAdd";
 import PolicyList from "@/pages/Policies/components/PolicyList";
 import Pagination from "@/components/Pagination";
-import { FEDERATION_API_BASE_URL } from "@/config/config";
 import { Flex } from "@/components/Flex";
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";

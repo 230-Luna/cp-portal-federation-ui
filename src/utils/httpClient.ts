@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { FEDERATION_API_BASE_URL } from "@/config/config";
 
 interface FederationHttpClient extends AxiosInstance {
   get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
@@ -10,9 +9,8 @@ interface FederationHttpClient extends AxiosInstance {
     config?: AxiosRequestConfig
   ): Promise<T>;
 }
-
 const config: AxiosRequestConfig = {
-  baseURL: FEDERATION_API_BASE_URL,
+  baseURL: import.meta.env.VITE_CP_PORTAL_FEDERATION_API_URL,
   headers: {},
 };
 

@@ -1,2 +1,0 @@
-export const FEDERATION_API_BASE_URL = import.meta.env
-  .VITE_CP_PORTAL_FEDERATION_API_URI;

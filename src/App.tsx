@@ -3,10 +3,9 @@ import Clusters from "@/pages/Clusters";
 import Policies from "@/pages/Policies";
 import { Tabs } from "@/components/Tabs";
 import { Toaster } from "@/components/Toaster";
-import { ReactNode, Suspense, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 import PageNotFound from "@/error/PageNotFound";
 import { match } from "ts-pattern";
 
@@ -36,24 +35,21 @@ function Container({ children }: { children: ReactNode }) {
 function FederationTabs() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const currentTab = useMemo(() => {
-    let path = location.pathname.split("/")[1];
-    if (path === "") {
-      path = "overview";
-    }
+    const match = location.pathname.match(/^(\/cpfedui)?\/?([^/]+)?/);
+    const path = match?.[2] || "overview";
     return path;
   }, [location.pathname]);
 
   const handleTabChange = (details: { value: string }) => {
-    navigate(`/${details.value}`);
+    navigate(`${details.value}`);
   };
 
   return (
     <Tabs.Root
       value={currentTab}
       onValueChange={handleTabChange}
-      navigate={({ value }) => navigate(`/${value}`)}
+      navigate={({ value }) => navigate(`${value}`)}
     >
       <Tabs.List>
         <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
