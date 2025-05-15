@@ -7,14 +7,19 @@ import { CloseButton } from "@/components/CloseButton";
 import { CheckboxGroup, Portal } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   getRegisterableClusterListApi,
   registerClustersApi,
 } from "@/apis/cluster";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
-export default function ClusterJoin() {
+export default function ClusterJoinButton() {
   const [open, setOpen] = useState(false);
 
   return (
@@ -90,7 +95,9 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
             Cluster Join
           </Heading>
           <Dialog.Body variant="resourceSetUp" margin="2%">
-            <RegisterSelectedClusters setSelectedData={setSelectedData} />
+            <Suspense fallback={<LoadingSkeleton />}>
+              <RegisterableClusters onValueChange={setSelectedData} />
+            </Suspense>
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
@@ -113,20 +120,20 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
-function RegisterSelectedClusters({
-  setSelectedData,
+function RegisterableClusters({
+  onValueChange,
 }: {
-  setSelectedData: (newData: string[]) => void;
+  onValueChange: (newData: string[]) => void;
 }) {
-  const { data: registerableClusterList } = useQuery({
+  const { data: registerableClusterList } = useSuspenseQuery({
     queryKey: ["registerableClusterList"],
     queryFn: () => getRegisterableClusterListApi(),
   });
 
   return (
     <Grid>
-      <CheckboxGroup onValueChange={(e) => setSelectedData(e)}>
-        {registerableClusterList?.clusters.map((cluster) => (
+      <CheckboxGroup onValueChange={(e) => onValueChange(e)}>
+        {registerableClusterList.clusters.map((cluster) => (
           <CheckboxCard.Root key={cluster.clusterId} value={cluster.clusterId}>
             <CheckboxCard.HiddenInput />
             <CheckboxCard.Control>

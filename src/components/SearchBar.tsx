@@ -2,26 +2,22 @@ import { CloseButton } from "@/components/CloseButton";
 import { Input } from "@/components/Input";
 import { InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import useDebounce from "@/hooks/useDebounce";
 
 export default function SearchBar({
   value,
   onChange,
-  onSearch,
   placeholder,
 }: {
   value: string;
   onChange: (value: string) => void;
-  onSearch: (searchKeyword: string) => void;
   placeholder: string;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const debouncedSearchedKeyword = useDebounce<string>(value, 300);
-
-  useEffect(() => {
-    onSearch(debouncedSearchedKeyword);
-  }, [debouncedSearchedKeyword]);
+  const debouncedOnChange = useDebounce((val: string) => {
+    onChange(val);
+  }, 300);
 
   return (
     <InputGroup
@@ -43,9 +39,7 @@ export default function SearchBar({
         ref={inputRef}
         placeholder={placeholder}
         value={value}
-        onChange={(e) => {
-          onChange(e.currentTarget.value);
-        }}
+        onChange={(e) => debouncedOnChange(e.currentTarget.value)}
         size="xl"
       />
     </InputGroup>

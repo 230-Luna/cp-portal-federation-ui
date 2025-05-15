@@ -42,44 +42,42 @@ export default function ClusterList({ keyword }: { keyword: string }) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {clusterList == null
-          ? null
-          : clusterList.clusters.map((cluster: Cluster) => (
-              <Table.Row key={cluster.uid}>
-                <Table.Cell>{cluster.name}</Table.Cell>
-                <Table.Cell>{cluster.kubernetesVersion}</Table.Cell>
-                <Table.Cell>
-                  <Flex justify="center">
-                    <Status variant={cluster.status} />
-                  </Flex>
-                </Table.Cell>
-                <Table.Cell>
-                  {cluster.nodeSummary.readyNum}/{cluster.nodeSummary.totalNum}
-                </Table.Cell>
-                <Table.Cell>
-                  <ProgressWithMarker
-                    realTimeUsage={cluster.realTimeUsage.cpu}
-                    requestUsage={cluster.requestUsage.cpu}
-                    kind="CPU"
-                  />
-                </Table.Cell>
-                <Table.Cell>
-                  <ProgressWithMarker
-                    realTimeUsage={cluster.realTimeUsage.memory}
-                    requestUsage={cluster.requestUsage.memory}
-                    kind="Memory"
-                  />
-                </Table.Cell>
-                <Table.Cell>
-                  <Flex justify="space-evenly"></Flex>
-                  <ClusterViewButton clusterId={cluster.clusterId} />
-                  <ClusterExcludeButton
-                    clusterId={cluster.clusterId}
-                    clusterName={cluster.name}
-                  />
-                </Table.Cell>
-              </Table.Row>
-            ))}
+        {clusterList.clusters.map((cluster: Cluster) => (
+          <Table.Row key={cluster.uid}>
+            <Table.Cell>{cluster.name}</Table.Cell>
+            <Table.Cell>{cluster.kubernetesVersion}</Table.Cell>
+            <Table.Cell>
+              <Flex justify="center">
+                <Status variant={cluster.status} />
+              </Flex>
+            </Table.Cell>
+            <Table.Cell>
+              {cluster.nodeSummary.readyNum}/{cluster.nodeSummary.totalNum}
+            </Table.Cell>
+            <Table.Cell>
+              <ProgressWithMarker
+                realTimeUsage={cluster.realTimeUsage.cpu}
+                requestUsage={cluster.requestUsage.cpu}
+                kind="CPU"
+              />
+            </Table.Cell>
+            <Table.Cell>
+              <ProgressWithMarker
+                realTimeUsage={cluster.realTimeUsage.memory}
+                requestUsage={cluster.requestUsage.memory}
+                kind="Memory"
+              />
+            </Table.Cell>
+            <Table.Cell>
+              <Flex justify="space-evenly"></Flex>
+              <ClusterViewButton clusterId={cluster.clusterId} />
+              <ClusterExcludeButton
+                clusterId={cluster.clusterId}
+                clusterName={cluster.name}
+              />
+            </Table.Cell>
+          </Table.Row>
+        ))}
       </Table.Body>
     </Table.Root>
   );

@@ -9,11 +9,6 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function Policies() {
   const [searchClusterName, setSearchClusterName] = useState("");
-  const [searchKeyword, setSearchKeyword] = useState("");
-
-  const handleSearch = (keyword: string) => {
-    setSearchKeyword(keyword);
-  };
 
   return (
     <>
@@ -21,14 +16,13 @@ export default function Policies() {
         <SearchBar
           value={searchClusterName}
           onChange={setSearchClusterName}
-          onSearch={handleSearch}
           placeholder="Search Policies"
         />
         <PolicyAdd />
       </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback={<LoadingSkeleton />}>
-          <PolicyList keyword={searchKeyword} />
+          <PolicyList keyword={searchClusterName} />
         </Suspense>
       </ErrorBoundary>
       <Pagination />
