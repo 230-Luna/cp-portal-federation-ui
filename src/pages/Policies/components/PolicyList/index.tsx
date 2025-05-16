@@ -5,8 +5,44 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import Editor, { DiffEditor, useMonaco, loader } from "@monaco-editor/react";
+import { Status } from "@/components/Status";
+import { ProgressWithMarker } from "@/components/ProgressWithMarker";
+import { getClusterListApi } from "@/apis/cluster";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Heading } from "@chakra-ui/react";
+import { useState } from "react";
+import Pagination from "@/components/Pagination";
 
 export default function PolicyList({ keyword }: { keyword: string }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const { data: clusterList } = useSuspenseQuery({
+    queryKey: ["getClusterListApi", keyword, currentPage, pageSize],
+    queryFn: () => {
+      if (keyword === "") {
+        return getClusterListApi({ page: currentPage, itemsPerPage: pageSize });
+      }
+      return getClusterListApi({
+        filterBy: keyword,
+        page: currentPage,
+        itemsPerPage: pageSize,
+      });
+    },
+  });
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  if (!clusterList) {
+    return (
+      <Heading size="xl" margin="7%">
+        검색 결과가 없습니다.
+      </Heading>
+    );
+  }
+
   return (
     <Table.Root>
       <Table.Header>

@@ -1,22 +1,20 @@
-interface ListMeta {
+export interface ListMeta {
   totalItems: number;
 }
 
-interface PropagationPolicy {
-  objectMeta: {
-    name: string;
-    namespace: string;
-    labels: Record<string, string>;
-    annotations: Record<string, string>;
-    creationTimestamp: string;
-    uid: string;
+export interface PropagationPolicy {
+  namespace: string;
+  name: string;
+  uid: string;
+  conflictResolution: "Abort" | "Overwrite";
+  accessLevel: "full" | "readonly";
+  relatedClusters: string[];
+  relatedResources: string[];
+}
+
+export interface PropagationPolicyList {
+  listMeta: {
+    totalItems: number;
   };
-  typeMeta: {
-    kind: string;
-  };
-  schedulerName: string;
-  clusterAffinity: {
-    clusterNames: string[];
-  };
-  relatedResources: any[];
+  propagationPolicies: PropagationPolicy[];
 }

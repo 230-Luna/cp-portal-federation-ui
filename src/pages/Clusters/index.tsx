@@ -2,7 +2,6 @@ import { Flex } from "@/components/Flex";
 import SearchBar from "@/components/SearchBar";
 import ClusterJoinButton from "@/pages/Clusters/components/ClusterJoin";
 import ClusterList from "@/pages/Clusters/components/ClusterList";
-import Pagination from "@/components/Pagination";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense, useState } from "react";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
@@ -24,7 +23,6 @@ export default function Clusters() {
           <ClusterList keyword={searchClusterName} />
         </Suspense>
       </ErrorBoundary>
-      <Pagination />
     </>
   );
 }
