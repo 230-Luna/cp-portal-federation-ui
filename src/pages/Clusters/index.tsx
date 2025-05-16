@@ -14,7 +14,6 @@ export default function Clusters() {
     <>
       <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
         <SearchBar
-          value={searchClusterName}
           onChange={setSearchClusterName}
           placeholder="Search Clusters"
         />

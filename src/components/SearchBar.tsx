@@ -2,31 +2,36 @@ import { CloseButton } from "@/components/CloseButton";
 import { Input } from "@/components/Input";
 import { InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import useDebounce from "@/hooks/useDebounce";
 
 export default function SearchBar({
-  value,
   onChange,
   placeholder,
 }: {
-  value: string;
   onChange: (value: string) => void;
   placeholder: string;
 }) {
+  const [searchInput, setSearchInput] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const debouncedOnChange = useDebounce((val: string) => {
-    onChange(val);
-  }, 300);
+  const debouncedOnChange = useDebounce(searchInput, 300);
+
+  const handleChangeSearchInput = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSearchInput(event.target.value);
+  };
+
+  onChange(debouncedOnChange);
 
   return (
     <InputGroup
       startElement={<LuSearch size="30px" />}
       endElement={
-        value.length > 0 ? (
+        searchInput.length > 0 ? (
           <CloseButton
             onClick={() => {
-              onChange("");
+              setSearchInput("");
               inputRef.current?.focus();
             }}
             marginEnd="-2"
@@ -38,8 +43,8 @@ export default function SearchBar({
       <Input
         ref={inputRef}
         placeholder={placeholder}
-        value={value}
-        onChange={(e) => debouncedOnChange(e.currentTarget.value)}
+        value={searchInput}
+        onChange={handleChangeSearchInput}
         size="xl"
       />
     </InputGroup>

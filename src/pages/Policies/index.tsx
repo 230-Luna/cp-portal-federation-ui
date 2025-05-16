@@ -14,7 +14,6 @@ export default function Policies() {
     <>
       <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
         <SearchBar
-          value={searchClusterName}
           onChange={setSearchClusterName}
           placeholder="Search Policies"
         />
