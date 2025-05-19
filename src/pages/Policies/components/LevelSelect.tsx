@@ -1,12 +1,25 @@
 import { SegmentGroup } from "@/components/SegmentGroup";
+import { SegmentGroupValueChangeDetails } from "@chakra-ui/react";
 
 export default function LevelSelect({
-  type,
+  value,
+  onValueChange,
 }: {
-  type: "Namespace level" | "Cluster level";
+  value: string;
+  onValueChange: (value: string) => void;
 }) {
+  const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
+    if (details.value !== null) {
+      onValueChange(details.value);
+    }
+  };
+
   return (
-    <SegmentGroup.Root defaultValue="Namespace level" variant="medium">
+    <SegmentGroup.Root
+      value={value}
+      variant="medium"
+      onValueChange={handleValueChange}
+    >
       <SegmentGroup.Indicator />
       <SegmentGroup.Items items={["Namespace level", "Cluster level"]} />
     </SegmentGroup.Root>

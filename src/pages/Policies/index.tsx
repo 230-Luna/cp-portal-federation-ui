@@ -1,17 +1,18 @@
 import SearchBar from "@/components/SearchBar";
 import PolicyAdd from "@/pages/Policies/components/PolicyAdd";
-import PolicyList from "@/pages/Policies/components/PolicyList";
+import PolicyListByNamespace from "@/pages/Policies/components/PolicyList/PolicyListByNamespace";
 import { Flex } from "@/components/Flex";
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 import LevelSelect from "@/pages/Policies/components/LevelSelect";
 import Namespace from "@/pages/Policies/components/Namespace";
+import PolicyListByCluster from "./components/PolicyList/PolicyListByCluster";
 
 export default function Policies() {
+  const [policyLevel, setPolicyLevel] = useState("Namespace level");
+  const [namespace, setNamespace] = useState("");
   const [searchPolicyName, setSearchPolicyName] = useState("");
-  const [policyLevel, setPolicyLectl] = useState("namespace");
-
   return (
     <>
       <Flex
@@ -21,8 +22,10 @@ export default function Policies() {
         marginBottom="50px"
       >
         <Flex>
-          <LevelSelect type={policyLevel} />
-          <Namespace />
+          <LevelSelect value={policyLevel} onValueChange={setPolicyLevel} />
+          {policyLevel === "Namespace level" ? (
+            <Namespace value={namespace} onValueChange={setNamespace} />
+          ) : null}
         </Flex>
         <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
           <SearchBar
@@ -34,7 +37,11 @@ export default function Policies() {
       </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback={<LoadingSkeleton />}>
-          <PolicyList keyword={searchPolicyName} />
+          {policyLevel === "Namespace level" ? (
+            <PolicyListByNamespace keyword={searchPolicyName} />
+          ) : (
+            <PolicyListByCluster keyword={searchPolicyName} />
+          )}
         </Suspense>
       </ErrorBoundary>
     </>

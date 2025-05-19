@@ -7,20 +7,17 @@ export async function getClusterListApi({
   itemsPerPage = 10,
 }: {
   filterBy?: string;
-  page?: number;
-  itemsPerPage?: number;
+  page: number;
+  itemsPerPage: number;
 }) {
   const params = new URLSearchParams();
 
   if (filterBy) {
     params.append("filterBy", `name,${filterBy}`);
   }
-  if (page) {
-    params.append("page", page.toString());
-  }
-  if (itemsPerPage) {
-    params.append("itemsPerPage", itemsPerPage.toString());
-  }
+
+  params.append("page", page.toString());
+  params.append("itemsPerPage", itemsPerPage.toString());
 
   const CLUSTER_API_URL = `/api/v1/cluster?${params.toString()}`;
 

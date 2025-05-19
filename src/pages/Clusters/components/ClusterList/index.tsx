@@ -8,12 +8,16 @@ import { getClusterListApi } from "@/apis/cluster";
 import { Cluster } from "@/models/clustersModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Heading } from "@chakra-ui/react";
-import { useState } from "react";
 import Pagination from "@/components/Pagination";
+import { useSearchParams } from "react-router-dom";
 
 export default function ClusterList({ keyword }: { keyword: string }) {
-  const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("page") ?? "1");
+  const setCurrentPage = (page: number) => {
+    setSearchParams((prev) => ({ ...prev, page }));
+  };
 
   const { data: clusterList } = useSuspenseQuery({
     queryKey: ["getClusterListApi", keyword, currentPage, pageSize],
@@ -29,14 +33,10 @@ export default function ClusterList({ keyword }: { keyword: string }) {
     },
   });
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  if (!clusterList) {
+  if (clusterList.clusters.length === 0) {
     return (
       <Heading size="xl" margin="7%">
-        검색 결과가 없습니다.
+        결과가 없습니다.
       </Heading>
     );
   }
@@ -97,7 +97,7 @@ export default function ClusterList({ keyword }: { keyword: string }) {
       <Pagination
         totalItemCount={clusterList.listMeta.totalItems}
         currentPage={currentPage}
-        onPageChange={handlePageChange}
+        onPageChange={(page) => setCurrentPage(page)}
         pageSize={pageSize}
       />
     </>

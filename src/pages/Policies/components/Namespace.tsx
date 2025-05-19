@@ -1,8 +1,41 @@
+import { getNamespaceListApi } from "@/apis/namespace";
 import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+
 export default function Namespace() {
+    {
+    onValueChange,
+  }: {
+    onValueChange: (value: string) => void;
+  }
+
+  const [value, setValue] = useState<string[]>([]);
+
+  const handleSelectValueChange = (event:  ) => {
+    setValue(event.value)
+  }
+
+  const { data: namespaceList } = useSuspenseQuery({
+    queryKey: ["getNamespaceListApi"],
+    queryFn: () => getNamespaceListApi(),
+  });
+
+  const collection = createListCollection({
+    items: namespaceList.namespaces,
+    itemToValue: (item) => item,
+    itemToString: (item) => item,
+  });
+
   return (
     <>
-      <Select.Root collection={frameworks} size="md" width="170px">
+      <Select.Root
+        collection={collection}
+        value={value}
+        onValueChange={handleSelectValueChange}
+        size="md"
+        width="170px"
+      >
         <Select.HiddenSelect />
         <Select.Control>
           <Select.Trigger>
@@ -15,13 +48,13 @@ export default function Namespace() {
         <Portal>
           <Select.Positioner>
             <Select.Content>
-              <Select.Item item="all">
+              <Select.Item item="all" key="all">
                 All
                 <Select.ItemIndicator />
               </Select.Item>
-              {frameworks.items.map((framework) => (
-                <Select.Item item={framework} key={framework.value}>
-                  {framework.label}
+              {namespaceList.namespaces.map((namespace) => (
+                <Select.Item item={namespace} key={namespace}>
+                  {namespace}
                   <Select.ItemIndicator />
                 </Select.Item>
               ))}
@@ -32,12 +65,3 @@ export default function Namespace() {
     </>
   );
 }
-
-const frameworks = createListCollection({
-  items: [
-    { label: "default", value: "react" },
-    { label: "name2", value: "vue" },
-    { label: "kubename", value: "angular" },
-    { label: "spaces", value: "svelte" },
-  ],
-});

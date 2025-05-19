@@ -12,18 +12,31 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Heading } from "@chakra-ui/react";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
+import { useSearchParams } from "react-router-dom";
+import { getPolicyListByNamespaceApi } from "@/apis/policy";
 
-export default function PolicyList({ keyword }: { keyword: string }) {
-  const [currentPage, setCurrentPage] = useState(1);
+export default function PolicyListByNamespace({
+  keyword,
+}: {
+  keyword: string;
+}) {
   const pageSize = 10;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get("page") ?? "1");
+  const setCurrentPage = (page: number) => {
+    setSearchParams((prev) => ({ ...prev, page }));
+  };
 
-  const { data: clusterList } = useSuspenseQuery({
-    queryKey: ["getClusterListApi", keyword, currentPage, pageSize],
+  const { data: policyListByNamespace } = useSuspenseQuery({
+    queryKey: ["getPolicyListByNamespaceApi", keyword, currentPage, pageSize],
     queryFn: () => {
       if (keyword === "") {
-        return getClusterListApi({ page: currentPage, itemsPerPage: pageSize });
+        return getPolicyListByNamespaceApi({
+          page: currentPage,
+          itemsPerPage: pageSize,
+        });
       }
-      return getClusterListApi({
+      return getPolicyListByNamespaceApi({
         filterBy: keyword,
         page: currentPage,
         itemsPerPage: pageSize,
@@ -31,14 +44,10 @@ export default function PolicyList({ keyword }: { keyword: string }) {
     },
   });
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  if (!clusterList) {
+  if (policyListByNamespace.clusters.length === 0) {
     return (
       <Heading size="xl" margin="7%">
-        검색 결과가 없습니다.
+        결과가 없습니다.
       </Heading>
     );
   }
@@ -56,7 +65,7 @@ export default function PolicyList({ keyword }: { keyword: string }) {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {items.map((item) => (
+        {policyListByNamespace.map((policy: Policy) => (
           <Table.Row key={item.id}>
             <Table.Cell>{item.namespace}</Table.Cell>
             <Table.Cell>{item.name}</Table.Cell>
