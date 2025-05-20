@@ -3,7 +3,7 @@ import { Dialog } from "@/components/Dialog";
 import { Flex } from "@/components/Flex";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal, ButtonGroup } from "@chakra-ui/react";
-import Multistep from "@/pages/Policies/components/PolicyAdd/Multistep";
+import Multistep from "@/pages/Policies/components/PolicyAddButton/Multistep";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";

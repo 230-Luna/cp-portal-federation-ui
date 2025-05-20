@@ -12,7 +12,7 @@ import Pagination from "@/components/Pagination";
 import { useSearchParams } from "react-router-dom";
 
 export default function ClusterList({ keyword }: { keyword: string }) {
-  const pageSize = 10;
+  const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
@@ -20,15 +20,18 @@ export default function ClusterList({ keyword }: { keyword: string }) {
   };
 
   const { data: clusterList } = useSuspenseQuery({
-    queryKey: ["getClusterListApi", keyword, currentPage, pageSize],
+    queryKey: ["getClusterListApi", keyword, currentPage, itemsPerPage],
     queryFn: () => {
       if (keyword === "") {
-        return getClusterListApi({ page: currentPage, itemsPerPage: pageSize });
+        return getClusterListApi({
+          page: currentPage,
+          itemsPerPage: itemsPerPage,
+        });
       }
       return getClusterListApi({
         filterBy: keyword,
         page: currentPage,
-        itemsPerPage: pageSize,
+        itemsPerPage: itemsPerPage,
       });
     },
   });
@@ -96,9 +99,9 @@ export default function ClusterList({ keyword }: { keyword: string }) {
       </Table.Root>
       <Pagination
         totalItemCount={clusterList.listMeta.totalItems}
+        itemsPerPage={itemsPerPage}
         currentPage={currentPage}
         onPageChange={(page) => setCurrentPage(page)}
-        pageSize={pageSize}
       />
     </>
   );

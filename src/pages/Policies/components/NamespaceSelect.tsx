@@ -1,20 +1,28 @@
 import { getNamespaceListApi } from "@/apis/namespace";
-import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import {
+  Portal,
+  Select,
+  SelectValueChangeDetails,
+  createListCollection,
+} from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-export default function Namespace() {
-    {
-    onValueChange,
-  }: {
-    onValueChange: (value: string) => void;
-  }
-
+export default function NamespaceSelect({
+  onValueChange,
+}: {
+  onValueChange: (namespace: string) => void;
+}) {
   const [value, setValue] = useState<string[]>([]);
 
-  const handleSelectValueChange = (event:  ) => {
-    setValue(event.value)
-  }
+  const handleSelectValueChange = (details: SelectValueChangeDetails) => {
+    setValue(details.value);
+    if (details.value[0] === "all") {
+      onValueChange("");
+    } else {
+      onValueChange(details.value[0]);
+    }
+  };
 
   const { data: namespaceList } = useSuspenseQuery({
     queryKey: ["getNamespaceListApi"],
@@ -34,7 +42,7 @@ export default function Namespace() {
         value={value}
         onValueChange={handleSelectValueChange}
         size="md"
-        width="170px"
+        width="200px"
       >
         <Select.HiddenSelect />
         <Select.Control>

@@ -7,21 +7,19 @@ import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 export default function Pagination({
   totalItemCount,
+  itemsPerPage = 10,
   currentPage,
   onPageChange,
-  pageSize = 10,
 }: {
   totalItemCount: number;
+  itemsPerPage?: number;
   currentPage: number;
   onPageChange: (page: number) => void;
-  pageSize?: number;
 }) {
-  const pageCount = Math.ceil(totalItemCount / pageSize);
-
   return (
     <ChakraPagination.Root
-      count={pageCount} // 전체 아이템 수
-      pageSize={10} // 한페이지당 아이템 수
+      count={totalItemCount}
+      pageSize={itemsPerPage}
       page={currentPage}
       defaultPage={1}
       onPageChange={(e) => onPageChange(e.page)}
