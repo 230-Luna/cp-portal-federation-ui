@@ -1,7 +1,7 @@
 import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Heading } from "@chakra-ui/react";
+import { Heading, Tag, VStack } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { getPropagationPolicyListApi } from "@/apis/propagationPolicy";
 import { PropagationPolicy } from "@/models/propagationPolicyModel";
@@ -69,8 +69,28 @@ export default function PropagationPolicyList({
                 <Table.Cell>{propagationPolicy.namespace}</Table.Cell>
                 <Table.Cell>{propagationPolicy.name}</Table.Cell>
                 <Table.Cell>{propagationPolicy.conflictResolution}</Table.Cell>
-                <Table.Cell>{propagationPolicy.relatedClusters}</Table.Cell>
-                <Table.Cell>{propagationPolicy.relatedResources}</Table.Cell>
+                <Table.Cell>
+                  <VStack>
+                    {propagationPolicy?.relatedClusters.map(
+                      (relatedCluster) => (
+                        <Tag.Root margin={0.5}>
+                          <Tag.Label>{relatedCluster}</Tag.Label>
+                        </Tag.Root>
+                      )
+                    )}
+                  </VStack>
+                </Table.Cell>
+                <Table.Cell>
+                  <VStack>
+                    {propagationPolicy?.relatedResources.map(
+                      (relatedResource) => (
+                        <Tag.Root margin={0.5}>
+                          <Tag.Label>{relatedResource}</Tag.Label>
+                        </Tag.Root>
+                      )
+                    )}
+                  </VStack>
+                </Table.Cell>
                 <Table.Cell>
                   <Flex justify="space-evenly">
                     <PropagationPolicyViewButton

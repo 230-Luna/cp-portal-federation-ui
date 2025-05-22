@@ -1,7 +1,7 @@
 import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Heading } from "@chakra-ui/react";
+import { Heading, Tag, VStack } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { getClusterPropagationPolicyListApi } from "@/apis/clusterPropagationPolicy";
 import ClusterPropagationPolicyViewButton from "./ClusterPropagationPolicyViewButton";
@@ -66,10 +66,26 @@ export default function ClusterPropagationPolicyList({
                   {clusterPropagationPolicy.conflictResolution}
                 </Table.Cell>
                 <Table.Cell>
-                  {clusterPropagationPolicy.relatedClusters}
+                  <VStack>
+                    {clusterPropagationPolicy?.relatedClusters.map(
+                      (relatedCluster) => (
+                        <Tag.Root margin={0.5}>
+                          <Tag.Label>{relatedCluster}</Tag.Label>
+                        </Tag.Root>
+                      )
+                    )}
+                  </VStack>
                 </Table.Cell>
                 <Table.Cell>
-                  {clusterPropagationPolicy.relatedResources}
+                  <VStack>
+                    {clusterPropagationPolicy?.relatedResources.map(
+                      (relatedResource) => (
+                        <Tag.Root margin={0.5}>
+                          <Tag.Label>{relatedResource}</Tag.Label>
+                        </Tag.Root>
+                      )
+                    )}
+                  </VStack>
                 </Table.Cell>
                 <Table.Cell>
                   <Flex justify="space-evenly">

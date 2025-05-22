@@ -28,7 +28,7 @@ export default function Policies() {
             <NamespaceSelect onValueChange={setNamespace} />
           ) : null}
         </Flex>
-        <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
+        <Flex justify="flex-end">
           <SearchBar
             onChange={setSearchPolicyName}
             placeholder="Search Policies"

@@ -7,8 +7,8 @@ export default function PageNotFound() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/");
-    }, 10000);
+      navigate("/cpfedui/overview");
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [navigate]);

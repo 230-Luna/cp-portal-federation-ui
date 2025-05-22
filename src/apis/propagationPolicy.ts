@@ -17,8 +17,6 @@ export async function getPropagationPolicyListApi({
 }) {
   const params = new URLSearchParams();
 
-  console.log(`namespace: ${namespace} filterBy: ${filterBy}`);
-
   if (namespace) {
     params.append("namespace", namespace);
   }

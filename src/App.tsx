@@ -36,9 +36,14 @@ function FederationTabs() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentTab = useMemo(() => {
-    const match = location.pathname.match(/^(\/cpfedui)?\/?([^/]+)?/);
-    const path = match?.[2] || "overview";
-    return path;
+    if (
+      location.pathname === "/" ||
+      location.pathname === "/cpfedui/" ||
+      location.pathname === "/cpfedui"
+    ) {
+      return "/cpfedui/overview";
+    }
+    return location.pathname;
   }, [location.pathname]);
 
   const handleTabChange = (details: { value: string }) => {
@@ -52,31 +57,29 @@ function FederationTabs() {
       navigate={({ value }) => navigate(`${value}`)}
     >
       <Tabs.List>
-        <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
-        <Tabs.Trigger value="clusters">Clusters</Tabs.Trigger>
-        <Tabs.Trigger value="policies">Policies</Tabs.Trigger>
+        <Tabs.Trigger value="/cpfedui/overview">Overview</Tabs.Trigger>
+        <Tabs.Trigger value="/cpfedui/clusters">Clusters</Tabs.Trigger>
+        <Tabs.Trigger value="/cpfedui/policies">Policies</Tabs.Trigger>
       </Tabs.List>
 
       {match(currentTab)
-        .with("overview", () => (
-          <Tabs.Content value="overview">
+        .with("/cpfedui/overview", () => (
+          <Tabs.Content value="/cpfedui/overview">
             <Overview />
           </Tabs.Content>
         ))
-        .with("clusters", () => (
-          <Tabs.Content value="clusters">
+        .with("/cpfedui/clusters", () => (
+          <Tabs.Content value="/cpfedui/clusters">
             <Clusters />
           </Tabs.Content>
         ))
-        .with("policies", () => (
-          <Tabs.Content value="policies">
+        .with("/cpfedui/policies", () => (
+          <Tabs.Content value="/cpfedui/policies">
             <Policies />
           </Tabs.Content>
         ))
         .otherwise(() => (
-          <Tabs.Content value={location.pathname.split("/")[1]}>
-            <PageNotFound />
-          </Tabs.Content>
+          <PageNotFound />
         ))}
     </Tabs.Root>
   );
