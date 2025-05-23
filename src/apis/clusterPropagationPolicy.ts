@@ -8,10 +8,12 @@ export async function getClusterPropagationPolicyListApi({
   filterBy,
   page = 1,
   itemsPerPage = 10,
+  sort = "d,creationTimestamp",
 }: {
   filterBy?: string;
   page?: number;
   itemsPerPage?: number;
+  sort?: string;
 }) {
   const params = new URLSearchParams();
 
@@ -19,11 +21,15 @@ export async function getClusterPropagationPolicyListApi({
     params.append("filterBy", `name,${filterBy}`);
   }
 
-  params.append("sortBy", "d,creationTimestamp");
+  if (sort) {
+    params.append("sortBy", sort);
+  }
+
   params.append("page", page.toString());
   params.append("itemsPerPage", itemsPerPage.toString());
 
   const CLUSTER_PROPAGATION_POLICY_API_URL = `/api/v1/clusterpropagationpolicy?${params.toString()}`;
+  console.log("CLUSTER: ", CLUSTER_PROPAGATION_POLICY_API_URL);
 
   return httpClient.get<ClusterPropagationPolicies>(
     CLUSTER_PROPAGATION_POLICY_API_URL

@@ -9,11 +9,13 @@ export async function getPropagationPolicyListApi({
   filterBy,
   page = 1,
   itemsPerPage = 10,
+  sort = "d,creationTimestamp",
 }: {
   namespace?: string;
   filterBy?: string;
   page?: number;
   itemsPerPage?: number;
+  sort?: string;
 }) {
   const params = new URLSearchParams();
 
@@ -25,12 +27,16 @@ export async function getPropagationPolicyListApi({
     params.append("filterBy", `name,${filterBy}`);
   }
 
-  params.append("sortBy", "a,namespace");
+  if (sort) {
+    console.log("name:", sort);
+    params.append("sortBy", sort);
+  }
+
   params.append("page", page.toString());
   params.append("itemsPerPage", itemsPerPage.toString());
 
   const PROPAGATION_POLICY_API_URL = `/api/v1/propagationpolicy?${params.toString()}`;
-
+  console.log("NAME: ", PROPAGATION_POLICY_API_URL);
   return httpClient.get<PropagationPolicies>(PROPAGATION_POLICY_API_URL);
 }
 

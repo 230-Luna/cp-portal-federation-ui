@@ -1,7 +1,7 @@
 import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Heading, Tag, VStack } from "@chakra-ui/react";
+import { Box, Heading, Tag, VStack } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { getClusterPropagationPolicyListApi } from "@/apis/clusterPropagationPolicy";
 import ClusterPropagationPolicyViewButton from "./ClusterPropagationPolicyViewButton";
@@ -11,8 +11,10 @@ import Pagination from "@/components/Pagination";
 
 export default function ClusterPropagationPolicyList({
   keyword,
+  sort,
 }: {
   keyword: string;
+  sort: string;
 }) {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,12 +29,14 @@ export default function ClusterPropagationPolicyList({
       keyword,
       currentPage,
       itemsPerPage,
+      sort,
     ],
     queryFn: () => {
       return getClusterPropagationPolicyListApi({
         filterBy: keyword,
         page: currentPage,
         itemsPerPage: itemsPerPage,
+        sort: sort,
       });
     },
   });
@@ -67,23 +71,31 @@ export default function ClusterPropagationPolicyList({
                 </Table.Cell>
                 <Table.Cell>
                   <VStack>
-                    {clusterPropagationPolicy?.relatedClusters.map(
-                      (relatedCluster) => (
-                        <Tag.Root margin={0.5}>
-                          <Tag.Label>{relatedCluster}</Tag.Label>
-                        </Tag.Root>
+                    {clusterPropagationPolicy?.relatedClusters.length !== 0 ? (
+                      clusterPropagationPolicy.relatedClusters.map(
+                        (relatedCluster, index) => (
+                          <Tag.Root key={index} margin={0.5}>
+                            <Tag.Label>{relatedCluster}</Tag.Label>
+                          </Tag.Root>
+                        )
                       )
+                    ) : (
+                      <Box>-</Box>
                     )}
                   </VStack>
                 </Table.Cell>
                 <Table.Cell>
                   <VStack>
-                    {clusterPropagationPolicy?.relatedResources.map(
-                      (relatedResource) => (
-                        <Tag.Root margin={0.5}>
-                          <Tag.Label>{relatedResource}</Tag.Label>
-                        </Tag.Root>
+                    {clusterPropagationPolicy.relatedResources.length !== 0 ? (
+                      clusterPropagationPolicy.relatedResources.map(
+                        (relatedResource, index) => (
+                          <Tag.Root key={index} margin={0.5}>
+                            <Tag.Label>{relatedResource}</Tag.Label>
+                          </Tag.Root>
+                        )
                       )
+                    ) : (
+                      <Box>-</Box>
                     )}
                   </VStack>
                 </Table.Cell>

@@ -1,7 +1,7 @@
 import { getClusterPropagationPolicyDetailApi } from "@/apis/clusterPropagationPolicy";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
-import { Drawer, Portal } from "@chakra-ui/react";
+import { Box, Drawer, Portal } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -44,7 +44,7 @@ function ClusterPropagationPolicyYamlViwerDrawer({ name }: { name: string }) {
             <Drawer.Title>{clusterPropagationPolicyDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <div style={{ height: "92vh" }}>
+            <Box height="92vh">
               <Editor
                 height="90vh"
                 defaultLanguage="yaml"
@@ -58,7 +58,7 @@ function ClusterPropagationPolicyYamlViwerDrawer({ name }: { name: string }) {
                   overviewRulerLanes: 0,
                 }}
               />
-            </div>
+            </Box>
           </Drawer.Body>
           <Drawer.CloseTrigger asChild>
             <CloseButton />

@@ -5,15 +5,21 @@ export async function getClusterListApi({
   filterBy,
   page = 1,
   itemsPerPage = 10,
+  sort = "newest",
 }: {
   filterBy?: string;
   page: number;
   itemsPerPage: number;
+  sort?: string;
 }) {
   const params = new URLSearchParams();
 
   if (filterBy) {
     params.append("filterBy", `name,${filterBy}`);
+  }
+
+  if (sort) {
+    params.append("sortBy", sort);
   }
 
   params.append("page", page.toString());

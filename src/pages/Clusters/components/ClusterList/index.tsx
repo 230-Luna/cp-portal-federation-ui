@@ -11,7 +11,13 @@ import { Heading } from "@chakra-ui/react";
 import Pagination from "@/components/Pagination";
 import { useSearchParams } from "react-router-dom";
 
-export default function ClusterList({ keyword }: { keyword: string }) {
+export default function ClusterList({
+  keyword,
+  sort,
+}: {
+  keyword: string;
+  sort?: string;
+}) {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page") ?? "1");
@@ -20,18 +26,20 @@ export default function ClusterList({ keyword }: { keyword: string }) {
   };
 
   const { data: clusterList } = useSuspenseQuery({
-    queryKey: ["getClusterListApi", keyword, currentPage, itemsPerPage],
+    queryKey: ["getClusterListApi", keyword, currentPage, itemsPerPage, sort],
     queryFn: () => {
       if (keyword === "") {
         return getClusterListApi({
           page: currentPage,
           itemsPerPage: itemsPerPage,
+          sort: sort,
         });
       }
       return getClusterListApi({
         filterBy: keyword,
         page: currentPage,
         itemsPerPage: itemsPerPage,
+        sort: sort,
       });
     },
   });

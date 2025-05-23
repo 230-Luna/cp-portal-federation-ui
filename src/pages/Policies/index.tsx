@@ -8,11 +8,13 @@ import LoadingSkeleton from "@/components/LoadingSkeleton";
 import LevelSelect from "@/pages/Policies/components/LevelSelect";
 import NamespaceSelect from "@/pages/Policies/components/NamespaceSelect";
 import ClusterPropagationPolicyList from "./components/ClusterPropagationPolicyList";
+import SortSelect from "../../components/SortSelect";
 
 export default function Policies() {
   const [policyLevel, setPolicyLevel] = useState("Namespace level");
   const [namespace, setNamespace] = useState("");
   const [searchPolicyName, setSearchPolicyName] = useState("");
+  const [policySort, setPolicySort] = useState("d,creationTimestamp");
 
   return (
     <>
@@ -36,15 +38,22 @@ export default function Policies() {
           <PolicyAdd />
         </Flex>
       </Flex>
+      <Flex justify="flex-end">
+        <SortSelect level={policyLevel} onValueChange={setPolicySort} />
+      </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback={<LoadingSkeleton />}>
           {policyLevel === "Namespace level" ? (
             <PropagationPolicyList
               namespace={namespace}
               keyword={searchPolicyName}
+              sort={policySort}
             />
           ) : (
-            <ClusterPropagationPolicyList keyword={searchPolicyName} />
+            <ClusterPropagationPolicyList
+              keyword={searchPolicyName}
+              sort={policySort}
+            />
           )}
         </Suspense>
       </ErrorBoundary>

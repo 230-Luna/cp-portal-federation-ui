@@ -1,20 +1,23 @@
 import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Heading, Tag, VStack } from "@chakra-ui/react";
+import { Box, Heading, Tag, VStack } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { getPropagationPolicyListApi } from "@/apis/propagationPolicy";
 import { PropagationPolicy } from "@/models/propagationPolicyModel";
 import PropagationPolicyDeleteButton from "./PropagationPolicyDeleteButton";
 import PropagationPolicyViewButton from "./PropagationPolicyViewButton";
 import Pagination from "@/components/Pagination";
+import { SortType } from "@/models/commonModels";
 
 export default function PropagationPolicyList({
   namespace,
   keyword,
+  sort,
 }: {
   namespace: string;
   keyword: string;
+  sort: string;
 }) {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,6 +33,7 @@ export default function PropagationPolicyList({
       keyword,
       currentPage,
       itemsPerPage,
+      sort,
     ],
     queryFn: () => {
       return getPropagationPolicyListApi({
@@ -37,6 +41,7 @@ export default function PropagationPolicyList({
         filterBy: keyword,
         page: currentPage,
         itemsPerPage: itemsPerPage,
+        sort: sort,
       });
     },
   });
@@ -71,23 +76,31 @@ export default function PropagationPolicyList({
                 <Table.Cell>{propagationPolicy.conflictResolution}</Table.Cell>
                 <Table.Cell>
                   <VStack>
-                    {propagationPolicy?.relatedClusters.map(
-                      (relatedCluster) => (
-                        <Tag.Root margin={0.5}>
-                          <Tag.Label>{relatedCluster}</Tag.Label>
-                        </Tag.Root>
+                    {propagationPolicy.relatedClusters.length !== 0 ? (
+                      propagationPolicy.relatedClusters.map(
+                        (relatedCluster, index) => (
+                          <Tag.Root key={index} margin={0.5}>
+                            <Tag.Label>{relatedCluster}</Tag.Label>
+                          </Tag.Root>
+                        )
                       )
+                    ) : (
+                      <Box>-</Box>
                     )}
                   </VStack>
                 </Table.Cell>
                 <Table.Cell>
                   <VStack>
-                    {propagationPolicy?.relatedResources.map(
-                      (relatedResource) => (
-                        <Tag.Root margin={0.5}>
-                          <Tag.Label>{relatedResource}</Tag.Label>
-                        </Tag.Root>
+                    {propagationPolicy.relatedResources.length !== 0 ? (
+                      propagationPolicy.relatedResources.map(
+                        (relatedResource, index) => (
+                          <Tag.Root key={index} margin={0.5}>
+                            <Tag.Label>{relatedResource}</Tag.Label>
+                          </Tag.Root>
+                        )
                       )
+                    ) : (
+                      <Box>-</Box>
                     )}
                   </VStack>
                 </Table.Cell>
