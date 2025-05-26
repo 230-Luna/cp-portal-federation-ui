@@ -29,7 +29,7 @@ export async function getClusterPropagationPolicyListApi({
   params.append("itemsPerPage", itemsPerPage.toString());
 
   const CLUSTER_PROPAGATION_POLICY_API_URL = `/api/v1/clusterpropagationpolicy?${params.toString()}`;
-  console.log("CLUSTER: ", CLUSTER_PROPAGATION_POLICY_API_URL);
+  console.log("cluster: ", params.toString());
 
   return httpClient.get<ClusterPropagationPolicies>(
     CLUSTER_PROPAGATION_POLICY_API_URL

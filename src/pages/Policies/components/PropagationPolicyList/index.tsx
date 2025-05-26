@@ -2,13 +2,12 @@ import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Box, Heading, Tag, VStack } from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getPropagationPolicyListApi } from "@/apis/propagationPolicy";
 import { PropagationPolicy } from "@/models/propagationPolicyModel";
 import PropagationPolicyDeleteButton from "./PropagationPolicyDeleteButton";
 import PropagationPolicyViewButton from "./PropagationPolicyViewButton";
 import Pagination from "@/components/Pagination";
-import { SortType } from "@/models/commonModels";
 
 export default function PropagationPolicyList({
   namespace,
@@ -23,7 +22,11 @@ export default function PropagationPolicyList({
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
-    setSearchParams((prev) => ({ ...prev, page }));
+    const params = new URLSearchParams(searchParams);
+    params.set("page", String(page));
+    setSearchParams(params);
+
+    // setSearchParams((prev) => ({ ...prev, page }));
   };
 
   const { data: propagationPolicyList } = useSuspenseQuery({

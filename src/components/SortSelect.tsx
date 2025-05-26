@@ -4,6 +4,7 @@ import {
   Select,
   SelectValueChangeDetails,
 } from "@chakra-ui/react";
+import { useSearchParams } from "react-router-dom";
 
 export default function SortSelect({
   level,
@@ -12,6 +13,8 @@ export default function SortSelect({
   level: string;
   onValueChange: (velue: string) => void;
 }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   let sortOptions: Record<string, string> = {
     newest: "d,creationTimestamp",
     oldest: "a,creationTimestamp",
@@ -26,6 +29,9 @@ export default function SortSelect({
 
   const handleSelectValueChange = (details: SelectValueChangeDetails) => {
     onValueChange(sortOptions[details.value[0]]);
+    const params = new URLSearchParams(searchParams);
+    params.set("sortBy", details.value[0]);
+    setSearchParams(params);
   };
 
   const sortCollection = createListCollection({

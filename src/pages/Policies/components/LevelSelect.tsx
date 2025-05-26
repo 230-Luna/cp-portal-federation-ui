@@ -1,5 +1,6 @@
 import { SegmentGroup } from "@/components/SegmentGroup";
 import { SegmentGroupValueChangeDetails } from "@chakra-ui/react";
+import { useSearchParams } from "react-router-dom";
 
 export default function LevelSelect({
   value,
@@ -8,9 +9,17 @@ export default function LevelSelect({
   value: string;
   onValueChange: (value: string) => void;
 }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
-    if (details.value !== null) {
-      onValueChange(details.value);
+    const value = details.value;
+    if (value !== null) {
+      onValueChange(value);
+      const params = new URLSearchParams(searchParams);
+      params.set("level", value.split(" ")[0]);
+      params.delete("page");
+      params.delete("sortBy");
+      setSearchParams(params);
     }
   };
 

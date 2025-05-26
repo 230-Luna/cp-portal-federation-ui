@@ -20,9 +20,12 @@ export default function ClusterPropagationPolicyList({
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
-    setSearchParams((prev) => ({ ...prev, page }));
-  };
+    const params = new URLSearchParams(searchParams);
+    params.set("page", String(page));
 
+    setSearchParams(params);
+    // setSearchParams((prev) => ({ ...prev, page }));
+  };
   const { data: clusterPropagationPolicyList } = useSuspenseQuery({
     queryKey: [
       "getClusterPropagationPolicyListApi",

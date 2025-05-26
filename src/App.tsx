@@ -4,10 +4,16 @@ import Policies from "@/pages/Policies";
 import { Tabs } from "@/components/Tabs";
 import { Toaster } from "@/components/Toaster";
 import { ReactNode, useMemo } from "react";
-import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PageNotFound from "@/error/PageNotFound";
 import { match } from "ts-pattern";
+import { Link } from "@chakra-ui/react";
 
 const queryClient = new QueryClient();
 

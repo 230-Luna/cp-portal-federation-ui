@@ -28,7 +28,6 @@ export async function getPropagationPolicyListApi({
   }
 
   if (sort) {
-    console.log("name:", sort);
     params.append("sortBy", sort);
   }
 
@@ -36,7 +35,7 @@ export async function getPropagationPolicyListApi({
   params.append("itemsPerPage", itemsPerPage.toString());
 
   const PROPAGATION_POLICY_API_URL = `/api/v1/propagationpolicy?${params.toString()}`;
-  console.log("NAME: ", PROPAGATION_POLICY_API_URL);
+  console.log("propa: ", params.toString());
   return httpClient.get<PropagationPolicies>(PROPAGATION_POLICY_API_URL);
 }
 
