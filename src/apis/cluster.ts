@@ -1,5 +1,6 @@
 import { httpClient } from "@/utils/httpClient";
 import { Clusters, ClusterDetail } from "@/models/clustersModel";
+import { useSearchParams } from "react-router-dom";
 
 export async function getClusterListApi({
   filterBy,
@@ -12,20 +13,20 @@ export async function getClusterListApi({
   itemsPerPage: number;
   sort?: string;
 }) {
-  const params = new URLSearchParams();
+  const [searchParams] = useSearchParams();
 
   if (filterBy) {
-    params.append("filterBy", `name,${filterBy}`);
+    searchParams.append("filterBy", `name,${filterBy}`);
   }
 
   if (sort) {
-    params.append("sortBy", sort);
+    searchParams.append("sortBy", sort);
   }
 
-  params.append("page", page.toString());
-  params.append("itemsPerPage", itemsPerPage.toString());
+  searchParams.append("page", page.toString());
+  searchParams.append("itemsPerPage", itemsPerPage.toString());
 
-  const CLUSTER_API_URL = `/api/v1/cluster?${params.toString()}`;
+  const CLUSTER_API_URL = `/api/v1/cluster?${searchParams.toString()}`;
 
   return httpClient.get<Clusters>(CLUSTER_API_URL);
 }

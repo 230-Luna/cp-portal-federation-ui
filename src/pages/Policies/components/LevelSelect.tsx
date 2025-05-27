@@ -15,11 +15,13 @@ export default function LevelSelect({
     const value = details.value;
     if (value !== null) {
       onValueChange(value);
-      const params = new URLSearchParams(searchParams);
-      params.set("level", value.split(" ")[0]);
-      params.delete("page");
-      params.delete("sortBy");
-      setSearchParams(params);
+      searchParams.set("level", value.split(" ")[0]);
+      searchParams.delete("page");
+      searchParams.delete("sortBy");
+      searchParams.delete("searchWord");
+      searchParams.delete("namespace");
+      setSearchParams(searchParams);
+      console.log("level searchParams: ", searchParams);
     }
   };
 

@@ -17,6 +17,7 @@ export async function getPropagationPolicyListApi({
   itemsPerPage?: number;
   sort?: string;
 }) {
+  // const [searchParams, setSearchParams] = useSearchParams();
   const params = new URLSearchParams();
 
   if (namespace) {
@@ -26,6 +27,7 @@ export async function getPropagationPolicyListApi({
   if (filterBy) {
     params.append("filterBy", `name,${filterBy}`);
   }
+  console.log("filterBy: ", filterBy);
 
   if (sort) {
     params.append("sortBy", sort);
@@ -35,7 +37,7 @@ export async function getPropagationPolicyListApi({
   params.append("itemsPerPage", itemsPerPage.toString());
 
   const PROPAGATION_POLICY_API_URL = `/api/v1/propagationpolicy?${params.toString()}`;
-  console.log("propa: ", params.toString());
+  console.log("파라미터: ", params.toString());
   return httpClient.get<PropagationPolicies>(PROPAGATION_POLICY_API_URL);
 }
 

@@ -6,13 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 
-export default function SortSelect({
-  level,
-  onValueChange,
-}: {
-  level: string;
-  onValueChange: (velue: string) => void;
-}) {
+export default function SortSelect({ level }: { level: string }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   let sortOptions: Record<string, string> = {
@@ -25,17 +19,13 @@ export default function SortSelect({
     sortOptions = { ...sortOptions, namespace: "a,namespace" };
   }
 
-  let sort = Object.keys(sortOptions);
-
   const handleSelectValueChange = (details: SelectValueChangeDetails) => {
-    onValueChange(sortOptions[details.value[0]]);
-    const params = new URLSearchParams(searchParams);
-    params.set("sortBy", details.value[0]);
-    setSearchParams(params);
+    searchParams.set("sortBy", sortOptions[details.value[0]]);
+    setSearchParams(searchParams);
   };
 
   const sortCollection = createListCollection({
-    items: sort,
+    items: Object.keys(sortOptions),
   });
 
   return (

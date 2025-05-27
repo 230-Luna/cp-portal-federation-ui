@@ -4,24 +4,21 @@ import { InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import useDebounce from "@/hooks/useDebounce";
+import { useSearchParams } from "react-router-dom";
 
-export default function SearchBar({
-  onChange,
-  placeholder,
-}: {
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
+export default function SearchBar({ placeholder }: { placeholder: string }) {
   const [searchText, setSearchText] = useState("");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const debouncedOnChange = useDebounce(searchText, 300);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleChangeSearchInput = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchText(event.target.value);
   };
 
   useEffect(() => {
-    onChange(debouncedOnChange);
+    searchParams.set("searchWord", debouncedOnChange);
+    setSearchParams(searchParams);
   }, [debouncedOnChange]);
 
   return (

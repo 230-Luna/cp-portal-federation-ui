@@ -9,37 +9,33 @@ import { ClusterPropagationPolicy } from "@/models/clusterPropagationPolicyModel
 import ClusterPropagationPolicyDeleteButton from "./ClusterPropagationPolicyDeleteButton";
 import Pagination from "@/components/Pagination";
 
-export default function ClusterPropagationPolicyList({
-  keyword,
-  sort,
-}: {
-  keyword: string;
-  sort: string;
-}) {
+export default function ClusterPropagationPolicyList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || undefined;
+  const searchWord = searchParams.get("searchWord") || undefined;
+
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", String(page));
-
-    setSearchParams(params);
-    // setSearchParams((prev) => ({ ...prev, page }));
+    searchParams.set("page", String(page));
+    setSearchParams(searchParams);
+    // setSearchParams((prev) => ({ ...prev, page: String(page) }));
   };
+
   const { data: clusterPropagationPolicyList } = useSuspenseQuery({
     queryKey: [
       "getClusterPropagationPolicyListApi",
-      keyword,
+      searchWord,
       currentPage,
       itemsPerPage,
-      sort,
+      sortBy,
     ],
     queryFn: () => {
       return getClusterPropagationPolicyListApi({
-        filterBy: keyword,
+        filterBy: searchWord,
         page: currentPage,
         itemsPerPage: itemsPerPage,
-        sort: sort,
+        sort: sortBy,
       });
     },
   });

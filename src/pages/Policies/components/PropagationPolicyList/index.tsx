@@ -2,49 +2,43 @@ import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Box, Heading, Tag, VStack } from "@chakra-ui/react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { getPropagationPolicyListApi } from "@/apis/propagationPolicy";
 import { PropagationPolicy } from "@/models/propagationPolicyModel";
 import PropagationPolicyDeleteButton from "./PropagationPolicyDeleteButton";
 import PropagationPolicyViewButton from "./PropagationPolicyViewButton";
 import Pagination from "@/components/Pagination";
 
-export default function PropagationPolicyList({
-  namespace,
-  keyword,
-  sort,
-}: {
-  namespace: string;
-  keyword: string;
-  sort: string;
-}) {
+export default function PropagationPolicyList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || undefined;
+  const searchWord = searchParams.get("searchWord") || undefined;
+  const namespace = searchParams.get("namespace") || undefined;
+
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", String(page));
-    setSearchParams(params);
-
-    // setSearchParams((prev) => ({ ...prev, page }));
+    searchParams.set("page", String(page));
+    setSearchParams(searchParams);
+    // setSearchParams((prev) => ({ ...prev, page: String(page) }));
   };
 
   const { data: propagationPolicyList } = useSuspenseQuery({
     queryKey: [
       "getPropagationPolicyListApi",
       namespace,
-      keyword,
+      searchWord,
       currentPage,
       itemsPerPage,
-      sort,
+      sortBy,
     ],
     queryFn: () => {
       return getPropagationPolicyListApi({
         namespace: namespace,
-        filterBy: keyword,
+        filterBy: searchWord,
         page: currentPage,
         itemsPerPage: itemsPerPage,
-        sort: sort,
+        sort: sortBy,
       });
     },
   });

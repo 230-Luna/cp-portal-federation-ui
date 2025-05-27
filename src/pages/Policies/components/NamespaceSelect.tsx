@@ -7,20 +7,17 @@ import {
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
-export default function NamespaceSelect({
-  onValueChange,
-}: {
-  onValueChange: (namespace: string) => void;
-}) {
+export default function NamespaceSelect() {
   const [value, setValue] = useState<string[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSelectValueChange = (details: SelectValueChangeDetails) => {
     setValue(details.value);
-    if (details.value[0] === "all") {
-      onValueChange("");
-    } else {
-      onValueChange(details.value[0]);
+    if (details.value[0] !== "all") {
+      searchParams.set("namespace", details.value[0]);
+      setSearchParams(searchParams);
     }
   };
 

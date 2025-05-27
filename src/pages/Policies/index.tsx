@@ -12,9 +12,6 @@ import SortSelect from "../../components/SortSelect";
 
 export default function Policies() {
   const [policyLevel, setPolicyLevel] = useState("Namespace level");
-  const [namespace, setNamespace] = useState("");
-  const [searchPolicyName, setSearchPolicyName] = useState("");
-  const [policySort, setPolicySort] = useState("d,creationTimestamp");
 
   return (
     <>
@@ -26,34 +23,22 @@ export default function Policies() {
       >
         <Flex>
           <LevelSelect value={policyLevel} onValueChange={setPolicyLevel} />
-          {policyLevel === "Namespace level" ? (
-            <NamespaceSelect onValueChange={setNamespace} />
-          ) : null}
+          {policyLevel === "Namespace level" ? <NamespaceSelect /> : null}
         </Flex>
         <Flex justify="flex-end">
-          <SearchBar
-            onChange={setSearchPolicyName}
-            placeholder="Search Policies"
-          />
+          <SearchBar placeholder="Search Policies" />
           <PolicyAdd />
         </Flex>
       </Flex>
       <Flex justify="flex-end">
-        <SortSelect level={policyLevel} onValueChange={setPolicySort} />
+        <SortSelect level={policyLevel} />
       </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback={<LoadingSkeleton />}>
           {policyLevel === "Namespace level" ? (
-            <PropagationPolicyList
-              namespace={namespace}
-              keyword={searchPolicyName}
-              sort={policySort}
-            />
+            <PropagationPolicyList />
           ) : (
-            <ClusterPropagationPolicyList
-              keyword={searchPolicyName}
-              sort={policySort}
-            />
+            <ClusterPropagationPolicyList />
           )}
         </Suspense>
       </ErrorBoundary>
