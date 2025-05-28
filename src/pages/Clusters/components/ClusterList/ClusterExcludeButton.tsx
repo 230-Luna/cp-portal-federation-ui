@@ -60,12 +60,12 @@ function ExcludeClusterConfirmDialog({
     mutationFn: async () => {
       try {
         onClose();
-        const loadingToasterId = toaster.create({
+        const loadingToaster = toaster.create({
           type: "loading",
           description: `${clusterName}를 멤버 클러스터에서 제외하고 있습니다.`,
         });
-        await deleteClusterApi(clusterId);
-        toaster.remove(loadingToasterId);
+        await deleteClusterApi({ clusterId });
+        toaster.remove(loadingToaster);
         toaster.success({
           description: `${clusterName}가 멤버 클러스터에서 제외되었습니다.`,
         });

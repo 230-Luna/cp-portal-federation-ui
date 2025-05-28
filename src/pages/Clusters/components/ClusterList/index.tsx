@@ -7,46 +7,42 @@ import ClusterExcludeButton from "./ClusterExcludeButton";
 import { getClusterListApi } from "@/apis/cluster";
 import { Cluster } from "@/models/clustersModel";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Heading } from "@chakra-ui/react";
 import Pagination from "@/components/Pagination";
 import { useSearchParams } from "react-router-dom";
+import { Heading } from "@/components/Heading";
 
-export default function ClusterList({
-  keyword,
-  sort,
-}: {
-  keyword: string;
-  sort?: string;
-}) {
+export default function ClusterList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
+  const sortBy = searchParams.get("sortBy") || undefined;
+  const filterBy = searchParams.get("filterBy") || undefined;
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
-    setSearchParams((prev) => ({ ...prev, page }));
+    searchParams.set("page", page.toString());
+    setSearchParams(searchParams);
   };
 
   const { data: clusterList } = useSuspenseQuery({
-    queryKey: ["getClusterListApi", keyword, currentPage, itemsPerPage, sort],
+    queryKey: [
+      "getClusterListApi",
+      filterBy,
+      currentPage,
+      itemsPerPage,
+      sortBy,
+    ],
     queryFn: () => {
-      if (keyword === "") {
-        return getClusterListApi({
-          page: currentPage,
-          itemsPerPage: itemsPerPage,
-          sort: sort,
-        });
-      }
       return getClusterListApi({
-        filterBy: keyword,
+        filterBy: filterBy,
         page: currentPage,
         itemsPerPage: itemsPerPage,
-        sort: sort,
+        sort: sortBy,
       });
     },
   });
 
   if (clusterList.clusters.length === 0) {
     return (
-      <Heading size="xl" margin="7%">
+      <Heading variant="center" marginTop="10%">
         결과가 없습니다.
       </Heading>
     );

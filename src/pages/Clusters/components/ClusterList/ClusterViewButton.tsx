@@ -30,7 +30,7 @@ export default function ClusterViewButton({
 function ClusterYamlViwerDrawer({ clusterId }: { clusterId: string }) {
   const { data: clusterDetail } = useQuery({
     queryKey: ["getClusterDetailApi", clusterId],
-    queryFn: () => getClusterDetailApi(clusterId),
+    queryFn: () => getClusterDetailApi({ clusterId }),
   });
 
   return clusterDetail == null ? null : (

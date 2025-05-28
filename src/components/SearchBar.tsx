@@ -17,7 +17,7 @@ export default function SearchBar({ placeholder }: { placeholder: string }) {
   };
 
   useEffect(() => {
-    searchParams.set("searchWord", debouncedOnChange);
+    searchParams.set("filterBy", debouncedOnChange);
     setSearchParams(searchParams);
   }, [debouncedOnChange]);
 

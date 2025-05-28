@@ -63,17 +63,17 @@ function DeletePropagationPolicyConfirmDialog({
     mutationFn: async () => {
       try {
         onClose();
-        const loadingToasterId = toaster.create({
+        const loadingToaster = toaster.create({
           type: "loading",
           description: `${name}를 삭제하고 있습니다.`,
         });
         await deletePropagationPolicyApi({ namespace, name });
-        toaster.remove(loadingToasterId);
+        toaster.remove(loadingToaster);
         toaster.success({
           description: `${name}가 삭제되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["handleDeletePropagationPolicy", namespace, name],
+          queryKey: ["getPropagationPolicyListApi"],
         });
       } catch {
         toaster.error({

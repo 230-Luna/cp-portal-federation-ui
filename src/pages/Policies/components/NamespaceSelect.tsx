@@ -18,6 +18,9 @@ export default function NamespaceSelect() {
     if (details.value[0] !== "all") {
       searchParams.set("namespace", details.value[0]);
       setSearchParams(searchParams);
+    } else {
+      searchParams.set("namespace", "");
+      setSearchParams(searchParams);
     }
   };
 

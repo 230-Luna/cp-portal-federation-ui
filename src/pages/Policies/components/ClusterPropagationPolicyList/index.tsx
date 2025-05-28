@@ -1,38 +1,37 @@
 import { Table } from "@/components/Table";
 import { Flex } from "@/components/Flex";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Box, Heading, Tag, VStack } from "@chakra-ui/react";
+import { Box, Tag, VStack } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 import { getClusterPropagationPolicyListApi } from "@/apis/clusterPropagationPolicy";
 import ClusterPropagationPolicyViewButton from "./ClusterPropagationPolicyViewButton";
 import { ClusterPropagationPolicy } from "@/models/clusterPropagationPolicyModel";
 import ClusterPropagationPolicyDeleteButton from "./ClusterPropagationPolicyDeleteButton";
 import Pagination from "@/components/Pagination";
+import { Heading } from "@/components/Heading";
 
 export default function ClusterPropagationPolicyList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
   const sortBy = searchParams.get("sortBy") || undefined;
-  const searchWord = searchParams.get("searchWord") || undefined;
-
+  const filterBy = searchParams.get("filterBy") || undefined;
   const currentPage = Number(searchParams.get("page") ?? "1");
   const setCurrentPage = (page: number) => {
-    searchParams.set("page", String(page));
+    searchParams.set("page", page.toString());
     setSearchParams(searchParams);
-    // setSearchParams((prev) => ({ ...prev, page: String(page) }));
   };
 
   const { data: clusterPropagationPolicyList } = useSuspenseQuery({
     queryKey: [
       "getClusterPropagationPolicyListApi",
-      searchWord,
+      filterBy,
       currentPage,
       itemsPerPage,
       sortBy,
     ],
     queryFn: () => {
       return getClusterPropagationPolicyListApi({
-        filterBy: searchWord,
+        filterBy: filterBy,
         page: currentPage,
         itemsPerPage: itemsPerPage,
         sort: sortBy,
@@ -42,7 +41,7 @@ export default function ClusterPropagationPolicyList() {
 
   if (clusterPropagationPolicyList.clusterPropagationPolicies.length === 0) {
     return (
-      <Heading size="xl" margin="7%">
+      <Heading variant="center" marginTop="10%">
         결과가 없습니다.
       </Heading>
     );

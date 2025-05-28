@@ -68,7 +68,7 @@ function DeleteClusterPropagationPolicyConfirmDialog({
           description: `${name}가 삭제되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["handleDeleteClusterPropagationPolicy", name],
+          queryKey: ["getClusterPropagationPolicyListApi"],
         });
       } catch {
         toaster.error({

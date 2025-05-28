@@ -9,19 +9,10 @@ export default function LevelSelect({
   value: string;
   onValueChange: (value: string) => void;
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
     const value = details.value;
     if (value !== null) {
       onValueChange(value);
-      searchParams.set("level", value.split(" ")[0]);
-      searchParams.delete("page");
-      searchParams.delete("sortBy");
-      searchParams.delete("searchWord");
-      searchParams.delete("namespace");
-      setSearchParams(searchParams);
-      console.log("level searchParams: ", searchParams);
     }
   };
 
