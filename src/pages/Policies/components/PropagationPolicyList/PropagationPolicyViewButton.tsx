@@ -1,10 +1,15 @@
-import { getPropagationPolicyDetailApi } from "@/apis/propagationPolicy";
+import {
+  getPropagationPolicyDetailApi,
+  updatePropagationPolicyApi,
+} from "@/apis/propagationPolicy";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
+import { toaster } from "@/components/Toaster";
+import { PropagationPolicyDetail } from "@/models/propagationPolicyModel";
 import { Box, Drawer, Portal } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 
 export default function PropagationPolicyViewButton({
   namespace,
@@ -25,7 +30,11 @@ export default function PropagationPolicyViewButton({
         <Button variant="blueGhost">View</Button>
       </Drawer.Trigger>
       {open === true ? (
-        <PropagationPolicyYamlViwerDrawer namespace={namespace} name={name} />
+        <PropagationPolicyYamlViwerDrawer
+          namespace={namespace}
+          name={name}
+          onClose={() => setOpen(false)}
+        />
       ) : null}
     </Drawer.Root>
   );
@@ -34,14 +43,70 @@ export default function PropagationPolicyViewButton({
 function PropagationPolicyYamlViwerDrawer({
   namespace,
   name,
+  onClose,
 }: {
   namespace: string;
   name: string;
+  onClose: () => void;
 }) {
+  const [propagationData, setPropagationData] = useState("");
+  const editorRef = useRef(null);
+  const queryClient = useQueryClient();
+
   const { data: propagationPolicyDetail } = useQuery({
     queryKey: ["getPropagationPolicyDetailApi", namespace, name],
     queryFn: () => getPropagationPolicyDetailApi({ namespace, name }),
   });
+
+  const handleEditPropagationPolicy = useMutation({
+    mutationFn: async () => {
+      console.log("mt: ", propagationData);
+
+      try {
+        onClose();
+        const loadingToasterId = toaster.create({
+          type: "loading",
+          description: `Propagation Policy를 수정하고 있습니다.`,
+        });
+        const response = await updatePropagationPolicyApi({
+          namespace,
+          name,
+          data: propagationData,
+        });
+        toaster.remove(loadingToasterId);
+        if (response.code !== 200) {
+          toaster.create({
+            type: "error",
+            description: `${name} Propagation Policy 수정에 실패하였습니다.`,
+          });
+        } else {
+          toaster.create({
+            type: "success",
+            description: `${name} Propagation Policy 수정되었습니다.`,
+          });
+        }
+
+        queryClient.invalidateQueries({
+          queryKey: ["getPropagationPolicyListApi"],
+        });
+      } catch (error) {
+        toaster.error({
+          type: "error",
+          description: `에러가 발생했습니다. ${error || "알 수 없는 오류"}`,
+        });
+      }
+    },
+  });
+
+  const handleEditorChange = (value: string | undefined) => {
+    if (value != null) {
+      setPropagationData(value);
+    }
+  };
+
+  const handleEditorMount = (editor: any) => {
+    editorRef.current = editor;
+  };
 
   return propagationPolicyDetail == null ? null : (
     <Portal>
@@ -54,9 +119,12 @@ function PropagationPolicyYamlViwerDrawer({
           <Drawer.Body>
             <Box height="92vh">
               <Editor
+                defaultValue={propagationPolicyDetail.yaml}
+                value={propagationPolicyDetail.yaml}
+                onChange={handleEditorChange}
+                onMount={handleEditorMount}
                 height="90vh"
                 defaultLanguage="yaml"
-                defaultValue={propagationPolicyDetail.yaml}
                 options={{
                   scrollbar: {
                     vertical: "hidden",
@@ -68,6 +136,17 @@ function PropagationPolicyYamlViwerDrawer({
               />
             </Box>
           </Drawer.Body>
+          <Drawer.Footer>
+            <Drawer.ActionTrigger asChild>
+              <Button variant="blueOutline">Cancel</Button>
+            </Drawer.ActionTrigger>
+            <Button
+              variant="blue"
+              onClick={() => handleEditPropagationPolicy.mutate()}
+            >
+              Edit
+            </Button>
+          </Drawer.Footer>
           <Drawer.CloseTrigger asChild>
             <CloseButton />
           </Drawer.CloseTrigger>
@@ -76,34 +155,3 @@ function PropagationPolicyYamlViwerDrawer({
     </Portal>
   );
 }
-
-// export function YamlMaker() {
-//   // const editRef = useRef(null);
-
-//   // function handleEditorDidMount(editor, monaco) {
-//   //   editorRef.current = editor;
-//   // }
-
-//   // function showValue() {
-//   //   alert(editorRef.current.getValue());
-//   // }
-
-//   return (
-//     <div style={{ height: "92vh" }}>
-//       <Editor
-//         height="90vh"
-//         defaultLanguage="yaml"
-//         defaultValue={yaml}
-//         options={{
-//           scrollbar: {
-//             vertical: "hidden",
-//             horizontal: "hidden",
-//             handleMouseWheel: true,
-//           },
-//           overviewRulerLanes: 0,
-//         }}
-//         // onMount={handleEditorDidMount}
-//       />
-//     </div>
-//   );
-// }

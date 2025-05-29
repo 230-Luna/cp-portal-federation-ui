@@ -1,4 +1,3 @@
-import { ESLint } from "eslint";
 import plugin from "@typescript-eslint/eslint-plugin";
 
 export default [

@@ -62,3 +62,20 @@ export async function deletePropagationPolicyApi({
     `/api/v1/propagationpolicy/namespace/${namespace}/${name}`
   );
 }
+
+export async function updatePropagationPolicyApi({
+  namespace,
+  name,
+  data,
+}: {
+  namespace: string;
+  name: string;
+  data: string;
+}) {
+  console.log("name,namespace:", name, namespace);
+  console.log("data: ", data);
+  return httpClient.put(
+    `/api/v1/propagationpolicy/namespace/${namespace}/${name}`,
+    { propagationData: data }
+  );
+}

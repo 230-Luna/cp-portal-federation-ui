@@ -60,6 +60,12 @@ function ClusterPropagationPolicyYamlViwerDrawer({ name }: { name: string }) {
               />
             </Box>
           </Drawer.Body>
+          <Drawer.Footer>
+            <Drawer.ActionTrigger asChild>
+              <Button variant="blueOutline">Cancel</Button>
+            </Drawer.ActionTrigger>
+            <Button variant="blue">Edit</Button>
+          </Drawer.Footer>
           <Drawer.CloseTrigger asChild>
             <CloseButton />
           </Drawer.CloseTrigger>

@@ -8,6 +8,11 @@ interface FederationHttpClient extends AxiosInstance {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<T>;
+  put<T = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<T>;
 }
 const config: AxiosRequestConfig = {
   baseURL: import.meta.env.VITE_CP_PORTAL_FEDERATION_API_URL,
