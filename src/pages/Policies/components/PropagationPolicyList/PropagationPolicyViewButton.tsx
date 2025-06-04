@@ -5,11 +5,15 @@ import {
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { toaster } from "@/components/Toaster";
-import { PropagationPolicyDetail } from "@/models/propagationPolicyModel";
 import { Box, Drawer, Portal } from "@chakra-ui/react";
 import { Editor } from "@monaco-editor/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 
 export default function PropagationPolicyViewButton({
   namespace,
@@ -49,58 +53,64 @@ function PropagationPolicyYamlViwerDrawer({
   name: string;
   onClose: () => void;
 }) {
-  const [propagationData, setPropagationData] = useState("");
+  const [propagationPolicyData, setPropagationPolicyData] = useState("");
   const editorRef = useRef(null);
   const queryClient = useQueryClient();
 
-  const { data: propagationPolicyDetail } = useQuery({
+  const { data: propagationPolicyDetail } = useSuspenseQuery({
     queryKey: ["getPropagationPolicyDetailApi", namespace, name],
     queryFn: () => getPropagationPolicyDetailApi({ namespace, name }),
   });
 
-  const handleEditPropagationPolicy = useMutation({
-    mutationFn: async () => {
-      console.log("mt: ", propagationData);
+  useEffect(() => {
+    if (propagationPolicyDetail?.yaml) {
+      setPropagationPolicyData(propagationPolicyDetail.yaml);
+    }
+  }, [propagationPolicyDetail]);
 
+  const handleEditPropagationPolicy = useMutation({
+    mutationKey: ["handleEditPropagationPolicy", namespace, name],
+    mutationFn: async () => {
+      let loadingToaster;
       try {
         onClose();
-        const loadingToasterId = toaster.create({
+        loadingToaster = toaster.create({
           type: "loading",
-          description: `Propagation Policy를 수정하고 있습니다.`,
+          description: `Policy를 수정하고 있습니다.`,
         });
-        const response = await updatePropagationPolicyApi({
+        await updatePropagationPolicyApi({
           namespace,
           name,
-          data: propagationData,
+          data: propagationPolicyData,
         });
-        toaster.remove(loadingToasterId);
-        if (response.code !== 200) {
-          toaster.create({
-            type: "error",
-            description: `${name} Propagation Policy 수정에 실패하였습니다.`,
-          });
-        } else {
-          toaster.create({
-            type: "success",
-            description: `${name} Propagation Policy 수정되었습니다.`,
-          });
-        }
-
+        toaster.remove(loadingToaster);
+        toaster.success({
+          description: `${name} Policy가 수정되었습니다.`,
+        });
         queryClient.invalidateQueries({
           queryKey: ["getPropagationPolicyListApi"],
         });
-      } catch (error) {
+      } catch (error: any) {
+        console.log(error.response.data.message);
         toaster.error({
           type: "error",
-          description: `에러가 발생했습니다. ${error || "알 수 없는 오류"}`,
+          description: `${error.response.data.message || "알 수 없는 오류"}`,
         });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
       }
     },
   });
 
+  const editPropagationPolicyMutationCount = useIsMutating({
+    mutationKey: ["handleEditPropagationPolicy", namespace, name],
+  });
+
   const handleEditorChange = (value: string | undefined) => {
     if (value != null) {
-      setPropagationData(value);
+      setPropagationPolicyData(value);
     }
   };
 
@@ -142,6 +152,7 @@ function PropagationPolicyYamlViwerDrawer({
             </Drawer.ActionTrigger>
             <Button
               variant="blue"
+              disabled={editPropagationPolicyMutationCount > 0}
               onClick={() => handleEditPropagationPolicy.mutate()}
             >
               Edit

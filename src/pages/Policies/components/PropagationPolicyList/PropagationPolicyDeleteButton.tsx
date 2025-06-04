@@ -61,9 +61,10 @@ function DeletePropagationPolicyConfirmDialog({
   const handleDeletePropagationPolicy = useMutation({
     mutationKey: ["handleDeletePropagationPolicy", namespace, name],
     mutationFn: async () => {
+      let loadingToaster;
       try {
         onClose();
-        const loadingToaster = toaster.create({
+        loadingToaster = toaster.create({
           type: "loading",
           description: `${name}를 삭제하고 있습니다.`,
         });
@@ -79,6 +80,10 @@ function DeletePropagationPolicyConfirmDialog({
         toaster.error({
           description: `${name}를 삭제하는 데 오류가 발생했습니다.`,
         });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
       }
     },
   });

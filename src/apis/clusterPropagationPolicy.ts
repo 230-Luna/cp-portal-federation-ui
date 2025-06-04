@@ -52,3 +52,15 @@ export async function deleteClusterPropagationPolicyApi({
 }) {
   return httpClient.delete(`/api/v1/clusterpropagationpolicy/${name}`);
 }
+
+export async function updateClusterPropagationPolicyApi({
+  name,
+  data,
+}: {
+  name: string;
+  data: string;
+}) {
+  return httpClient.put(`/api/v1/clusterpropagationpolicy/${name}`, {
+    propagationData: data,
+  });
+}

@@ -46,16 +46,17 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
 
   const handleRegisterCluster = useMutation({
     mutationFn: async () => {
+      let loadingToaster;
       try {
         onClose();
-        const loadingToasterId = toaster.create({
+        loadingToaster = toaster.create({
           type: "loading",
           description: `멤버 클러스터를 추가하고 있습니다.`,
         });
         const response = await registerClustersApi({
           clusterIds: selectedData,
         });
-        toaster.remove(loadingToasterId);
+        toaster.remove(loadingToaster);
         response.clusters.map(
           (cluster: {
             clusterId: string;
@@ -77,11 +78,15 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
           }
         );
         queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
-      } catch (error) {
+      } catch (error: any) {
         toaster.error({
           type: "error",
-          description: `에러가 발생했습니다. ${error || "알 수 없는 오류"}`,
+          description: `${error.response.data.message || "알 수 없는 오류"}`,
         });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
       }
     },
   });

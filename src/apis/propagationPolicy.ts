@@ -72,8 +72,6 @@ export async function updatePropagationPolicyApi({
   name: string;
   data: string;
 }) {
-  console.log("name,namespace:", name, namespace);
-  console.log("data: ", data);
   return httpClient.put(
     `/api/v1/propagationpolicy/namespace/${namespace}/${name}`,
     { propagationData: data }

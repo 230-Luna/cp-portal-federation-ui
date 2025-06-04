@@ -11,7 +11,7 @@ export const toaster = createToaster({
   placement: "top-end",
   pauseOnPageIdle: true,
   max: 10,
-  duration: 1500,
+  duration: 2500,
   offsets: "30px",
 });
 

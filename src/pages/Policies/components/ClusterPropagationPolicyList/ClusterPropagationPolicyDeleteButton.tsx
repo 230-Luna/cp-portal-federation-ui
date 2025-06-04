@@ -56,14 +56,15 @@ function DeleteClusterPropagationPolicyConfirmDialog({
   const handleDeleteClusterPropagationPolicy = useMutation({
     mutationKey: ["handleDeleteClusterPropagationPolicy", name],
     mutationFn: async () => {
+      let loadingToaster;
       try {
         onClose();
-        const loadingToasterId = toaster.create({
+        loadingToaster = toaster.create({
           type: "loading",
           description: `${name}를 삭제하고 있습니다.`,
         });
         await deleteClusterPropagationPolicyApi({ name });
-        toaster.remove(loadingToasterId);
+        toaster.remove(loadingToaster);
         toaster.success({
           description: `${name}가 삭제되었습니다.`,
         });
@@ -74,6 +75,10 @@ function DeleteClusterPropagationPolicyConfirmDialog({
         toaster.error({
           description: `${name}를 삭제하는 데 오류가 발생했습니다.`,
         });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
       }
     },
   });

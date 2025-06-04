@@ -58,9 +58,10 @@ function ExcludeClusterConfirmDialog({
   const handleExcludeCluster = useMutation({
     mutationKey: ["handleExcludeCluster", clusterId],
     mutationFn: async () => {
+      let loadingToaster;
       try {
         onClose();
-        const loadingToaster = toaster.create({
+        loadingToaster = toaster.create({
           type: "loading",
           description: `${clusterName}를 멤버 클러스터에서 제외하고 있습니다.`,
         });
@@ -70,10 +71,16 @@ function ExcludeClusterConfirmDialog({
           description: `${clusterName}가 멤버 클러스터에서 제외되었습니다.`,
         });
         queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
-      } catch {
+      } catch (error: any) {
+        console.log(error.response.data.message);
         toaster.error({
-          description: `${clusterName}를 제외하는 데 오류가 발생했습니다.`,
+          // description: `${clusterName}를 제외하는 데 오류가 발생했습니다.`,
+          description: `${error.response.data.message || "알 수 없는 오류"}`,
         });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
       }
     },
   });
