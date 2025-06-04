@@ -4,8 +4,13 @@ import { Status, Variant } from "@/components/Status";
 import { Flex } from "@/components/Flex";
 import { Stack } from "@chakra-ui/react";
 import { ProgressWithMarker } from "@/components/ProgressWithMarker";
+import { HostClusterStatus } from "@/models/overviewModel";
 
-export default function HostClusterInfo() {
+export default function HostClusterInfo({
+  hostCluster,
+}: {
+  hostCluster: HostClusterStatus;
+}) {
   return (
     <>
       <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
@@ -15,27 +20,28 @@ export default function HostClusterInfo() {
         <Card.Header>
           <Card.Title>
             <Flex>
-              {item.name}
+              {hostCluster.name}
               <Flex>
-                <Status variant={item.status as Variant} />
+                <Status variant={hostCluster.status as Variant} />
               </Flex>
             </Flex>
           </Card.Title>
           <Card.Description>
-            Nodes {item.readyNum}/{item.totalNum}
+            Nodes {hostCluster.nodeSummary.readyNum}/
+            {hostCluster.nodeSummary.totalNum}
           </Card.Description>
         </Card.Header>
         <Card.Body variant="wide">
           <Stack>
             <ProgressWithMarker
-              realTimeUsage={item.cpuUsage}
-              requestUsage={item.cpuRequests}
+              realTimeUsage={hostCluster.realTimeUsage.cpu}
+              requestUsage={hostCluster.requestUsage.cpu}
               kind="CPU"
               label={true}
             />
             <ProgressWithMarker
-              realTimeUsage={item.memoryUsage}
-              requestUsage={item.memoryRequests}
+              realTimeUsage={hostCluster.realTimeUsage.memory}
+              requestUsage={hostCluster.requestUsage.memory}
               kind="Memory"
               label={true}
             />
@@ -45,14 +51,3 @@ export default function HostClusterInfo() {
     </>
   );
 }
-
-const item = {
-  name: "host-cluster",
-  totalNum: 4,
-  readyNum: 3,
-  cpuUsage: 39,
-  cpuRequests: 49,
-  memoryUsage: 60,
-  memoryRequests: 30,
-  status: "ready",
-};

@@ -65,7 +65,7 @@ function ClusterPropagationPolicyYamlViwerDrawer({
   }, [clusterPropagationPolicyDetail]);
 
   const handleEditClusterPropagationPolicy = useMutation({
-    mutationKey: ["handleEditPropagationPolicy", name],
+    mutationKey: ["handleEditClusterPropagationPolicy", name],
     mutationFn: async () => {
       let loadingToaster;
       try {
