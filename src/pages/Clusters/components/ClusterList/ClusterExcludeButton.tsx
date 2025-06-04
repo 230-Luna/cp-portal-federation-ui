@@ -72,11 +72,10 @@ function ExcludeClusterConfirmDialog({
         });
         queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
       } catch (error: any) {
-        console.log(error.response.data.message);
         toaster.error({
-          // description: `${clusterName}를 제외하는 데 오류가 발생했습니다.`,
           description: `${error.response.data.message || "알 수 없는 오류"}`,
         });
+        queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
       } finally {
         if (loadingToaster) {
           toaster.remove(loadingToaster);

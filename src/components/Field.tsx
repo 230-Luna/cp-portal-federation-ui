@@ -29,9 +29,9 @@ export const Field = {
   Root: ({ variant, ...props }: FieldProps<typeof ChakraField.Root>) => (
     <ChakraField.Root
       color="#47494d"
-      font-weight="300"
-      font-family="Apple SD Gothic Neo Noto Sans KR 맑은 고딕 Font Awesome 5 Free monospace"
-      font-style="normal"
+      fontWeight="300"
+      fontFamily="Apple SD Gothic Neo Noto Sans KR 맑은 고딕 Font Awesome 5 Free monospace"
+      fontStyle="normal"
       paddingTop="2%"
       paddingBottom="1%"
       {...(variant != null ? rootStyleConfig[variant] : {})}

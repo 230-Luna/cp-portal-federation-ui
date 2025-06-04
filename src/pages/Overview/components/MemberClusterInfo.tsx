@@ -11,46 +11,49 @@ export default function MemberClusterInfo({
 }: {
   memberClusters: MemberClusterStatus[];
 }) {
+  // API 에서 uid 추가해주면 memberCluster 키값 uid로 바꾸기
   return (
     <>
       <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
         Member Cluster Info
       </Heading>
       <Flex overflowX="auto" maxHeight="550px">
-        {memberClusters.map((memberCluster, index) => (
-          <Card.Root variant="medium" key={index}>
-            <Card.Header>
-              <Card.Title>
-                <Flex>
-                  {memberCluster.name}
-                  <Flex>
-                    <Status variant={memberCluster.status as Variant} />
-                  </Flex>
-                </Flex>
-              </Card.Title>
-              <Card.Description>
-                Nodes {memberCluster.nodeSummary.readyNum}/
-                {memberCluster.nodeSummary.totalNum}
-              </Card.Description>
-            </Card.Header>
-            <Card.Body variant="medium">
-              <Stack>
-                <ProgressWithMarker
-                  realTimeUsage={memberCluster.realTimeUsage.cpu}
-                  requestUsage={memberCluster.requestUsage.cpu}
-                  kind="CPU"
-                  label={true}
-                />
-                <ProgressWithMarker
-                  realTimeUsage={memberCluster.realTimeUsage.memory}
-                  requestUsage={memberCluster.requestUsage.memory}
-                  kind="Memory"
-                  label={true}
-                />
-              </Stack>
-            </Card.Body>
-          </Card.Root>
-        ))}
+        {memberClusters.length > 0
+          ? memberClusters.map((memberCluster) => (
+              <Card.Root variant="medium" key={memberCluster.name}>
+                <Card.Header>
+                  <Card.Title>
+                    <Flex>
+                      {memberCluster.name}
+                      <Flex>
+                        <Status variant={memberCluster.status as Variant} />
+                      </Flex>
+                    </Flex>
+                  </Card.Title>
+                  <Card.Description>
+                    Nodes {memberCluster.nodeSummary.readyNum}/
+                    {memberCluster.nodeSummary.totalNum}
+                  </Card.Description>
+                </Card.Header>
+                <Card.Body variant="medium">
+                  <Stack>
+                    <ProgressWithMarker
+                      realTimeUsage={memberCluster.realTimeUsage.cpu}
+                      requestUsage={memberCluster.requestUsage.cpu}
+                      kind="CPU"
+                      label={true}
+                    />
+                    <ProgressWithMarker
+                      realTimeUsage={memberCluster.realTimeUsage.memory}
+                      requestUsage={memberCluster.requestUsage.memory}
+                      kind="Memory"
+                      label={true}
+                    />
+                  </Stack>
+                </Card.Body>
+              </Card.Root>
+            ))
+          : null}
       </Flex>
     </>
   );

@@ -43,7 +43,7 @@ export default function ClusterList() {
   if (clusterList.clusters.length === 0) {
     return (
       <Heading variant="center" marginTop="10%">
-        결과가 없습니다.
+        클러스터가 없습니다.
       </Heading>
     );
   }

@@ -7,10 +7,15 @@ import Multistep from "@/pages/Policies/components/PolicyAddButton/Multistep";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
+import { Progress } from "@/components/Progress";
+import Metadata from "./Metadata";
+import ResourceSelectors from "./ResourceSelectors";
+import Placement from "./Placement";
 
 export default function PolicyAdd() {
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(33.33);
+  const [formData, setFormData] = useState({});
 
   return (
     <Dialog.Root variant="resourceSetUp">
@@ -24,7 +29,14 @@ export default function PolicyAdd() {
         <Dialog.Positioner>
           <Dialog.Content variant="resourceSetUp" margin="10px auto">
             <Dialog.Body variant="resourceSetUp" margin="2%">
-              <Multistep step={step} progress={progress} />
+              <Progress value={progress} />
+              {step === 1 ? (
+                <Metadata />
+              ) : step === 2 ? (
+                <ResourceSelectors />
+              ) : (
+                <Placement />
+              )}
             </Dialog.Body>
             <Dialog.Footer>
               <ButtonGroup width="100%">

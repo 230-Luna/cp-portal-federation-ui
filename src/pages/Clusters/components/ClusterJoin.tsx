@@ -4,7 +4,7 @@ import { Dialog } from "@/components/Dialog";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
-import { CheckboxGroup, Portal } from "@chakra-ui/react";
+import { Box, CheckboxGroup, Portal } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
 import { Suspense, useState } from "react";
@@ -18,6 +18,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { Text } from "@/components/Text";
 
 export default function ClusterJoinButton() {
   const [open, setOpen] = useState(false);
@@ -42,6 +43,8 @@ export default function ClusterJoinButton() {
 
 function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
   const [selectedData, setSelectedData] = useState<string[]>([]);
+  const [isExistRegisterableClusters, setIsExistRegisterableClusters] =
+    useState(true);
   const queryClient = useQueryClient();
 
   const handleRegisterCluster = useMutation({
@@ -108,13 +111,15 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
             <Dialog.ActionTrigger>
               <Button variant="blueOutline">Cancel</Button>
             </Dialog.ActionTrigger>
-            <Button
-              variant="blue"
-              loading={handleRegisterCluster.isPending}
-              onClick={() => handleRegisterCluster.mutate()}
-            >
-              Apply
-            </Button>
+            {isExistRegisterableClusters === true ? (
+              <Button
+                variant="blue"
+                loading={handleRegisterCluster.isPending}
+                onClick={() => handleRegisterCluster.mutate()}
+              >
+                Apply
+              </Button>
+            ) : null}
           </Dialog.Footer>
           <Dialog.CloseTrigger>
             <CloseButton />
@@ -138,17 +143,24 @@ function RegisterableClusters({
   return (
     <Grid>
       <CheckboxGroup onValueChange={(e) => onValueChange(e)}>
-        {registerableClusterList.clusters.map((cluster) => (
-          <CheckboxCard.Root key={cluster.clusterId} value={cluster.clusterId}>
-            <CheckboxCard.HiddenInput />
-            <CheckboxCard.Control>
-              <CheckboxCard.Content>
-                <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
-              </CheckboxCard.Content>
-              <CheckboxCard.Indicator />
-            </CheckboxCard.Control>
-          </CheckboxCard.Root>
-        ))}
+        {registerableClusterList.clusters != null ? (
+          registerableClusterList.clusters.map((cluster) => (
+            <CheckboxCard.Root
+              key={cluster.clusterId}
+              value={cluster.clusterId}
+            >
+              <CheckboxCard.HiddenInput />
+              <CheckboxCard.Control>
+                <CheckboxCard.Content>
+                  <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
+                </CheckboxCard.Content>
+                <CheckboxCard.Indicator />
+              </CheckboxCard.Control>
+            </CheckboxCard.Root>
+          ))
+        ) : (
+          <Text variant="small">등록 가능한 클러스터가 없습니다.</Text>
+        )}
       </CheckboxGroup>
     </Grid>
   );
