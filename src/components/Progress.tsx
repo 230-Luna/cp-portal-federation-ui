@@ -12,11 +12,9 @@ type ProgressProps = Omit<
 export const Progress = ({ value, ...props }: ProgressProps) => {
   return (
     <ChakraProgress.Root value={value} colorPalette="blue" size="lg" {...props}>
-      <HStack gap="2">
-        <ChakraProgress.Track flex="1">
-          <ChakraProgress.Range />
-        </ChakraProgress.Track>
-      </HStack>
+      <ChakraProgress.Track flex="1">
+        <ChakraProgress.Range />
+      </ChakraProgress.Track>
     </ChakraProgress.Root>
   );
 };

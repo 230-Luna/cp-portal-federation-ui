@@ -11,7 +11,6 @@ export default function MemberClusterInfo({
 }: {
   memberClusters: MemberClusterStatus[];
 }) {
-  // API 에서 uid 추가해주면 memberCluster 키값 uid로 바꾸기
   return (
     <>
       <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">

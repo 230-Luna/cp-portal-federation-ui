@@ -4,20 +4,27 @@ import { Heading } from "@/components/Heading";
 import { Input } from "@/components/Input";
 import { RadioCard } from "@/components/RadioCard";
 import {
+  ButtonGroup,
   Checkbox,
   Collapsible,
-  FieldLabel,
   Flex,
   HStack,
   NativeSelect,
+  RadioCardValueChangeDetails,
   Tag,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 
-export default function Metadata() {
+export default function Metadata({
+  currentStep,
+  setCurrentStep,
+}: {
+  currentStep: number;
+  setCurrentStep: (value: number) => void;
+}) {
+  const [level, setLevel] = useState<string>("namespace");
   const [isNewNamespace, setIsNewNamespace] = useState(false);
-
   return (
     <>
       <Heading variant="center" marginTop="2%" marginBottom="3%">
@@ -28,7 +35,15 @@ export default function Metadata() {
           Level
           <Field.RequiredIndicator />
         </Field.Label>
-        <RadioCard.Root defaultValue="namespace">
+        <RadioCard.Root
+          name="level"
+          defaultValue="namespace"
+          onValueChange={(details: RadioCardValueChangeDetails) => {
+            if (details.value) {
+              setLevel(details.value);
+            }
+          }}
+        >
           <HStack gap="5">
             <RadioCard.Item key="namespace" value="namespace">
               <RadioCard.ItemHiddenInput />
@@ -46,13 +61,6 @@ export default function Metadata() {
             </RadioCard.Item>
           </HStack>
         </RadioCard.Root>
-      </Field.Root>
-      <Field.Root required variant="horizontal">
-        <FieldLabel>
-          Name
-          <Field.RequiredIndicator />
-        </FieldLabel>
-        <Input placeholder="이름 입력" />
       </Field.Root>
       <Field.Root required variant="vertical">
         <HStack gap="3" mb="1%">
@@ -83,6 +91,13 @@ export default function Metadata() {
             <NativeSelect.Indicator />
           </NativeSelect.Root>
         )}
+      </Field.Root>
+      <Field.Root required variant="horizontal">
+        <Field.Label>
+          Name
+          <Field.RequiredIndicator />
+        </Field.Label>
+        <Input placeholder="이름 입력" />
       </Field.Root>
       <Field.Root variant="horizontal">
         <Collapsible.Root>
@@ -146,7 +161,7 @@ export default function Metadata() {
       <Field.Root variant="horizontal">
         <Collapsible.Root>
           <HStack gap="3">
-            <Field.Label>Annotaions</Field.Label>
+            <Field.Label>Annotations</Field.Label>
             <Collapsible.Trigger>
               <Button variant="smallFaPlus">
                 <FaPlus />
@@ -190,6 +205,22 @@ export default function Metadata() {
           </Collapsible.Content>
         </Collapsible.Root>
       </Field.Root>
+      <ButtonGroup width="100%" marginTop="3%">
+        <Flex justifyContent="flex-end" width="100%">
+          <Flex>
+            <Button
+              onClick={() => {
+                setCurrentStep(currentStep + 1);
+              }}
+              variant="blueSurface"
+              marginLeft="5px"
+              marginRight="5px"
+            >
+              Next
+            </Button>
+          </Flex>
+        </Flex>
+      </ButtonGroup>
     </>
   );
 }

@@ -8,7 +8,6 @@ import { Button } from "@/components/Button";
 import { FaPlus } from "react-icons/fa";
 import { Flex } from "@/components/Flex";
 import { SegmentGroup } from "@/components/SegmentGroup";
-import { RadioCard } from "@/components/RadioCard";
 import { Collapsible } from "@/components/Collapsible";
 import { Input } from "@/components/Input";
 import { Field } from "@/components/Field";
@@ -19,9 +18,17 @@ import {
   NativeSelect,
   Tag,
   Badge,
+  ButtonGroup,
 } from "@chakra-ui/react";
+import { toaster } from "@/components/Toaster";
 
-export default function ResourceSelectors() {
+export default function ResourceSelectors({
+  currentStep,
+  setCurrentStep,
+}: {
+  currentStep: number;
+  setCurrentStep: (value: number) => void;
+}) {
   const [isNewNamespace, setIsNewNamespace] = useState(false);
 
   return (
@@ -105,45 +112,6 @@ export default function ResourceSelectors() {
                     />
                   </SegmentGroup.Root>
                 </Field.Root>
-                <Field.Root required variant="horizontal">
-                  <Field.Label>
-                    Level
-                    <Field.RequiredIndicator />
-                  </Field.Label>
-                  <RadioCard.Root defaultValue="namespace">
-                    <HStack gap="5">
-                      <RadioCard.Item
-                        key="namespace"
-                        value="namespace"
-                        width="100%"
-                      >
-                        <RadioCard.ItemHiddenInput />
-                        <RadioCard.ItemControl>
-                          <RadioCard.ItemText>Namespace</RadioCard.ItemText>
-                          <RadioCard.ItemIndicator />
-                        </RadioCard.ItemControl>
-                      </RadioCard.Item>
-                      <RadioCard.Item
-                        key="cluster"
-                        value="cluster"
-                        width="100%"
-                      >
-                        <RadioCard.ItemHiddenInput />
-                        <RadioCard.ItemControl>
-                          <RadioCard.ItemText>Cluster</RadioCard.ItemText>
-                          <RadioCard.ItemIndicator />
-                        </RadioCard.ItemControl>
-                      </RadioCard.Item>
-                    </HStack>
-                  </RadioCard.Root>
-                </Field.Root>
-                <Field.Root required variant="horizontal">
-                  <Field.Label>
-                    Name
-                    <Field.RequiredIndicator />
-                  </Field.Label>
-                  <Input placeholder="이름 입력" />
-                </Field.Root>
                 <Field.Root required variant="vertical">
                   <HStack gap="3" mb="1%">
                     <Field.Label>
@@ -173,6 +141,13 @@ export default function ResourceSelectors() {
                       <NativeSelect.Indicator />
                     </NativeSelect.Root>
                   )}
+                </Field.Root>
+                <Field.Root required variant="horizontal">
+                  <Field.Label>
+                    Name
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                  <Input placeholder="이름 입력" />
                 </Field.Root>
                 <Field.Root variant="horizontal">
                   <Collapsible.Root>
@@ -238,7 +213,7 @@ export default function ResourceSelectors() {
                 <Field.Root variant="horizontal">
                   <Collapsible.Root>
                     <HStack gap="3">
-                      <Field.Label>Annotaions</Field.Label>
+                      <Field.Label>Annotations</Field.Label>
                       <Collapsible.Trigger>
                         <Button variant="smallFaPlus">
                           <FaPlus />
@@ -322,6 +297,45 @@ export default function ResourceSelectors() {
           </Dialog.Positioner>
         </Portal>
       </Dialog.Root>
+      <ButtonGroup width="100%" marginTop="3%">
+        <Flex justifyContent="flex-end" width="100%">
+          <Flex>
+            <Button
+              onClick={() => {
+                setCurrentStep(currentStep - 1);
+              }}
+              variant="blueOutline"
+              marginRight="5px"
+            >
+              Back
+            </Button>
+            <Button
+              onClick={() => {
+                setCurrentStep(currentStep + 1);
+              }}
+              variant="blueSurface"
+              marginLeft="5px"
+              marginRight="5px"
+            >
+              Next
+            </Button>
+          </Flex>
+          <Button
+            onClick={() => {
+              toaster.create({
+                description: "Policy가 생성되었습니다.",
+                // status: "success",
+                duration: 3000,
+                closable: true,
+              });
+            }}
+            variant="blue"
+            marginLeft="5px"
+          >
+            Apply
+          </Button>
+        </Flex>
+      </ButtonGroup>
     </>
   );
 }
