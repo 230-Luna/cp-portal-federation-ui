@@ -71,8 +71,8 @@ export default function ClusterPropagationPolicyList() {
                   <VStack>
                     {clusterPropagationPolicy?.relatedClusters.length !== 0 ? (
                       clusterPropagationPolicy.relatedClusters.map(
-                        (relatedCluster) => (
-                          <Tag.Root key={relatedCluster} margin={0.5}>
+                        (relatedCluster, index) => (
+                          <Tag.Root key={relatedCluster + index} margin={0.5}>
                             <Tag.Label>{relatedCluster}</Tag.Label>
                           </Tag.Root>
                         )
@@ -86,8 +86,8 @@ export default function ClusterPropagationPolicyList() {
                   <VStack>
                     {clusterPropagationPolicy.relatedResources.length !== 0 ? (
                       clusterPropagationPolicy.relatedResources.map(
-                        (relatedResource) => (
-                          <Tag.Root key={relatedResource} margin={0.5}>
+                        (relatedResource, index) => (
+                          <Tag.Root key={relatedResource + index} margin={0.5}>
                             <Tag.Label>{relatedResource}</Tag.Label>
                           </Tag.Root>
                         )
