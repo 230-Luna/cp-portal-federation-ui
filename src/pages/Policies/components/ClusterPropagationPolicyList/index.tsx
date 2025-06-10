@@ -72,7 +72,7 @@ export default function ClusterPropagationPolicyList() {
                     {clusterPropagationPolicy?.relatedClusters.length !== 0 ? (
                       clusterPropagationPolicy.relatedClusters.map(
                         (relatedCluster, index) => (
-                          <Tag.Root key={relatedCluster + index} margin={0.5}>
+                          <Tag.Root key={index} margin={0.5}>
                             <Tag.Label>{relatedCluster}</Tag.Label>
                           </Tag.Root>
                         )
@@ -87,7 +87,7 @@ export default function ClusterPropagationPolicyList() {
                     {clusterPropagationPolicy.relatedResources.length !== 0 ? (
                       clusterPropagationPolicy.relatedResources.map(
                         (relatedResource, index) => (
-                          <Tag.Root key={relatedResource + index} margin={0.5}>
+                          <Tag.Root key={index} margin={0.5}>
                             <Tag.Label>{relatedResource}</Tag.Label>
                           </Tag.Root>
                         )

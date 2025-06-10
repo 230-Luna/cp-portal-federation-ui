@@ -8,32 +8,42 @@ import {
   ButtonGroup,
   Checkbox,
   Collapsible,
+  Fieldset,
   Flex,
   HStack,
   NativeSelect,
   RadioCardValueChangeDetails,
   Tag,
+  Text,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import {
+  Dispatch,
+  FormEvent,
+  MouseEvent,
+  SetStateAction,
+  useRef,
+  useState,
+} from "react";
 import { FaPlus } from "react-icons/fa";
+
+type KeyValuePair = {
+  string: string;
+};
 
 export default function Metadata({
   currentStep,
   setCurrentStep,
 }: {
   currentStep: number;
-  setCurrentStep: (value: number) => void;
+  setCurrentStep: Dispatch<SetStateAction<number>>;
 }) {
   const [level, setLevel] = useState("namespace");
   const [checkedNewNamespace, setCheckedNewNamespace] = useState(false);
   const [namespace, setNamespace] = useState("");
   const [name, setName] = useState("");
-  const [labels, setLabels] = useState([
-    { "karmada.policy": "first-sample" },
-    { "test.policy": "test-sample" },
-    { thirdpolicy: "sample" },
-  ]);
+  const [labels, setLabels] = useState<Record<string, string>>({});
+  const [annotations, setAnnotations] = useState<Record<string, string>>({});
 
   return (
     <>
@@ -54,54 +64,11 @@ export default function Metadata({
         />
       ) : null}
       <NameInputField name={name} setName={setName} />
-      {/* <LabelCollapsibleInputField /> */}
-      <Field.Root variant="horizontal">
-        <Collapsible.Root>
-          <HStack gap="3">
-            <Field.Label>Labels</Field.Label>
-            <Collapsible.Trigger>
-              <Button variant="smallFaPlus">
-                <FaPlus />
-              </Button>
-            </Collapsible.Trigger>
-            <Flex gap={1}>
-              {labels.map((label) => {
-                const [key, value] = Object.entries(label)[0];
-                return (
-                  <Tag.Root key={key}>
-                    <Tag.Label>
-                      {key}={value}
-                    </Tag.Label>
-                    <Tag.EndElement>
-                      <Tag.CloseTrigger />
-                    </Tag.EndElement>
-                  </Tag.Root>
-                );
-              })}
-            </Flex>
-          </HStack>
-          <Collapsible.Content marginTop="2%">
-            <HStack gap="4" m="2%">
-              <Field.Root required>
-                <Field.Label>
-                  Key <Field.RequiredIndicator />
-                </Field.Label>
-                <Input bg="white" />
-              </Field.Root>
-              <Field.Root required>
-                <Field.Label>
-                  Value <Field.RequiredIndicator />
-                </Field.Label>
-                <Input bg="white" />
-              </Field.Root>
-              <Button variant="mediumFaPlus">
-                <FaPlus />
-              </Button>
-            </HStack>
-          </Collapsible.Content>
-        </Collapsible.Root>
-      </Field.Root>
-      <AnnotationCollapsibleInputField />
+      <LabelCollapsibleInputField labels={labels} setLabels={setLabels} />
+      <AnnotationCollapsibleInputField
+        annotations={annotations}
+        setAnnotations={setAnnotations}
+      />
       <StepActionButtons
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
@@ -115,11 +82,11 @@ function LevelSelectRadioField({
   setCheckedNewNamespace,
   setNamespace,
 }: {
-  setLevel: (value: string) => void;
-  setCheckedNewNamespace: (value: boolean) => void;
-  setNamespace: (value: string) => void;
+  setLevel: Dispatch<SetStateAction<string>>;
+  setCheckedNewNamespace: Dispatch<SetStateAction<boolean>>;
+  setNamespace: Dispatch<SetStateAction<string>>;
 }) {
-  const handleLevelChange = (details: RadioCardValueChangeDetails) => {
+  const handleValueChange = (details: RadioCardValueChangeDetails) => {
     if (details.value !== null) {
       setLevel(details.value);
       setCheckedNewNamespace(false);
@@ -136,7 +103,7 @@ function LevelSelectRadioField({
       <RadioCard.Root
         name="level"
         defaultValue="namespace"
-        onValueChange={(details) => handleLevelChange(details)}
+        onValueChange={(details) => handleValueChange(details)}
       >
         <HStack gap="5">
           <RadioCard.Item key="namespace" value="namespace">
@@ -167,8 +134,8 @@ function NamespaceField({
 }: {
   namespace: string;
   checkedNewNamespace: boolean;
-  setCheckedNewNamespace: (value: boolean) => void;
-  setNamespace: (value: string) => void;
+  setCheckedNewNamespace: Dispatch<SetStateAction<boolean>>;
+  setNamespace: Dispatch<SetStateAction<string>>;
 }) {
   const { data: namespaceList } = useSuspenseQuery({
     queryKey: ["getNamespaceListApi", "metadata"],
@@ -177,45 +144,49 @@ function NamespaceField({
     },
   });
   return (
-    <Field.Root required variant="vertical">
-      <HStack gap="3" mb="1%">
-        <Field.Label>
-          Namespace
-          <Field.RequiredIndicator />
-        </Field.Label>
-        <Checkbox.Root
-          colorPalette="blue"
-          checked={checkedNewNamespace}
-          onCheckedChange={(e) => {
-            setCheckedNewNamespace(!!e.checked);
-            setNamespace("");
-          }}
-        >
-          <Checkbox.HiddenInput />
-          <Checkbox.Control />
-          <Checkbox.Label>네임스페이스 신규 생성하기</Checkbox.Label>
-        </Checkbox.Root>
-      </HStack>
-      {checkedNewNamespace ? (
-        <Input id="namespace" bg="white" />
-      ) : (
-        <NativeSelect.Root>
-          <NativeSelect.Field
-            name="namespaces"
-            placeholder="Select Namespace"
-            value={namespace}
-            onChange={(event) => setNamespace(event.target.value)}
+    <>
+      <Field.Root variant="vertical">
+        <HStack gap="3" mb="1%">
+          <Field.Label>
+            Namespace <Text color="red.500">*</Text>
+            {/* <Field.RequiredIndicator /> */}
+          </Field.Label>
+          <Checkbox.Root
+            colorPalette="blue"
+            checked={checkedNewNamespace}
+            onCheckedChange={(e) => {
+              setCheckedNewNamespace(!!e.checked);
+              setNamespace("");
+            }}
           >
-            {namespaceList.namespaces.map((namespace) => (
-              <option value={namespace} key={namespace}>
-                {namespace}
-              </option>
-            ))}
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-      )}
-    </Field.Root>
+            <Checkbox.HiddenInput />
+            <Checkbox.Control />
+            <Checkbox.Label>네임스페이스 신규 생성하기</Checkbox.Label>
+          </Checkbox.Root>
+        </HStack>
+      </Field.Root>
+      <Field.Root required variant="vertical">
+        {checkedNewNamespace ? (
+          <Input id="namespace" bg="white" />
+        ) : (
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              name="namespaces"
+              placeholder="Select Namespace"
+              value={namespace}
+              onChange={(event) => setNamespace(event.target.value)}
+            >
+              {namespaceList.namespaces.map((namespace) => (
+                <option value={namespace} key={namespace}>
+                  {namespace}
+                </option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+        )}
+      </Field.Root>
+    </>
   );
 }
 
@@ -245,96 +216,162 @@ function NameInputField({
   );
 }
 
-function LabelCollapsibleInputField() {
+function LabelCollapsibleInputField({
+  labels,
+  setLabels,
+}: {
+  labels: Record<string, string>;
+  setLabels: Dispatch<SetStateAction<Record<string, string>>>;
+}) {
+  const [keyInput, setKeyInput] = useState("");
+  const [valueInput, setValueInput] = useState("");
+
+  const handleAddLabelClick = (event: FormEvent) => {
+    event.preventDefault();
+    setLabels((prev) => ({ ...prev, [keyInput]: valueInput }));
+    setKeyInput("");
+    setValueInput("");
+  };
+
+  const onClose = (event: MouseEvent<HTMLButtonElement>) => {};
+
   return (
     <Field.Root variant="horizontal">
-      <Collapsible.Root>
+      <Collapsible.Root width="100%">
         <HStack gap="3">
           <Field.Label>Labels</Field.Label>
           <Collapsible.Trigger>
-            <Button variant="smallFaPlus">
-              <FaPlus />
-            </Button>
+            <FaPlus />
           </Collapsible.Trigger>
-          <Flex>
-            <Tag.Root>
-              <Tag.Label>karmada.policy=first-sample</Tag.Label>
-              <Tag.EndElement>
-                <Tag.CloseTrigger />
-              </Tag.EndElement>
-            </Tag.Root>
+          <Flex gap={1}>
+            {Object.entries(labels).map(([key, value]) => (
+              <Tag.Root key={key}>
+                <Tag.Label>
+                  {key}={value}
+                </Tag.Label>
+                <Tag.EndElement>
+                  <Tag.CloseTrigger onClick={onClose} />
+                </Tag.EndElement>
+              </Tag.Root>
+            ))}
           </Flex>
         </HStack>
         <Collapsible.Content marginTop="2%">
-          <HStack gap="4" m="2%">
-            <Field.Root required>
-              <Field.Label>
-                Key <Field.RequiredIndicator />
-              </Field.Label>
-              <Input bg="white" />
-            </Field.Root>
-            <Field.Root required>
-              <Field.Label>
-                Value <Field.RequiredIndicator />
-              </Field.Label>
-              <Input bg="white" />
-            </Field.Root>
-            <Button variant="mediumFaPlus">
-              <FaPlus />
-            </Button>
-          </HStack>
+          <Fieldset.Root>
+            <Flex alignItems="end">
+              <Fieldset.Content>
+                <HStack gap="4" m="2%">
+                  <Field.Root required>
+                    <Field.Label>
+                      Key <Field.RequiredIndicator />
+                    </Field.Label>
+                    <Input
+                      bg="white"
+                      value={keyInput}
+                      onChange={(event) => setKeyInput(event.target.value)}
+                    />
+                  </Field.Root>
+                  <Field.Root required>
+                    <Field.Label>
+                      Value <Field.RequiredIndicator />
+                    </Field.Label>
+                    <Input
+                      bg="white"
+                      value={valueInput}
+                      onChange={(event) => setValueInput(event.target.value)}
+                    />
+                  </Field.Root>
+                </HStack>
+              </Fieldset.Content>
+              <Button
+                variant="mediumFaPlus"
+                onClick={handleAddLabelClick}
+                margin="2.5%"
+              >
+                <FaPlus />
+              </Button>
+            </Flex>
+          </Fieldset.Root>
         </Collapsible.Content>
       </Collapsible.Root>
     </Field.Root>
   );
 }
 
-function AnnotationCollapsibleInputField() {
+function AnnotationCollapsibleInputField({
+  annotations,
+  setAnnotations,
+}: {
+  annotations: Record<string, string>;
+  setAnnotations: Dispatch<SetStateAction<Record<string, string>>>;
+}) {
+  const [keyInput, setKeyInput] = useState("");
+  const [valueInput, setValueInput] = useState("");
+
+  const handleAnnotationClick = (event: FormEvent) => {
+    event.preventDefault();
+    setAnnotations((prev) => ({ ...prev, [keyInput]: valueInput }));
+    setKeyInput("");
+    setValueInput("");
+  };
+
   return (
     <Field.Root variant="horizontal">
-      <Collapsible.Root>
+      <Collapsible.Root width="100%">
         <HStack gap="3">
           <Field.Label>Annotations</Field.Label>
           <Collapsible.Trigger>
-            <Button variant="smallFaPlus">
-              <FaPlus />
-            </Button>
+            <FaPlus />
           </Collapsible.Trigger>
-          <Flex>
-            <Tag.Root>
-              <Tag.Label>karmada.policy=first-sample</Tag.Label>
-              <Tag.EndElement>
-                <Tag.CloseTrigger />
-              </Tag.EndElement>
-            </Tag.Root>
-            <Tag.Root>
-              <Tag.Label>app=nginx</Tag.Label>
-              <Tag.EndElement>
-                <Tag.CloseTrigger />
-              </Tag.EndElement>
-            </Tag.Root>
+          <Flex gap={1}>
+            {Object.entries(annotations).map(([key, value]) => (
+              <Tag.Root key={key}>
+                <Tag.Label>
+                  {key}={value}
+                </Tag.Label>
+                <Tag.EndElement>
+                  <Tag.CloseTrigger />
+                </Tag.EndElement>
+              </Tag.Root>
+            ))}
           </Flex>
         </HStack>
         <Collapsible.Content marginTop="2%">
-          <HStack gap="4" m="2%">
-            <Field.Root required>
-              <Field.Label>
-                Key
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input bg="white" />
-            </Field.Root>
-            <Field.Root required>
-              <Field.Label>
-                Value
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input bg="white" />
-            </Field.Root>
-            <Button variant="mediumFaPlus">
-              <FaPlus />
-            </Button>
-          </HStack>
+          <Fieldset.Root>
+            <Flex alignItems="end">
+              <Fieldset.Content>
+                <HStack gap="4" m="2%">
+                  <Field.Root required>
+                    <Field.Label>
+                      Key <Field.RequiredIndicator />
+                    </Field.Label>
+                    <Input
+                      bg="white"
+                      value={keyInput}
+                      onChange={(event) => setKeyInput(event.target.value)}
+                    />
+                  </Field.Root>
+                  <Field.Root required>
+                    <Field.Label>
+                      Value <Field.RequiredIndicator />
+                    </Field.Label>
+                    <Input
+                      bg="white"
+                      value={valueInput}
+                      onChange={(event) => setValueInput(event.target.value)}
+                    />
+                  </Field.Root>
+                </HStack>
+              </Fieldset.Content>
+              <Button
+                variant="mediumFaPlus"
+                onClick={handleAnnotationClick}
+                margin="2.5%"
+              >
+                <FaPlus />
+              </Button>
+            </Flex>
+          </Fieldset.Root>
         </Collapsible.Content>
       </Collapsible.Root>
     </Field.Root>
@@ -346,7 +383,7 @@ function StepActionButtons({
   setCurrentStep,
 }: {
   currentStep: number;
-  setCurrentStep: (value: number) => void;
+  setCurrentStep: Dispatch<SetStateAction<number>>;
 }) {
   return (
     <ButtonGroup width="100%" marginTop="3%">
