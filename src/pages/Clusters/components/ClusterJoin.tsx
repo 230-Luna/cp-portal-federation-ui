@@ -4,7 +4,7 @@ import { Dialog } from "@/components/Dialog";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
-import { Box, CheckboxGroup, Portal } from "@chakra-ui/react";
+import { CheckboxGroup, Portal } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { toaster } from "@/components/Toaster";
 import { Suspense, useState } from "react";
@@ -104,7 +104,10 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
           </Heading>
           <Dialog.Body variant="resourceSetUp" margin="2%">
             <Suspense fallback={<LoadingSkeleton />}>
-              <RegisterableClusters onValueChange={setSelectedData} />
+              <RegisterableClusters
+                onValueChange={setSelectedData}
+                onRegisterableClustersChange={setIsExistRegisterableClusters}
+              />
             </Suspense>
           </Dialog.Body>
           <Dialog.Footer>
@@ -132,13 +135,19 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
 
 function RegisterableClusters({
   onValueChange,
+  onRegisterableClustersChange,
 }: {
   onValueChange: (newData: string[]) => void;
+  onRegisterableClustersChange: (registerableClusters: boolean) => void;
 }) {
   const { data: registerableClusterList } = useSuspenseQuery({
     queryKey: ["registerableClusterList"],
     queryFn: () => getRegisterableClusterListApi(),
   });
+
+  if (registerableClusterList.clusters === null) {
+    onRegisterableClustersChange(false);
+  }
 
   return (
     <Grid>

@@ -17,19 +17,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  Dispatch,
-  FormEvent,
-  MouseEvent,
-  SetStateAction,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
 import { FaPlus } from "react-icons/fa";
-
-type KeyValuePair = {
-  string: string;
-};
 
 export default function Metadata({
   currentStep,
@@ -233,7 +222,13 @@ function LabelCollapsibleInputField({
     setValueInput("");
   };
 
-  const onClose = (event: MouseEvent<HTMLButtonElement>) => {};
+  const handleDeleteLabelClick = (key: string) => {
+    setLabels((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).filter(([originKey, _]) => originKey !== key)
+      )
+    );
+  };
 
   return (
     <Field.Root variant="horizontal">
@@ -243,14 +238,16 @@ function LabelCollapsibleInputField({
           <Collapsible.Trigger>
             <FaPlus />
           </Collapsible.Trigger>
-          <Flex gap={1}>
+          <Flex gap={1} wrap="wrap" width="80%">
             {Object.entries(labels).map(([key, value]) => (
               <Tag.Root key={key}>
                 <Tag.Label>
                   {key}={value}
                 </Tag.Label>
                 <Tag.EndElement>
-                  <Tag.CloseTrigger onClick={onClose} />
+                  <Tag.CloseTrigger
+                    onClick={() => handleDeleteLabelClick(key)}
+                  />
                 </Tag.EndElement>
               </Tag.Root>
             ))}
@@ -315,6 +312,14 @@ function AnnotationCollapsibleInputField({
     setValueInput("");
   };
 
+  const handleDeleteAnnotationClick = (key: string) => {
+    setAnnotations((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).filter(([originKey, _]) => originKey !== key)
+      )
+    );
+  };
+
   return (
     <Field.Root variant="horizontal">
       <Collapsible.Root width="100%">
@@ -323,14 +328,16 @@ function AnnotationCollapsibleInputField({
           <Collapsible.Trigger>
             <FaPlus />
           </Collapsible.Trigger>
-          <Flex gap={1}>
+          <Flex gap={1} wrap="wrap" width="80%">
             {Object.entries(annotations).map(([key, value]) => (
               <Tag.Root key={key}>
                 <Tag.Label>
                   {key}={value}
                 </Tag.Label>
                 <Tag.EndElement>
-                  <Tag.CloseTrigger />
+                  <Tag.CloseTrigger
+                    onClick={() => handleDeleteAnnotationClick(key)}
+                  />
                 </Tag.EndElement>
               </Tag.Root>
             ))}
