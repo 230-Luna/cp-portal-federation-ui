@@ -1,11 +1,11 @@
-import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import { Card } from "@/components/Card";
 import { Dialog } from "@/components/Dialog";
 import { Heading } from "@/components/Heading";
 import { CloseButton } from "@/components/CloseButton";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/Button";
-import { FaPlus } from "react-icons/fa";
+import { FaMinus, FaPlus } from "react-icons/fa";
 import { Flex } from "@/components/Flex";
 import { SegmentGroup } from "@/components/SegmentGroup";
 import { Collapsible } from "@/components/Collapsible";
@@ -14,7 +14,6 @@ import { Field } from "@/components/Field";
 import {
   Portal,
   HStack,
-  Checkbox,
   NativeSelect,
   Tag,
   Badge,
@@ -24,7 +23,8 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/Toaster";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getNamespaceListApi } from "@/apis/namespace";
+import { getNamespaceListApi, getNameListApi } from "@/apis/resources";
+import { getLabelListApi } from "@/apis/resources";
 
 export default function ResourceSelectors({
   currentStep,
@@ -109,12 +109,10 @@ function ResouceSelectorViewer() {
 
 function ResourceSelectorCreator() {
   const [kind, setKind] = useState("Deployment");
-  const [checkedNewNamespace, setCheckedNewNamespace] = useState(false);
   const [namespace, setNamespace] = useState("");
   const [name, setName] = useState("");
-  const [labels, setLabels] = useState<Record<string, string>>({});
-  const [annotations, setAnnotations] = useState<Record<string, string>>({});
-  console.log(kind);
+  // const [labels, setLabels] = useState<Record<string, string>>({});
+  const [labels, setLabels] = useState("");
 
   return (
     <Portal>
@@ -123,50 +121,20 @@ function ResourceSelectorCreator() {
         <Dialog.Content variant="resourceSetUp" margin="10px auto">
           <Dialog.Body variant="resourceSetUp" margin="2%">
             <KindSelectRadioField kind={kind} setKind={setKind} />
-            <NamespaceField
+            <NamespaceSelectField
               namespace={namespace}
-              checkedNewNamespace={checkedNewNamespace}
-              setCheckedNewNamespace={setCheckedNewNamespace}
               setNamespace={setNamespace}
             />
-            <NameInputField name={name} setName={setName} />
-            <LabelCollapsibleInputField labels={labels} setLabels={setLabels} />
-            <AnnotationCollapsibleInputField
-              annotations={annotations}
-              setAnnotations={setAnnotations}
-            />
+            <NameSelectField name={name} setName={setName} />
+            <LabelSelectField labels={labels} setLabels={setLabels} />
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
               <Button variant="blueOutline">Cancel</Button>
             </Dialog.ActionTrigger>
-            <Dialog.Root variant="alert">
-              <Dialog.Trigger>
-                <Button variant="blue">Save</Button>
-              </Dialog.Trigger>
-              <Portal>
-                <Dialog.Backdrop />
-                <Dialog.Positioner>
-                  <Dialog.Content variant="alert">
-                    <Dialog.Body variant="alert" marginTop="8%">
-                      <p>
-                        host-cluster에 배포되어 있는 리소스인 경우 삭제를
-                        진행할까요?
-                      </p>
-                    </Dialog.Body>
-                    <Dialog.Footer>
-                      <Dialog.ActionTrigger>
-                        <Button variant="blueOutline">No</Button>
-                      </Dialog.ActionTrigger>
-                      <Button variant="blue">Yes</Button>
-                    </Dialog.Footer>
-                    <Dialog.CloseTrigger>
-                      <CloseButton />
-                    </Dialog.CloseTrigger>
-                  </Dialog.Content>
-                </Dialog.Positioner>
-              </Portal>
-            </Dialog.Root>
+            <Dialog.Trigger>
+              <Button variant="blue">Save</Button>
+            </Dialog.Trigger>
           </Dialog.Footer>
           <Dialog.CloseTrigger>
             <CloseButton />
@@ -201,6 +169,7 @@ function KindSelectRadioField({
         value={kind}
         onValueChange={(details) => handleValueChange(details)}
         variant="large"
+        width="100%"
       >
         <SegmentGroup.Indicator />
         <SegmentGroup.Items
@@ -211,15 +180,11 @@ function KindSelectRadioField({
   );
 }
 
-function NamespaceField({
+function NamespaceSelectField({
   namespace,
-  checkedNewNamespace,
-  setCheckedNewNamespace,
   setNamespace,
 }: {
   namespace: string;
-  checkedNewNamespace: boolean;
-  setCheckedNewNamespace: Dispatch<SetStateAction<boolean>>;
   setNamespace: Dispatch<SetStateAction<string>>;
 }) {
   const { data: namespaceList } = useSuspenseQuery({
@@ -230,253 +195,96 @@ function NamespaceField({
   });
   return (
     <>
-      <Field.Root variant="vertical">
-        <HStack gap="3" mb="1%">
-          <Field.Label>
-            Namespace <Text color="red.500">*</Text>
-            {/* <Field.RequiredIndicator /> */}
-          </Field.Label>
-          <Checkbox.Root
-            colorPalette="blue"
-            checked={checkedNewNamespace}
-            onCheckedChange={(e) => {
-              setCheckedNewNamespace(!!e.checked);
-              setNamespace("");
-            }}
+      <Field.Root variant="vertical" orientation="horizontal">
+        <Field.Label>Namespace</Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field
+            name="namespaces"
+            placeholder="Select Namespace"
+            value={namespace}
+            onChange={(event) => setNamespace(event.target.value)}
           >
-            <Checkbox.HiddenInput />
-            <Checkbox.Control />
-            <Checkbox.Label>네임스페이스 신규 생성하기</Checkbox.Label>
-          </Checkbox.Root>
-        </HStack>
-      </Field.Root>
-      <Field.Root required variant="vertical">
-        {checkedNewNamespace ? (
-          <Input id="namespace" bg="white" />
-        ) : (
-          <NativeSelect.Root>
-            <NativeSelect.Field
-              name="namespaces"
-              placeholder="Select Namespace"
-              value={namespace}
-              onChange={(event) => setNamespace(event.target.value)}
-            >
-              {namespaceList.namespaces.map((namespace) => (
-                <option value={namespace} key={namespace}>
-                  {namespace}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-        )}
+            {namespaceList.namespaces.map((namespace) => (
+              <option value={namespace} key={namespace}>
+                {namespace}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
       </Field.Root>
     </>
   );
 }
 
-function NameInputField({
+function NameSelectField({
   name,
   setName,
 }: {
   name: string;
   setName: (name: string) => void;
 }) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const { data: nameList } = useSuspenseQuery({
+    queryKey: ["getNameListApi", "resourceSelectors"],
+    queryFn: () => {
+      return getNameListApi();
+    },
+  });
   return (
-    <Field.Root required variant="horizontal">
-      <Field.Label>
-        Name
-        <Field.RequiredIndicator />
-      </Field.Label>
-      <Input
-        ref={inputRef}
-        placeholder="이름 입력"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        size="xl"
-      />
+    <Field.Root variant="horizontal">
+      <Field.Label>Name</Field.Label>
+      <NativeSelect.Root>
+        <NativeSelect.Field
+          name="name"
+          placeholder="Select Name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        >
+          {nameList.names.map((name) => (
+            <option value={name} key={name}>
+              {name}
+            </option>
+          ))}
+        </NativeSelect.Field>
+        <NativeSelect.Indicator />
+      </NativeSelect.Root>
     </Field.Root>
   );
 }
 
-function LabelCollapsibleInputField({
+function LabelSelectField({
   labels,
   setLabels,
 }: {
-  labels: Record<string, string>;
-  setLabels: Dispatch<SetStateAction<Record<string, string>>>;
+  // labels: Record<string, string>;
+  // setLabels: Dispatch<SetStateAction<Record<string, string>>>;
+  labels: string;
+  setLabels: Dispatch<SetStateAction<string>>;
 }) {
-  const [keyInput, setKeyInput] = useState("");
-  const [valueInput, setValueInput] = useState("");
-
-  const handleAddLabelClick = (event: FormEvent) => {
-    event.preventDefault();
-    setLabels((prev) => ({ ...prev, [keyInput]: valueInput }));
-    setKeyInput("");
-    setValueInput("");
-  };
-
-  const handleDeleteLabelClick = (key: string) => {
-    setLabels((prev) =>
-      Object.fromEntries(
-        Object.entries(prev).filter(([originKey, _]) => originKey !== key)
-      )
-    );
-  };
-
+  const { data: labelList } = useSuspenseQuery({
+    queryKey: ["getLabelListApi", "resourceSelectors"],
+    queryFn: () => {
+      return getLabelListApi();
+    },
+  });
   return (
     <Field.Root variant="horizontal">
-      <Collapsible.Root width="100%">
-        <HStack gap="3">
-          <Field.Label>Labels</Field.Label>
-          <Collapsible.Trigger>
-            <FaPlus />
-          </Collapsible.Trigger>
-          <Flex gap={1} wrap="wrap" width="80%">
-            {Object.entries(labels).map(([key, value]) => (
-              <Tag.Root key={key}>
-                <Tag.Label>
-                  {key}={value}
-                </Tag.Label>
-                <Tag.EndElement>
-                  <Tag.CloseTrigger
-                    onClick={() => handleDeleteLabelClick(key)}
-                  />
-                </Tag.EndElement>
-              </Tag.Root>
-            ))}
-          </Flex>
-        </HStack>
-        <Collapsible.Content marginTop="2%">
-          <Fieldset.Root>
-            <Flex alignItems="end">
-              <Fieldset.Content>
-                <HStack gap="4" m="2%">
-                  <Field.Root required>
-                    <Field.Label>
-                      Key <Field.RequiredIndicator />
-                    </Field.Label>
-                    <Input
-                      bg="white"
-                      value={keyInput}
-                      onChange={(event) => setKeyInput(event.target.value)}
-                    />
-                  </Field.Root>
-                  <Field.Root required>
-                    <Field.Label>
-                      Value <Field.RequiredIndicator />
-                    </Field.Label>
-                    <Input
-                      bg="white"
-                      value={valueInput}
-                      onChange={(event) => setValueInput(event.target.value)}
-                    />
-                  </Field.Root>
-                  <Button
-                    variant="mediumFaPlus"
-                    onClick={handleAddLabelClick}
-                    margin="2.5%"
-                  >
-                    <FaPlus />
-                  </Button>
-                </HStack>
-              </Fieldset.Content>
-            </Flex>
-          </Fieldset.Root>
-        </Collapsible.Content>
-      </Collapsible.Root>
-    </Field.Root>
-  );
-}
-
-function AnnotationCollapsibleInputField({
-  annotations,
-  setAnnotations,
-}: {
-  annotations: Record<string, string>;
-  setAnnotations: Dispatch<SetStateAction<Record<string, string>>>;
-}) {
-  const [keyInput, setKeyInput] = useState("");
-  const [valueInput, setValueInput] = useState("");
-
-  const handleAnnotationClick = (event: FormEvent) => {
-    event.preventDefault();
-    setAnnotations((prev) => ({ ...prev, [keyInput]: valueInput }));
-    setKeyInput("");
-    setValueInput("");
-  };
-
-  const handleDeleteAnnotationClick = (key: string) => {
-    setAnnotations((prev) =>
-      Object.fromEntries(
-        Object.entries(prev).filter(([originKey, _]) => originKey !== key)
-      )
-    );
-  };
-
-  return (
-    <Field.Root variant="horizontal">
-      <Collapsible.Root width="100%">
-        <HStack gap="3">
-          <Field.Label>Annotations</Field.Label>
-          <Collapsible.Trigger>
-            <FaPlus />
-          </Collapsible.Trigger>
-          <Flex gap={1} wrap="wrap" width="80%">
-            {Object.entries(annotations).map(([key, value]) => (
-              <Tag.Root key={key}>
-                <Tag.Label>
-                  {key}={value}
-                </Tag.Label>
-                <Tag.EndElement>
-                  <Tag.CloseTrigger
-                    onClick={() => handleDeleteAnnotationClick(key)}
-                  />
-                </Tag.EndElement>
-              </Tag.Root>
-            ))}
-          </Flex>
-        </HStack>
-        <Collapsible.Content marginTop="2%">
-          <Fieldset.Root>
-            <Flex alignItems="end">
-              <Fieldset.Content>
-                <HStack gap="4" m="2%">
-                  <Field.Root required>
-                    <Field.Label>
-                      Key <Field.RequiredIndicator />
-                    </Field.Label>
-                    <Input
-                      bg="white"
-                      value={keyInput}
-                      onChange={(event) => setKeyInput(event.target.value)}
-                    />
-                  </Field.Root>
-                  <Field.Root required>
-                    <Field.Label>
-                      Value <Field.RequiredIndicator />
-                    </Field.Label>
-                    <Input
-                      bg="white"
-                      value={valueInput}
-                      onChange={(event) => setValueInput(event.target.value)}
-                    />
-                  </Field.Root>
-                  <Button
-                    variant="mediumFaPlus"
-                    onClick={handleAnnotationClick}
-                    margin="2.5%"
-                  >
-                    <FaPlus />
-                  </Button>
-                </HStack>
-              </Fieldset.Content>
-            </Flex>
-          </Fieldset.Root>
-        </Collapsible.Content>
-      </Collapsible.Root>
+      <Field.Label>Label</Field.Label>
+      <NativeSelect.Root>
+        <NativeSelect.Field
+          name="label"
+          placeholder="Select Label"
+          value={labels}
+          onChange={(event) => setLabels(event.target.value)}
+        >
+          {labelList.labels.map((label) => (
+            <option value={label} key={label}>
+              {label}
+            </option>
+          ))}
+        </NativeSelect.Field>
+        <NativeSelect.Indicator />
+      </NativeSelect.Root>
     </Field.Root>
   );
 }

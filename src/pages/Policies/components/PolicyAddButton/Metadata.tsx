@@ -1,4 +1,4 @@
-import { getNamespaceListApi } from "@/apis/namespace";
+import { getNamespaceListApi } from "@/apis/resources";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Field";
 import { Heading } from "@/components/Heading";
@@ -6,19 +6,27 @@ import { Input } from "@/components/Input";
 import { RadioCard } from "@/components/RadioCard";
 import {
   ButtonGroup,
-  Checkbox,
   Collapsible,
   Fieldset,
   Flex,
   HStack,
   NativeSelect,
   RadioCardValueChangeDetails,
+  Switch,
   Tag,
-  Text,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
-import { FaPlus } from "react-icons/fa";
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useId,
+  useRef,
+  useState,
+} from "react";
+import { FaMinus, FaPlus } from "react-icons/fa";
+import { HiCheck, HiX } from "react-icons/hi";
+import { Tooltip } from "@/components/Tooltip";
 
 export default function Metadata({
   currentStep,
@@ -28,27 +36,22 @@ export default function Metadata({
   setCurrentStep: Dispatch<SetStateAction<number>>;
 }) {
   const [level, setLevel] = useState("namespace");
-  const [checkedNewNamespace, setCheckedNewNamespace] = useState(false);
   const [namespace, setNamespace] = useState("");
   const [name, setName] = useState("");
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [annotations, setAnnotations] = useState<Record<string, string>>({});
+  const [preserveResourceOndeletion, setPreserveResourceOndeletion] =
+    useState(false);
 
   return (
     <>
       <Heading variant="center" marginTop="2%" marginBottom="3%">
         Metadata
       </Heading>
-      <LevelSelectRadioField
-        setLevel={setLevel}
-        setCheckedNewNamespace={setCheckedNewNamespace}
-        setNamespace={setNamespace}
-      />
+      <LevelSelectRadioField setLevel={setLevel} setNamespace={setNamespace} />
       {level === "namespace" ? (
-        <NamespaceField
+        <NamespaceSelectField
           namespace={namespace}
-          checkedNewNamespace={checkedNewNamespace}
-          setCheckedNewNamespace={setCheckedNewNamespace}
           setNamespace={setNamespace}
         />
       ) : null}
@@ -57,6 +60,10 @@ export default function Metadata({
       <AnnotationCollapsibleInputField
         annotations={annotations}
         setAnnotations={setAnnotations}
+      />
+      <PrserveResourceOnDeletionField
+        checked={preserveResourceOndeletion}
+        setChecked={setPreserveResourceOndeletion}
       />
       <StepActionButtons
         currentStep={currentStep}
@@ -68,17 +75,14 @@ export default function Metadata({
 
 function LevelSelectRadioField({
   setLevel,
-  setCheckedNewNamespace,
   setNamespace,
 }: {
   setLevel: Dispatch<SetStateAction<string>>;
-  setCheckedNewNamespace: Dispatch<SetStateAction<boolean>>;
   setNamespace: Dispatch<SetStateAction<string>>;
 }) {
   const handleValueChange = (details: RadioCardValueChangeDetails) => {
     if (details.value !== null) {
       setLevel(details.value);
-      setCheckedNewNamespace(false);
       setNamespace("");
     }
   };
@@ -115,15 +119,11 @@ function LevelSelectRadioField({
   );
 }
 
-function NamespaceField({
+function NamespaceSelectField({
   namespace,
-  checkedNewNamespace,
-  setCheckedNewNamespace,
   setNamespace,
 }: {
   namespace: string;
-  checkedNewNamespace: boolean;
-  setCheckedNewNamespace: Dispatch<SetStateAction<boolean>>;
   setNamespace: Dispatch<SetStateAction<string>>;
 }) {
   const { data: namespaceList } = useSuspenseQuery({
@@ -134,46 +134,26 @@ function NamespaceField({
   });
   return (
     <>
-      <Field.Root variant="vertical">
-        <HStack gap="3" mb="1%">
-          <Field.Label>
-            Namespace <Text color="red.500">*</Text>
-            {/* <Field.RequiredIndicator /> */}
-          </Field.Label>
-          <Checkbox.Root
-            colorPalette="blue"
-            checked={checkedNewNamespace}
-            onCheckedChange={(e) => {
-              setCheckedNewNamespace(!!e.checked);
-              setNamespace("");
-            }}
+      <Field.Root required variant="vertical" orientation="horizontal">
+        <Field.Label>
+          Namespace
+          <Field.RequiredIndicator />
+        </Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field
+            name="namespaces"
+            placeholder="Select Namespace"
+            value={namespace}
+            onChange={(event) => setNamespace(event.target.value)}
           >
-            <Checkbox.HiddenInput />
-            <Checkbox.Control />
-            <Checkbox.Label>네임스페이스 신규 생성하기</Checkbox.Label>
-          </Checkbox.Root>
-        </HStack>
-      </Field.Root>
-      <Field.Root required variant="vertical">
-        {checkedNewNamespace ? (
-          <Input id="namespace" bg="white" />
-        ) : (
-          <NativeSelect.Root>
-            <NativeSelect.Field
-              name="namespaces"
-              placeholder="Select Namespace"
-              value={namespace}
-              onChange={(event) => setNamespace(event.target.value)}
-            >
-              {namespaceList.namespaces.map((namespace) => (
-                <option value={namespace} key={namespace}>
-                  {namespace}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-        )}
+            {namespaceList.namespaces.map((namespace) => (
+              <option value={namespace} key={namespace}>
+                {namespace}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
       </Field.Root>
     </>
   );
@@ -214,6 +194,7 @@ function LabelCollapsibleInputField({
 }) {
   const [keyInput, setKeyInput] = useState("");
   const [valueInput, setValueInput] = useState("");
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
   const handleAddLabelClick = (event: FormEvent) => {
     event.preventDefault();
@@ -232,11 +213,15 @@ function LabelCollapsibleInputField({
 
   return (
     <Field.Root variant="horizontal">
-      <Collapsible.Root width="100%">
+      <Collapsible.Root
+        open={isCollapsibleOpen}
+        onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
+        width="100%"
+      >
         <HStack gap="3">
           <Field.Label>Labels</Field.Label>
           <Collapsible.Trigger>
-            <FaPlus />
+            {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
           </Collapsible.Trigger>
           <Flex gap={1} wrap="wrap" width="80%">
             {Object.entries(labels).map(([key, value]) => (
@@ -304,6 +289,7 @@ function AnnotationCollapsibleInputField({
 }) {
   const [keyInput, setKeyInput] = useState("");
   const [valueInput, setValueInput] = useState("");
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
   const handleAnnotationClick = (event: FormEvent) => {
     event.preventDefault();
@@ -322,11 +308,15 @@ function AnnotationCollapsibleInputField({
 
   return (
     <Field.Root variant="horizontal">
-      <Collapsible.Root width="100%">
+      <Collapsible.Root
+        open={isCollapsibleOpen}
+        onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
+        width="100%"
+      >
         <HStack gap="3">
           <Field.Label>Annotations</Field.Label>
           <Collapsible.Trigger>
-            <FaPlus />
+            {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
           </Collapsible.Trigger>
           <Flex gap={1} wrap="wrap" width="80%">
             {Object.entries(annotations).map(([key, value]) => (
@@ -382,6 +372,43 @@ function AnnotationCollapsibleInputField({
         </Collapsible.Content>
       </Collapsible.Root>
     </Field.Root>
+  );
+}
+
+function PrserveResourceOnDeletionField({
+  checked,
+  setChecked,
+}: {
+  checked: boolean;
+  setChecked: Dispatch<SetStateAction<boolean>>;
+}) {
+  const id = useId();
+  return (
+    <Tooltip
+      ids={{ trigger: id }}
+      content="해당 policy를 삭제할 때 멤버 클러스터에 전파되어있는 리소스들을 같이 삭제할지 선택하는 옵션"
+    >
+      <Switch.Root
+        ids={{ root: id }}
+        checked={checked}
+        onCheckedChange={(event) => setChecked(event.checked)}
+        marginTop="3%"
+        size="lg"
+        colorPalette="blue"
+      >
+        <Switch.Label fontSize="20px">
+          Preserve Resource On Deletion
+        </Switch.Label>
+        <Switch.HiddenInput />
+        <Switch.Control>
+          <Switch.Thumb>
+            <Switch.ThumbIndicator fallback={<HiX color="black" />}>
+              <HiCheck />
+            </Switch.ThumbIndicator>
+          </Switch.Thumb>
+        </Switch.Control>
+      </Switch.Root>
+    </Tooltip>
   );
 }
 
