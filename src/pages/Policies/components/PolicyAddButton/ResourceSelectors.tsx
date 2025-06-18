@@ -33,11 +33,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 export default function ResourceSelectors({
-  currentStep,
-  setCurrentStep,
+  onPrev,
+  onNext,
+  onSubmit,
 }: {
-  currentStep: number;
-  setCurrentStep: Dispatch<SetStateAction<number>>;
+  onPrev: () => void;
+  onNext: () => void;
+  onSubmit: () => void;
 }) {
   return (
     <>
@@ -61,10 +63,7 @@ export default function ResourceSelectors({
         </Flex>
         <ResourceSelectorCreator />
       </Dialog.Root>
-      <StepActionButtons
-        currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-      />
+      <StepActionButtons onPrev={onPrev} onNext={onNext} onSubmit={onSubmit} />
     </>
   );
 }
@@ -397,29 +396,27 @@ function LabelSelectField() {
 }
 
 function StepActionButtons({
-  currentStep,
-  setCurrentStep,
+  onPrev,
+  onNext,
+  onSubmit,
 }: {
-  currentStep: number;
-  setCurrentStep: Dispatch<SetStateAction<number>>;
+  onPrev: () => void;
+  onNext: () => void;
+  onSubmit: () => void;
 }) {
   return (
     <ButtonGroup width="100%" marginTop="3%">
       <Flex justifyContent="flex-end" width="100%">
         <Flex>
           <Button
-            onClick={() => {
-              setCurrentStep(currentStep - 1);
-            }}
+            onClick={() => onPrev()}
             variant="blueOutline"
             marginRight="5px"
           >
             Back
           </Button>
           <Button
-            onClick={() => {
-              setCurrentStep(currentStep + 1);
-            }}
+            onClick={() => onNext()}
             variant="blueSurface"
             marginLeft="5px"
             marginRight="5px"
@@ -427,18 +424,7 @@ function StepActionButtons({
             Next
           </Button>
         </Flex>
-        <Button
-          onClick={() => {
-            toaster.create({
-              description: "Policy가 생성되었습니다.",
-              // status: "success",
-              duration: 3000,
-              closable: true,
-            });
-          }}
-          variant="blue"
-          marginLeft="5px"
-        >
+        <Button onClick={() => onSubmit()} variant="blue" marginLeft="5px">
           Apply
         </Button>
       </Flex>

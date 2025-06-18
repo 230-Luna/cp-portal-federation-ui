@@ -8,18 +8,50 @@ import Metadata from "./Metadata";
 import ResourceSelectors from "./ResourceSelectors";
 import Placement from "./Placement";
 import { Progress } from "@/components/Progress";
+import { useMutation } from "@tanstack/react-query";
+import { FormProvider, useForm } from "react-hook-form";
+import { DevTool } from "@hookform/devtools";
 
-
+type Step = "Metadata" | "ResourceSelectors" | "Placement";
 
 export default function PolicyAdd() {
-  const totalStep = 3;
-  const [currentStep, setCurrentStep] = useState(1);
-  const progress = (100 / totalStep) * currentStep;
+  const steps: Step[] = ["Metadata", "ResourceSelectors", "Placement"];
+  const [currentStep, setCurrentStep] = useState<Step>("Metadata");
+  const currentStepIndex = steps.indexOf(currentStep);
+  const progress = ((currentStepIndex + 1) / steps.length) * 100;
+
+  // const prevStep = currentStepIndex > 0 ? steps[currentStepIndex - 1] : null;
+  // const nextStep = currentStepIndex < totalStep - 1 ? steps[currentStepIndex + 1] : null;
 
   // const [registerData, setRegisterData] = useState()
   // const [step, setStep] = useFunnel<
   //   "Metadata" | "ResourceSelectors" | "Placement"
   // >("Metadata");
+
+  const [level, setLevel] = useState("namespace");
+  console.log("level", level);
+
+  const formData = useForm({
+    defaultValues: {
+      metadata: {
+        name: "",
+        labels: [],
+      },
+      resourceSelectors: [],
+      placement: {
+        clusterNames: [],
+      },
+    },
+  });
+
+  const { register, control } = formData;
+
+  const handleSubmitForm = useMutation({
+    mutationFn: async () => {
+      console.log("apply");
+      // API Post
+    },
+  });
 
   return (
     <Dialog.Root variant="resourceSetUp">
@@ -34,23 +66,28 @@ export default function PolicyAdd() {
           <Dialog.Content variant="resourceSetUp" margin="10px auto">
             <Dialog.Body variant="resourceSetUp" margin="5%">
               <Progress value={progress} />
-              {currentStep === 1 ? (
-                <Metadata
-                  currentStep={currentStep}
-                  setCurrentStep={setCurrentStep}
-                />
-              ) : currentStep === 2 ? (
-                <ResourceSelectors
-                  currentStep={currentStep}
-                  setCurrentStep={setCurrentStep}
-                />
-              ) : (
-                <Placement
-                  currentStep={currentStep}
-                  setCurrentStep={setCurrentStep}
-                />
-              )}
-
+              <FormProvider {...formData}>
+                {currentStep === "Metadata" && (
+                  <Metadata
+                    onNext={() => setCurrentStep("ResourceSelectors")}
+                    level={level}
+                    onLevel={() => setLevel}
+                  />
+                )}
+                {currentStep === "ResourceSelectors" && (
+                  <ResourceSelectors
+                    onPrev={() => setCurrentStep("Metadata")}
+                    onNext={() => setCurrentStep("Placement")}
+                    onSubmit={() => handleSubmitForm.mutate()}
+                  />
+                )}
+                {currentStep === "Placement" && (
+                  <Placement
+                    onPrev={() => setCurrentStep("ResourceSelectors")}
+                    onSubmit={() => handleSubmitForm.mutate()}
+                  />
+                )}
+              </FormProvider>
               {/* <Funnel>
                 <Funnel name="Metadata"}>
                   <Metadata
@@ -78,11 +115,12 @@ export default function PolicyAdd() {
               </Funnel> */}
             </Dialog.Body>
             <Dialog.CloseTrigger>
-              <CloseButton />
+              <CloseButton onClick={() => setCurrentStep("Metadata")} />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
+      <DevTool control={control} />
     </Dialog.Root>
   );
 }

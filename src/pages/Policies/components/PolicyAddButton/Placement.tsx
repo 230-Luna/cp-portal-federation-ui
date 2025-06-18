@@ -19,11 +19,11 @@ import {
 import { toaster } from "@/components/Toaster";
 
 export default function Placement({
-  currentStep,
-  setCurrentStep,
+  onPrev,
+  onSubmit,
 }: {
-  currentStep: number;
-  setCurrentStep: (value: number) => void;
+  onPrev: () => void;
+  onSubmit: () => void;
 }) {
   const [isType, setIsType] = useState(false);
   const [isDividedType, setIsDividedType] = useState(false);
@@ -249,27 +249,14 @@ export default function Placement({
         <Flex justifyContent="flex-end" width="100%">
           <Flex>
             <Button
-              onClick={() => {
-                setCurrentStep(currentStep - 1);
-              }}
+              onClick={() => onPrev()}
               variant="blueOutline"
               marginRight="5px"
             >
               Back
             </Button>
           </Flex>
-          <Button
-            onClick={() => {
-              toaster.create({
-                description: "Policy가 생성되었습니다.",
-                // status: "success",
-                duration: 3000,
-                closable: true,
-              });
-            }}
-            variant="blue"
-            marginLeft="5px"
-          >
+          <Button onClick={() => onSubmit()} variant="blue" marginLeft="5px">
             Apply
           </Button>
         </Flex>

@@ -27,17 +27,16 @@ import {
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { HiCheck, HiX } from "react-icons/hi";
 import { Tooltip } from "@/components/Tooltip";
-import { useForm } from "react-hook-form";
-import { DevTool } from "@hookform/devtools";
 
 export default function Metadata({
-  currentStep,
-  setCurrentStep,
+  onNext,
+  level,
+  onLevel,
 }: {
-  currentStep: number;
-  setCurrentStep: Dispatch<SetStateAction<number>>;
+  onNext: () => void;
+  level: "namespace" | "cluster";
+  onLevel: Dispatch<SetStateAction<string>>;
 }) {
-  const [level, setLevel] = useState("namespace");
   const [namespace, setNamespace] = useState("");
   const [name, setName] = useState("");
   const [labels, setLabels] = useState<Record<string, string>>({});
@@ -45,16 +44,14 @@ export default function Metadata({
   const [preserveResourceOndeletion, setPreserveResourceOndeletion] =
     useState(false);
 
-  const { register, control, handleSubmit } = useForm({
-    mode: "onChange",
-  });
+  console.log("level : ", level);
 
   return (
     <>
       <Heading variant="center" marginTop="2%" marginBottom="3%">
         Metadata
       </Heading>
-      <LevelSelectRadioField setLevel={setLevel} setNamespace={setNamespace} />
+      <LevelSelectRadioField onLevel={onLevel} setNamespace={setNamespace} />
       {level === "namespace" ? (
         <NamespaceSelectField
           namespace={namespace}
@@ -71,25 +68,22 @@ export default function Metadata({
         checked={preserveResourceOndeletion}
         setChecked={setPreserveResourceOndeletion}
       />
-      <StepActionButtons
-        currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-      />
-      <DevTool control={control} />
+      <StepActionButtons onNext={onNext} />
     </>
   );
 }
 
 function LevelSelectRadioField({
-  setLevel,
+  onLevel,
   setNamespace,
 }: {
-  setLevel: Dispatch<SetStateAction<string>>;
+  onLevel: Dispatch<SetStateAction<string>>;
   setNamespace: Dispatch<SetStateAction<string>>;
 }) {
   const handleValueChange = (details: RadioCardValueChangeDetails) => {
     if (details.value !== null) {
-      setLevel(details.value);
+      console.log("LevelSelect: ", details.value);
+      onLevel(details.value);
       setNamespace("");
     }
   };
@@ -418,21 +412,13 @@ function PrserveResourceOnDeletionField({
   );
 }
 
-function StepActionButtons({
-  currentStep,
-  setCurrentStep,
-}: {
-  currentStep: number;
-  setCurrentStep: Dispatch<SetStateAction<number>>;
-}) {
+function StepActionButtons({ onNext }: { onNext: () => void }) {
   return (
     <ButtonGroup width="100%" marginTop="3%">
       <Flex justifyContent="flex-end" width="100%">
         <Flex>
           <Button
-            onClick={() => {
-              setCurrentStep(currentStep + 1);
-            }}
+            onClick={() => onNext()}
             variant="blueSurface"
             marginLeft="5px"
             marginRight="5px"
