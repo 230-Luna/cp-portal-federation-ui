@@ -10,8 +10,9 @@ type Variant =
   | "red"
   | "redOutline"
   | "redGhost"
-  | "smallFaPlus"
-  | "mediumFaPlus";
+  | "smallBlue"
+  | "mediumBlue"
+  | "blackGhost";
 
 type ButtonProps = Omit<ComponentProps<typeof ChakraButton>, "variant"> & {
   variant: Variant;
@@ -35,8 +36,9 @@ const buttonStyleConfig: Record<
     variant: "ghost",
     textStyle: "md",
   },
-  smallFaPlus: { colorPalette: "blue", size: "2xs", fontSize: "lg" },
-  mediumFaPlus: { colorPalette: "blue", size: "sm", fontSize: "xl" },
+  smallBlue: { colorPalette: "blue", size: "2xs", fontSize: "lg" },
+  mediumBlue: { colorPalette: "blue", size: "sm", fontSize: "xl" },
+  blackGhost: { color: "black.600", variant: "ghost", textStyle: "md" },
 };
 
 export const Button = ({ variant, chakraVariant, ...props }: ButtonProps) => {

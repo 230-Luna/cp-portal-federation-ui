@@ -161,7 +161,7 @@ export default function Placement({
                       <Field.Label whiteSpace="nowrap">
                         Weight Preference
                       </Field.Label>
-                      <Button variant="smallFaPlus">
+                      <Button variant="smallBlue">
                         <FaPlus />
                       </Button>
                     </HStack>

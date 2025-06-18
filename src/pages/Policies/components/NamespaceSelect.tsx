@@ -1,4 +1,4 @@
-import { getNamespaceListApi } from "@/apis/namespace";
+import { getResourceNamespaceListApi } from "@/apis/resource";
 import { NativeSelect } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -14,9 +14,9 @@ export default function NamespaceSelect() {
     setSearchParams(searchParams);
   };
 
-  const { data: namespaceList } = useSuspenseQuery({
-    queryKey: ["getNamespaceListApi"],
-    queryFn: () => getNamespaceListApi(),
+  const { data: resourceNamespaceList } = useSuspenseQuery({
+    queryKey: ["getResourceNamespaceListApi", "namespaceSelect"],
+    queryFn: () => getResourceNamespaceListApi({}),
   });
 
   return (
@@ -27,7 +27,7 @@ export default function NamespaceSelect() {
         value={value}
         onChange={(event) => handleSelectValueChange(event.target.value)}
       >
-        {namespaceList.namespaces.map((namespace) => (
+        {resourceNamespaceList.namespaces.map((namespace) => (
           <option value={namespace} key={namespace}>
             {namespace}
           </option>

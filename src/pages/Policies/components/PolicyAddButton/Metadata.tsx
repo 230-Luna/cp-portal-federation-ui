@@ -1,4 +1,4 @@
-import { getNamespaceListApi } from "@/apis/resources";
+import { getResourceNamespaceListApi } from "@/apis/resource";
 import { Button } from "@/components/Button";
 import { Field } from "@/components/Field";
 import { Heading } from "@/components/Heading";
@@ -27,6 +27,8 @@ import {
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { HiCheck, HiX } from "react-icons/hi";
 import { Tooltip } from "@/components/Tooltip";
+import { useForm } from "react-hook-form";
+import { DevTool } from "@hookform/devtools";
 
 export default function Metadata({
   currentStep,
@@ -42,6 +44,10 @@ export default function Metadata({
   const [annotations, setAnnotations] = useState<Record<string, string>>({});
   const [preserveResourceOndeletion, setPreserveResourceOndeletion] =
     useState(false);
+
+  const { register, control, handleSubmit } = useForm({
+    mode: "onChange",
+  });
 
   return (
     <>
@@ -69,6 +75,7 @@ export default function Metadata({
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
       />
+      <DevTool control={control} />
     </>
   );
 }
@@ -126,36 +133,35 @@ function NamespaceSelectField({
   namespace: string;
   setNamespace: Dispatch<SetStateAction<string>>;
 }) {
-  const { data: namespaceList } = useSuspenseQuery({
-    queryKey: ["getNamespaceListApi", "metadata"],
+  const { data: resourceNamespaceList } = useSuspenseQuery({
+    queryKey: ["getResourceNamespaceListApi", "metadata", "namespace"],
     queryFn: () => {
-      return getNamespaceListApi();
+      return getResourceNamespaceListApi({});
     },
   });
+
   return (
-    <>
-      <Field.Root required variant="vertical" orientation="horizontal">
-        <Field.Label>
-          Namespace
-          <Field.RequiredIndicator />
-        </Field.Label>
-        <NativeSelect.Root>
-          <NativeSelect.Field
-            name="namespaces"
-            placeholder="Select Namespace"
-            value={namespace}
-            onChange={(event) => setNamespace(event.target.value)}
-          >
-            {namespaceList.namespaces.map((namespace) => (
-              <option value={namespace} key={namespace}>
-                {namespace}
-              </option>
-            ))}
-          </NativeSelect.Field>
-          <NativeSelect.Indicator />
-        </NativeSelect.Root>
-      </Field.Root>
-    </>
+    <Field.Root required variant="vertical" orientation="horizontal">
+      <Field.Label>
+        Namespace
+        <Field.RequiredIndicator />
+      </Field.Label>
+      <NativeSelect.Root>
+        <NativeSelect.Field
+          name="namespaces"
+          placeholder="Select Namespace"
+          value={namespace}
+          onChange={(event) => setNamespace(event.target.value)}
+        >
+          {resourceNamespaceList.namespaces.map((namespace) => (
+            <option value={namespace} key={namespace}>
+              {namespace}
+            </option>
+          ))}
+        </NativeSelect.Field>
+        <NativeSelect.Indicator />
+      </NativeSelect.Root>
+    </Field.Root>
   );
 }
 
@@ -266,7 +272,7 @@ function LabelCollapsibleInputField({
                 </HStack>
               </Fieldset.Content>
               <Button
-                variant="mediumFaPlus"
+                variant="mediumBlue"
                 onClick={handleAddLabelClick}
                 margin="2.5%"
               >
@@ -361,7 +367,7 @@ function AnnotationCollapsibleInputField({
                 </HStack>
               </Fieldset.Content>
               <Button
-                variant="mediumFaPlus"
+                variant="mediumBlue"
                 onClick={handleAnnotationClick}
                 margin="2.5%"
               >

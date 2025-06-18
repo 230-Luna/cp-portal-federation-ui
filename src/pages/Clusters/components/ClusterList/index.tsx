@@ -10,6 +10,9 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import Pagination from "@/components/Pagination";
 import { useSearchParams } from "react-router-dom";
 import { Heading } from "@/components/Heading";
+import { Button } from "@/components/Button";
+import { FaSyncAlt } from "react-icons/fa";
+import ClusterSyncButton from "./ClusterSyncButton";
 
 export default function ClusterList() {
   const itemsPerPage = 10;
@@ -90,12 +93,18 @@ export default function ClusterList() {
                 />
               </Table.Cell>
               <Table.Cell>
-                <Flex justify="space-evenly"></Flex>
-                <ClusterViewButton clusterId={cluster.clusterId} />
-                <ClusterExcludeButton
-                  clusterId={cluster.clusterId}
-                  clusterName={cluster.name}
-                />
+                <Flex justify="space-evenly">
+                  <ClusterViewButton clusterId={cluster.clusterId} />
+                  <ClusterExcludeButton
+                    clusterId={cluster.clusterId}
+                    clusterName={cluster.name}
+                  />
+                  <ClusterSyncButton
+                    clusterId={cluster.clusterId}
+                    clusterName={cluster.name}
+                  />
+                  {/* <FaSyncAlt /> */}
+                </Flex>
               </Table.Cell>
             </Table.Row>
           ))}

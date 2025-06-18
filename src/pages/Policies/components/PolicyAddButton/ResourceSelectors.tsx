@@ -1,4 +1,4 @@
-import { Dispatch, FormEvent, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Card } from "@/components/Card";
 import { Dialog } from "@/components/Dialog";
 import { Heading } from "@/components/Heading";
@@ -8,23 +8,29 @@ import { Button } from "@/components/Button";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { Flex } from "@/components/Flex";
 import { SegmentGroup } from "@/components/SegmentGroup";
-import { Collapsible } from "@/components/Collapsible";
-import { Input } from "@/components/Input";
 import { Field } from "@/components/Field";
 import {
   Portal,
   HStack,
   NativeSelect,
-  Tag,
   Badge,
   ButtonGroup,
   SegmentGroupValueChangeDetails,
-  Fieldset,
+  Select,
+  createListCollection,
+  Stack,
+  FieldErrorText,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/Toaster";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getNamespaceListApi, getNameListApi } from "@/apis/resources";
-import { getLabelListApi } from "@/apis/resources";
+import {
+  getResourceNameListApi,
+  getResourceNamespaceListApi,
+} from "@/apis/resource";
+import { getResourceLabelListApi } from "@/apis/resource";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 export default function ResourceSelectors({
   currentStep,
@@ -39,7 +45,7 @@ export default function ResourceSelectors({
         <Heading variant="center" marginTop="2%" marginBottom="3%">
           Resource Selectors
           <Dialog.Trigger>
-            <Button variant="smallFaPlus" marginLeft="3%">
+            <Button variant="smallBlue" marginLeft="3%">
               <FaPlus />
             </Button>
           </Dialog.Trigger>
@@ -111,7 +117,6 @@ function ResourceSelectorCreator() {
   const [kind, setKind] = useState("Deployment");
   const [namespace, setNamespace] = useState("");
   const [name, setName] = useState("");
-  // const [labels, setLabels] = useState<Record<string, string>>({});
   const [labels, setLabels] = useState("");
 
   return (
@@ -122,11 +127,22 @@ function ResourceSelectorCreator() {
           <Dialog.Body variant="resourceSetUp" margin="2%">
             <KindSelectRadioField kind={kind} setKind={setKind} />
             <NamespaceSelectField
+              kind={kind}
               namespace={namespace}
               setNamespace={setNamespace}
             />
-            <NameSelectField name={name} setName={setName} />
-            <LabelSelectField labels={labels} setLabels={setLabels} />
+            <NameSelectField
+              kind={kind}
+              namespace={namespace}
+              name={name}
+              setName={setName}
+            />
+            <LabelSelectField
+            // kind={kind}
+            // namespace={namespace}
+            // labels={labels}
+            // setLabels={setLabels}
+            />
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
@@ -181,16 +197,20 @@ function KindSelectRadioField({
 }
 
 function NamespaceSelectField({
+  kind,
   namespace,
   setNamespace,
 }: {
+  kind: string;
   namespace: string;
   setNamespace: Dispatch<SetStateAction<string>>;
 }) {
-  const { data: namespaceList } = useSuspenseQuery({
-    queryKey: ["getNamespaceListApi", "resourceSelectors"],
+  const { data: resourceNamespaceList } = useSuspenseQuery({
+    queryKey: ["getResourceNamespaceListApi", "resourceSelectors", "namespace"],
     queryFn: () => {
-      return getNamespaceListApi();
+      return getResourceNamespaceListApi({
+        kind: kind,
+      });
     },
   });
   return (
@@ -204,7 +224,7 @@ function NamespaceSelectField({
             value={namespace}
             onChange={(event) => setNamespace(event.target.value)}
           >
-            {namespaceList.namespaces.map((namespace) => (
+            {resourceNamespaceList.namespaces.map((namespace) => (
               <option value={namespace} key={namespace}>
                 {namespace}
               </option>
@@ -218,16 +238,28 @@ function NamespaceSelectField({
 }
 
 function NameSelectField({
+  kind,
+  namespace,
   name,
   setName,
 }: {
+  kind: string;
+  namespace: string | undefined;
   name: string;
   setName: (name: string) => void;
 }) {
-  const { data: nameList } = useSuspenseQuery({
-    queryKey: ["getNameListApi", "resourceSelectors"],
+  const { data: resourceNameList } = useSuspenseQuery({
+    queryKey: ["getResourceNameListApi", "resourceSelectors", "name"],
     queryFn: () => {
-      return getNameListApi();
+      if (namespace != null) {
+        return getResourceNameListApi({
+          kind: kind,
+          namespace: namespace,
+        });
+      }
+      return getResourceNameListApi({
+        kind: kind,
+      });
     },
   });
   return (
@@ -240,7 +272,7 @@ function NameSelectField({
           value={name}
           onChange={(event) => setName(event.target.value)}
         >
-          {nameList.names.map((name) => (
+          {resourceNameList.names.map((name) => (
             <option value={name} key={name}>
               {name}
             </option>
@@ -252,40 +284,115 @@ function NameSelectField({
   );
 }
 
-function LabelSelectField({
-  labels,
-  setLabels,
-}: {
-  // labels: Record<string, string>;
-  // setLabels: Dispatch<SetStateAction<Record<string, string>>>;
-  labels: string;
-  setLabels: Dispatch<SetStateAction<string>>;
-}) {
-  const { data: labelList } = useSuspenseQuery({
-    queryKey: ["getLabelListApi", "resourceSelectors"],
-    queryFn: () => {
-      return getLabelListApi();
-    },
+const frameworks = createListCollection({
+  items: [
+    { label: "React.js", value: "react" },
+    { label: "Vue.js", value: "vue" },
+    { label: "Angular", value: "angular" },
+    { label: "Svelte", value: "svelte" },
+  ],
+});
+const formSchema = z.object({
+  framework: z.string({ message: "Framework is required" }).array(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+function LabelSelectField() {
+  //   {
+  //   kind,
+  //   namespace,
+  //   labels,
+  //   setLabels,
+  // }: {
+  //   kind: string;
+  //   namespace: string | undefined;
+  //   labels: string;
+  //   setLabels: Dispatch<SetStateAction<string>>;
+  // }
+  // const { data: labelNameList } = useSuspenseQuery({
+  //   queryKey: ["getResourceLabelListApi", "resourceSelectors"],
+  //   queryFn: () => {
+  //     if (namespace != null) {
+  //       return getResourceLabelListApi({
+  //         kind: kind,
+  //         namespace: namespace,
+  //       });
+  //     }
+  //     return getResourceLabelListApi({
+  //       kind: kind,
+  //     });
+  //   },
+  // });
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
   });
+
   return (
-    <Field.Root variant="horizontal">
-      <Field.Label>Label</Field.Label>
-      <NativeSelect.Root>
-        <NativeSelect.Field
-          name="label"
-          placeholder="Select Label"
-          value={labels}
-          onChange={(event) => setLabels(event.target.value)}
-        >
-          {labelList.labels.map((label) => (
-            <option value={label} key={label}>
-              {label}
-            </option>
-          ))}
-        </NativeSelect.Field>
-        <NativeSelect.Indicator />
-      </NativeSelect.Root>
-    </Field.Root>
+    <Stack gap="4" align="flex-start">
+      <Field.Root variant="horizontal">
+        <Field.Label>Labels</Field.Label>
+        <Controller
+          control={control}
+          name="framework"
+          render={({ field }) => (
+            <Select.Root
+              name={field.name}
+              value={field.value}
+              onValueChange={({ value }) => field.onChange(value)}
+              onInteractOutside={() => field.onBlur()}
+              collection={frameworks}
+            >
+              <Select.HiddenSelect />
+              <Select.Control>
+                <Select.Trigger>
+                  <Select.ValueText placeholder="Select framework" />
+                </Select.Trigger>
+                <Select.IndicatorGroup>
+                  <Select.Indicator />
+                </Select.IndicatorGroup>
+              </Select.Control>
+              <Portal>
+                <Select.Positioner>
+                  <Select.Content>
+                    {frameworks.items.map((framework) => (
+                      <Select.Item item={framework} key={framework.value}>
+                        {framework.label}
+                        <Select.ItemIndicator />
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select.Positioner>
+              </Portal>
+            </Select.Root>
+          )}
+        />
+        <FieldErrorText>{errors.framework?.message}</FieldErrorText>
+      </Field.Root>
+    </Stack>
+    //    <Field.Root variant="horizontal">
+    //   <Field.Label>Label</Field.Label>
+    //   <NativeSelect.Root>
+    //     <NativeSelect.Field
+    //       name="label"
+    //       placeholder="Select Label"
+    //       value={labels}
+    //       onChange={(event) => setLabels(event.target.value)}
+    //     >
+    //       {labelNameList.labels.map((label) => (
+    //         <option value={label} key={label}>
+    //           {label}
+    //         </option>
+    //       ))}
+    //     </NativeSelect.Field>
+    //     <NativeSelect.Indicator />
+    //   </NativeSelect.Root>
+    // </Field.Root>
   );
 }
 

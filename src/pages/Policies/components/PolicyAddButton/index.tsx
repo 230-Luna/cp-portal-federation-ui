@@ -9,41 +9,17 @@ import ResourceSelectors from "./ResourceSelectors";
 import Placement from "./Placement";
 import { Progress } from "@/components/Progress";
 
+
+
 export default function PolicyAdd() {
   const totalStep = 3;
   const [currentStep, setCurrentStep] = useState(1);
   const progress = (100 / totalStep) * currentStep;
 
-
-  const [formData, setFormData] = useState({
-    metadata: {
-      level: "",
-      namespace: "",
-      name: "",
-      labels: [""],
-      annotations: [""],
-    },
-    resourceselectors: [
-      {
-        kind: "",
-        namespace: "",
-        name: "",
-        labels: [""],
-        annotations: [""],
-      },
-    ],
-    placement: {
-      clusternames: [],
-      type: "",
-      divisionpreference: "",
-      weightpreference: [
-        {
-          targetcluster: [""],
-          weight: 1,
-        },
-      ],
-    },
-  });
+  // const [registerData, setRegisterData] = useState()
+  // const [step, setStep] = useFunnel<
+  //   "Metadata" | "ResourceSelectors" | "Placement"
+  // >("Metadata");
 
   return (
     <Dialog.Root variant="resourceSetUp">
@@ -74,6 +50,32 @@ export default function PolicyAdd() {
                   setCurrentStep={setCurrentStep}
                 />
               )}
+
+              {/* <Funnel>
+                <Funnel name="Metadata"}>
+                  <Metadata
+                      onNext={(data) => {
+                        setFormData((prev) => ({ ...prev, metadata: data }));
+                        setStep("ResourceSelectors");
+                      }}
+                    />
+                </Funnel>
+                                <Funnel name="ResourceSelectors"}>
+                  <ResourceSelectors
+                      onNext={(data) => {
+                        setFormData((prev) => ({ ...prev, resourceselectors: data }));
+                        setStep("Placement");
+                      }}
+                    />
+                </Funnel>
+                                <Funnel name="Placement"}>
+                  <Placement
+                      onNext={(data) => {
+                        setFormData((prev) => ({ ...prev, placement: data }));
+                      }}
+                    />
+                </Funnel>
+              </Funnel> */}
             </Dialog.Body>
             <Dialog.CloseTrigger>
               <CloseButton />
