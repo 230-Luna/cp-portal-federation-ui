@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Metadata from "./Metadata";
 import ResourceSelectors from "./ResourceSelectors";
@@ -20,26 +20,22 @@ export default function PolicyAdd() {
   const currentStepIndex = steps.indexOf(currentStep);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
-  // const prevStep = currentStepIndex > 0 ? steps[currentStepIndex - 1] : null;
-  // const nextStep = currentStepIndex < totalStep - 1 ? steps[currentStepIndex + 1] : null;
-
-  // const [registerData, setRegisterData] = useState()
-  // const [step, setStep] = useFunnel<
-  //   "Metadata" | "ResourceSelectors" | "Placement"
-  // >("Metadata");
-
-  const [level, setLevel] = useState("namespace");
-  console.log("level", level);
-
   const formData = useForm({
     defaultValues: {
       metadata: {
         name: "",
         labels: [],
       },
-      resourceSelectors: [],
+      resourceSelectors: [
+        {
+          resourceSelector: {
+            kind: "Deployment",
+          },
+        },
+      ],
       placement: {
         clusterNames: [],
+        replicaScheduling: {},
       },
     },
   });
@@ -70,8 +66,6 @@ export default function PolicyAdd() {
                 {currentStep === "Metadata" && (
                   <Metadata
                     onNext={() => setCurrentStep("ResourceSelectors")}
-                    level={level}
-                    onLevel={() => setLevel}
                   />
                 )}
                 {currentStep === "ResourceSelectors" && (

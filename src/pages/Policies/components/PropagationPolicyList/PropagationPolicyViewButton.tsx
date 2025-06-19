@@ -91,7 +91,7 @@ function PropagationPolicyYamlViwerDrawer({
           queryKey: ["getPropagationPolicyListApi"],
         });
       } catch (error: any) {
-        console.log(error.response.data.message);
+        console.error(error.response.data.message);
         toaster.error({
           type: "error",
           description: `${error.response.data.message || "알 수 없는 오류"}`,

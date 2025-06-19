@@ -44,10 +44,10 @@ function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
   // });
 
   const initialValues = [
-    { label: "Monday", checked: false, value: "monday" },
-    { label: "Tuesday", checked: false, value: "tuesday" },
-    { label: "Wednesday", checked: false, value: "wednesday" },
-    { label: "Thursday", checked: false, value: "thursday" },
+    { label: "aDeploy", checked: false, value: "aDeploy" },
+    { label: "bDeploy", checked: false, value: "bDeploy" },
+    { label: "cDeploy", checked: false, value: "cDeploy" },
+    { label: "dDeploy", checked: false, value: "dDeploy" },
   ];
 
   const [values, setValues] = useState(initialValues);
