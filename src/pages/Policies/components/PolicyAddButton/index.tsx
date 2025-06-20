@@ -11,6 +11,7 @@ import { Progress } from "@/components/Progress";
 import { useMutation } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
+import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 
 type Step = "Metadata" | "ResourceSelectors" | "Placement";
 
@@ -20,22 +21,35 @@ export default function PolicyAdd() {
   const currentStepIndex = steps.indexOf(currentStep);
   const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
-  const formData = useForm({
+  const formData = useForm<CreatePropagationPolicy>({
     defaultValues: {
       metadata: {
+        namespace: "",
         name: "",
         labels: [],
+        annotations: [],
+        preserveResourceOnDeletion: false,
       },
       resourceSelectors: [
         {
-          resourceSelector: {
-            kind: "Deployment",
-          },
+          kind: "deployment",
+          namespace: "",
+          name: "",
+          labelSelectors: [],
         },
       ],
       placement: {
-        clusterNames: [],
-        replicaScheduling: {},
+        clusternames: [],
+        replicaScheduiling: {
+          replicaSchedulingType: "duplicated",
+          replicaDivisionpreference: "aggregated",
+          staticWeightList: [
+            {
+              targetClusters: [""],
+              weight: 100,
+            },
+          ],
+        },
       },
     },
   });
@@ -82,31 +96,6 @@ export default function PolicyAdd() {
                   />
                 )}
               </FormProvider>
-              {/* <Funnel>
-                <Funnel name="Metadata"}>
-                  <Metadata
-                      onNext={(data) => {
-                        setFormData((prev) => ({ ...prev, metadata: data }));
-                        setStep("ResourceSelectors");
-                      }}
-                    />
-                </Funnel>
-                                <Funnel name="ResourceSelectors"}>
-                  <ResourceSelectors
-                      onNext={(data) => {
-                        setFormData((prev) => ({ ...prev, resourceselectors: data }));
-                        setStep("Placement");
-                      }}
-                    />
-                </Funnel>
-                                <Funnel name="Placement"}>
-                  <Placement
-                      onNext={(data) => {
-                        setFormData((prev) => ({ ...prev, placement: data }));
-                      }}
-                    />
-                </Funnel>
-              </Funnel> */}
             </Dialog.Body>
             <Dialog.CloseTrigger>
               <CloseButton onClick={() => setCurrentStep("Metadata")} />

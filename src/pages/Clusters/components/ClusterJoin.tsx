@@ -151,7 +151,7 @@ function RegisterableClusters({
 
   return (
     <Grid>
-      <CheckboxGroup onValueChange={(e) => onValueChange(e)}>
+      <CheckboxGroup onValueChange={(value) => onValueChange(value)}>
         {registerableClusterList.clusters != null ? (
           registerableClusterList.clusters.map((cluster) => (
             <CheckboxCard.Root

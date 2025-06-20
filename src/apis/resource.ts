@@ -6,7 +6,7 @@ export async function getResourceNamespaceListApi({ kind }: { kind?: string }) {
   const params = new URLSearchParams();
 
   if (kind) {
-    params.append("kind", kind);
+    params.append("kind", kind.toLocaleLowerCase());
   }
 
   return httpClient.get<Namespaces>(
@@ -27,7 +27,7 @@ export async function getResourceNameListApi({
     params.append("namespace", namespace);
   }
 
-  params.append("kind", kind);
+  params.append("kind", kind.toLocaleLowerCase());
 
   return httpClient.get<Names>(`/api/v1/resource/names?${params.toString()}`);
 }
@@ -45,7 +45,7 @@ export async function getResourceLabelListApi({
     params.append("namespace", namespace);
   }
 
-  params.append("kind", kind);
+  params.append("kind", kind.toLocaleLowerCase());
 
   return httpClient.get<Labels>(`/api/v1/resource/labels?${params.toString()}`);
 }

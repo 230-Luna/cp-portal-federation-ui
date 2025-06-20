@@ -29,21 +29,25 @@ export interface PropagationPolicyDetail {
 type NonEmptyArray<T> = [T, ...T[]];
 
 export interface Metadata {
-  namespace: string;
   name: string;
-  labels: string[];
-  annotations: string[];
+  namespace?: string;
+  labels?: string[];
+  annotations?: string[];
   preserveResourceOnDeletion: false;
 }
 
-export interface ResourceSelector {
-  kind: "Deployment" | "Statefulset" | "Daemonset" | "Cronjob" | "Job";
-  name?: string;
-  labels?: string[];
-}
+export type ResourceKind =
+  | "deployment"
+  | "statefulset"
+  | "daemonset"
+  | "cronjob"
+  | "job";
 
-export interface ResourceSelectors {
-  resourceselectors: NonEmptyArray<ResourceSelector>;
+export interface ResourceSelector {
+  kind: ResourceKind;
+  namespace?: string;
+  name?: string;
+  labelSelectors?: string[];
 }
 
 export interface WeightPreference {
@@ -51,27 +55,18 @@ export interface WeightPreference {
   weight: number;
 }
 
-interface BasePlacement {
-  clusternames: NonEmptyArray<string>;
+export interface ReplicaScheduling {
+  replicaSchedulingType?: "divided" | "duplicated";
+  replicaDivisionpreference?: "aggregated" | "weighted";
+  staticWeightList?: WeightPreference[];
+}
+export interface Placement {
+  clusternames: string[];
+  replicaScheduiling: ReplicaScheduling;
 }
 
-interface DuplicatedPlacement extends BasePlacement {
-  type: "Duplicated";
+export interface CreatePropagationPolicy {
+  metadata: Metadata;
+  resourceSelectors: ResourceSelector[];
+  placement: Placement;
 }
-
-interface DividedAggregatedPlacement extends BasePlacement {
-  type: "Divided";
-  divisionpreference: "Aggregated";
-}
-
-interface DividedWeightedPlacement extends BasePlacement {
-  type: "Divided";
-  divisionpreference: "Weighted";
-  weightpreference: WeightPreference[];
-}
-
-type Placement =
-  | BasePlacement
-  | DuplicatedPlacement
-  | DividedAggregatedPlacement
-  | DividedWeightedPlacement;

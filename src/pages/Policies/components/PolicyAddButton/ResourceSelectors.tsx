@@ -14,12 +14,8 @@ import {
   NativeSelect,
   Badge,
   ButtonGroup,
-  SegmentGroupValueChangeDetails,
-  Select,
-  createListCollection,
-  Stack,
-  FieldErrorText,
   Input,
+  SegmentGroupValueChangeDetails,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -33,6 +29,8 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
+import { useState } from "react";
+import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 
 export default function ResourceSelectors({
   onPrev,
@@ -43,33 +41,13 @@ export default function ResourceSelectors({
   onNext: () => void;
   onSubmit: () => void;
 }) {
-  const { control } = useFormContext();
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "resourceSelectors",
-  });
-
   return (
     <>
       <Dialog.Root variant="resourceSetUp">
         <Heading variant="center" marginTop="2%" marginBottom="3%">
           Resource Selectors
           <Dialog.Trigger>
-            <Button
-              variant="smallBlue"
-              marginLeft="3%"
-              onClick={() =>
-                append({
-                  resourceSelector: {
-                    kind: "Deployment",
-                    namespace: "",
-                    name: "",
-                    label: "",
-                  },
-                })
-              }
-            >
+            <Button type="button" variant="smallBlue" marginLeft="3%">
               <FaPlus />
             </Button>
           </Dialog.Trigger>
@@ -91,67 +69,130 @@ export default function ResourceSelectors({
 }
 
 function ResouceSelectorViewer() {
+  const { control } = useFormContext<CreatePropagationPolicy>();
+  const { fields, append, remove } = useFieldArray<
+    CreatePropagationPolicy,
+    "resourceSelectors"
+  >({
+    control,
+    name: "resourceSelectors",
+  });
+
   return (
-    <Card.Root variant="small">
-      <Card.Body variant="small">
-        <CloseButton variant="inbox" marginRight="2.5%" />
-        <Field.Root variant="horizontal">
-          <HStack>
-            <Field.Label>Kind</Field.Label>
-            <Text variant="small">Deployment</Text>
-          </HStack>
-        </Field.Root>
-        <Field.Root variant="horizontal">
-          <HStack>
-            <Field.Label>Name</Field.Label>
-            <Text variant="small">test</Text>
-          </HStack>
-        </Field.Root>
-        <Field.Root variant="horizontal">
-          <HStack>
-            <Field.Label>Namespace</Field.Label>
-            <Text variant="small">default</Text>
-          </HStack>
-        </Field.Root>
-        <Field.Root variant="horizontal">
-          <HStack flexWrap="wrap">
-            <Field.Label>LabelSelectors</Field.Label>
-            <Badge>karmada.policy=samle</Badge>
-            <Badge>app=nginx</Badge>
-          </HStack>
-        </Field.Root>
-        <Field.Root variant="horizontal">
-          <HStack flexWrap="wrap">
-            <Field.Label>Annotaions</Field.Label>
-            <Badge>karmada.policy=samle</Badge>
-            <Badge>karmada.policy=samle</Badge>
-            <Badge>karmada.policy=samle</Badge>
-            <Badge>karmada.policy=samle</Badge>
-          </HStack>
-        </Field.Root>
-      </Card.Body>
-    </Card.Root>
+    <>
+      {fields.map((field, index) => (
+        <Card.Root key={field.id} variant="small">
+          <Card.Body variant="small">
+            <CloseButton
+              onClick={() => remove(index)}
+              variant="inbox"
+              marginRight="2.5%"
+            />
+            <Field.Root variant="horizontal">
+              <HStack>
+                <Field.Label>Kind</Field.Label>
+                <Text variant="small">{field.kind}</Text>
+              </HStack>
+            </Field.Root>
+            {field.namespace && (
+              <Field.Root variant="horizontal">
+                <HStack>
+                  <Field.Label>Namespace</Field.Label>
+                  <Text variant="small">{field.namespace}</Text>
+                </HStack>
+              </Field.Root>
+            )}
+            {field.name && (
+              <Field.Root variant="horizontal">
+                <HStack>
+                  <Field.Label>Name</Field.Label>
+                  <Text variant="small">{field.name}</Text>
+                </HStack>
+              </Field.Root>
+            )}
+            {Array.isArray(field.labelSelectors) &&
+              field.labelSelectors.length > 0 && (
+                <Field.Root variant="horizontal">
+                  <HStack flexWrap="wrap">
+                    <Field.Label>LabelSelectors</Field.Label>
+                    {field.labelSelectors.map((label) => (
+                      <Badge key={label}>{label}</Badge>
+                    ))}
+                  </HStack>
+                </Field.Root>
+              )}
+          </Card.Body>
+        </Card.Root>
+      ))}
+    </>
   );
 }
 
 function ResourceSelectorCreator() {
+  const { control } = useFormContext();
+  const { append } = useFieldArray({
+    control,
+    name: "resourceSelectors",
+  });
+  const [resourceSelectorData, setResourceSelectorData] = useState({
+    kind: "deployment",
+    namespace: "",
+    name: "",
+    labels: [""],
+  });
+
+  const handleResouceSelectorSave = () => {
+    console.log("handle");
+    append(resourceSelectorData);
+  };
+
   return (
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
         <Dialog.Content variant="resourceSetUp" margin="10px auto">
           <Dialog.Body variant="resourceSetUp" margin="2%">
-            <KindSelectRadioField />
-            <NamespaceSelectField />
-            {/* <NameSelectField />
-            <LabelSelectField /> */}
+            <KindSelectRadioField
+              value={resourceSelectorData.kind}
+              onChange={(val) =>
+                setResourceSelectorData((prev) => ({ ...prev, kind: val }))
+              }
+            />
+            <NamespaceSelectField
+              value={resourceSelectorData.namespace}
+              onChange={(val) =>
+                setResourceSelectorData((prev) => ({
+                  ...prev,
+                  namespace: val,
+                }))
+              }
+            />
+            <NameSelectField
+              kind={resourceSelectorData.kind}
+              namespace={resourceSelectorData.namespace}
+              value={resourceSelectorData.name}
+              onChange={(val) =>
+                setResourceSelectorData((prev) => ({ ...prev, name: val }))
+              }
+            />
+            {/* <LabelSelectField
+              value={resourceSelectorData.labels}
+              onChange={(val) =>
+                setResourceSelectorData((prev) => ({
+                  ...prev,
+                  labels: val,
+                }))
+              }
+            /> */}
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
               <Button variant="blueOutline">Cancel</Button>
             </Dialog.ActionTrigger>
             <Dialog.Trigger>
-              <Button variant="blue">Save</Button>
+              <Button onClick={handleResouceSelectorSave} variant="blue">
+                Save
+              </Button>
             </Dialog.Trigger>
           </Dialog.Footer>
           <Dialog.CloseTrigger>
@@ -163,176 +204,156 @@ function ResourceSelectorCreator() {
   );
 }
 
-function KindSelectRadioField() {
-  const { control } = useFormContext();
-
+function KindSelectRadioField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
   const kindOptions = [
-    "Deployment",
-    "Statefulset",
-    "Daemonset",
-    "Cronjob",
-    "Job",
+    "deployment",
+    "statefulset",
+    "daemonset",
+    "cronjob",
+    "job",
   ];
 
+  const handleKindValueChange = (details: SegmentGroupValueChangeDetails) => {
+    const value = details.value;
+    if (value !== null) {
+      onChange(value);
+    }
+  };
+
   return (
-    <Controller
-      name="resourceSelectors.resourceSelector.kind"
-      control={control}
-      defaultValue="Deployment"
-      render={({ field }) => {
-        const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
-          if (details.value !== null) {
-            field.onChange(details.value);
-          }
-        };
-        return (
-          <Field.Root required variant="horizontal">
-            <Field.Label>
-              Kind
-              <Field.RequiredIndicator />
-            </Field.Label>
-            <SegmentGroup.Root
-              value={field.value}
-              onValueChange={handleValueChange}
-              variant="large"
-              width="100%"
-            >
-              <SegmentGroup.Indicator />
-              {kindOptions.map((kind) => (
-                <SegmentGroup.Item key={kind} value={kind}>
-                  <SegmentGroup.ItemHiddenInput />
-                  <SegmentGroup.ItemText>{kind}</SegmentGroup.ItemText>
-                </SegmentGroup.Item>
-              ))}
-            </SegmentGroup.Root>
-          </Field.Root>
-        );
-      }}
-    />
+    <Field.Root required variant="horizontal">
+      <Field.Label>
+        Kind
+        <Field.RequiredIndicator />
+      </Field.Label>
+      <SegmentGroup.Root
+        value={value}
+        onValueChange={handleKindValueChange}
+        variant="large"
+        width="100%"
+      >
+        <SegmentGroup.Indicator />
+        {kindOptions.map((kind) => (
+          <SegmentGroup.Item key={kind} value={kind}>
+            <SegmentGroup.ItemHiddenInput />
+            <SegmentGroup.ItemText>
+              {kind.charAt(0).toUpperCase()}
+            </SegmentGroup.ItemText>
+          </SegmentGroup.Item>
+        ))}
+      </SegmentGroup.Root>
+    </Field.Root>
   );
 }
 
-function NamespaceSelectField() {
-  const { control } = useFormContext();
+function NamespaceSelectField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
   const watchLevel = useWatch({ name: "metadata.level" });
   const watchNamespace = useWatch({ name: "metadata.namespace" });
   const watchKind = useWatch({
-    name: "resourceSelectors.resourceSelector.kind",
+    name: "resourceSelectors.kind",
   });
-  console.log("watchLevel", watchLevel);
-  console.log("watchNamespace", watchNamespace);
-  console.log("watchKind", watchKind);
 
   const { data: resourceNamespaceList } = useSuspenseQuery({
     queryKey: ["getResourceNamespaceListApi", "resourceSelector", "namespace"],
     queryFn: () => {
       return getResourceNamespaceListApi({
-        kind: watchKind.toLowerCase(),
+        kind: watchKind,
       });
     },
   });
-  console.log(resourceNamespaceList);
   return (
-    <Controller
-      name="resourceSelectors.resourceSelector.namespace"
-      control={control}
-      defaultValue=""
-      render={({ field }) => {
-        return (
-          <Field.Root variant="vertical" orientation="horizontal">
-            <Field.Label>Namespace</Field.Label>
-            {watchLevel === "namespace" ? (
-              <Input
-                disabled
-                placeholder={watchNamespace}
-                value={watchNamespace}
-                readOnly
-              />
-            ) : (
-              <NativeSelect.Root>
-                <NativeSelect.Field
-                  // name="namespaces"
-                  placeholder="Select Namespace"
-                  value={field.value}
-                  onChange={(event) => field.onChange(event.target.value)}
-                >
-                  {resourceNamespaceList.namespaces.map((namespace) => (
-                    <option value={namespace} key={namespace}>
-                      {namespace}
-                    </option>
-                  ))}
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            )}
-          </Field.Root>
-        );
-      }}
-    />
+    <Field.Root variant="vertical" orientation="horizontal">
+      <Field.Label>Namespace</Field.Label>
+      {watchLevel === "namespace" ? (
+        <Input
+          disabled
+          placeholder={watchNamespace}
+          value={watchNamespace}
+          readOnly
+        />
+      ) : (
+        <NativeSelect.Root>
+          <NativeSelect.Field
+            // name="namespaces"
+            placeholder="Select Namespace"
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+          >
+            {resourceNamespaceList.namespaces.map((namespace) => (
+              <option value={namespace} key={namespace}>
+                {namespace}
+              </option>
+            ))}
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      )}
+    </Field.Root>
   );
 }
 
-function NameSelectField() {
-  const { control } = useFormContext();
-  const watchKind = useWatch({
-    name: "resourceSelectors.resourceSelector.kind",
-  });
-  const watchNamespace = useWatch({
-    name: "resourceSelectors.resourceSelector.namespace",
-  });
-
+function NameSelectField({
+  kind,
+  namespace,
+  value,
+  onChange,
+}: {
+  kind: string;
+  namespace: string;
+  value: string;
+  onChange: (val: string) => void;
+}) {
   const { data: resourceNameList } = useSuspenseQuery({
-    queryKey: ["getResourceNameListApi", "resourceSelectors", "name"],
-    queryFn: () => {
-      if (watchNamespace != null) {
-        return getResourceNameListApi({
-          kind: watchKind.toLowerCase(),
-          namespace: watchNamespace,
-        });
-      }
-      return getResourceNameListApi({
-        kind: watchKind.toLowerCase(),
-      });
-    },
+    queryKey: ["getResourceNameListApi", kind, namespace],
+    queryFn: () => getResourceNameListApi({ kind, namespace }),
   });
+
   return (
-    <Controller
-      name="resourceSelectors.resourceSelector.name"
-      control={control}
-      defaultValue=""
-      render={({ field }) => {
-        return (
-          <Field.Root variant="horizontal">
-            <Field.Label>Name</Field.Label>
-            <NativeSelect.Root>
-              <NativeSelect.Field
-                name="name"
-                placeholder="Select Name"
-                value={field.value}
-                onChange={(event) => field.onChange(event.target.value)}
-              >
-                {resourceNameList.names.map((name) => (
-                  <option value={name} key={name}>
-                    {name}
-                  </option>
-                ))}
-              </NativeSelect.Field>
-              <NativeSelect.Indicator />
-            </NativeSelect.Root>
-          </Field.Root>
-        );
-      }}
-    />
+    <Field.Root variant="horizontal">
+      <Field.Label>Name</Field.Label>
+      <NativeSelect.Root>
+        <NativeSelect.Field
+          placeholder="Select Name"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          {resourceNameList?.names.map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </NativeSelect.Field>
+        <NativeSelect.Indicator />
+      </NativeSelect.Root>
+    </Field.Root>
   );
 }
 
-function LabelSelectField() {
+function LabelSelectField({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (val: string[]) => void;
+}) {
   const { control } = useFormContext();
   const watchKind = useWatch({
-    name: "resourceSelectors.resourceSelector.kind",
+    name: "resourceSelectors.kind",
   });
   const watchNamespace = useWatch({
-    name: "resourceSelectors.resourceSelector.namespace",
+    name: "resourceSelectors.namespace",
   });
 
   const { data: resourceLabelList } = useSuspenseQuery({
@@ -340,12 +361,12 @@ function LabelSelectField() {
     queryFn: () => {
       if (watchNamespace != null) {
         return getResourceLabelListApi({
-          kind: watchKind.toLowerCase(),
+          kind: watchKind,
           namespace: watchNamespace,
         });
       }
       return getResourceLabelListApi({
-        kind: watchKind.toLowerCase(),
+        kind: watchKind,
       });
     },
   });

@@ -22,8 +22,12 @@ export async function getClusterListApi({
     params.append("sortBy", sort);
   }
 
-  params.append("page", page.toString());
-  params.append("itemsPerPage", itemsPerPage.toString());
+  if (page) {
+    params.append("page", page.toString());
+  }
+  if (itemsPerPage) {
+    params.append("itemsPerPage", itemsPerPage.toString());
+  }
 
   const CLUSTER_API_URL = `/api/v1/cluster?${params.toString()}`;
 
