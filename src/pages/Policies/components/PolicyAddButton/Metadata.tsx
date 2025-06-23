@@ -432,16 +432,14 @@ function StepActionButtons({ onNext }: { onNext: () => void }) {
   return (
     <ButtonGroup width="100%" marginTop="3%">
       <Flex justifyContent="flex-end" width="100%">
-        <Flex>
-          <Button
-            onClick={() => onNext()}
-            variant="blueSurface"
-            marginLeft="5px"
-            marginRight="5px"
-          >
-            Next
-          </Button>
-        </Flex>
+        <Button
+          onClick={() => onNext()}
+          variant="blueSurface"
+          marginLeft="5px"
+          marginRight="5px"
+        >
+          Next
+        </Button>
       </Flex>
     </ButtonGroup>
   );

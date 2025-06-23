@@ -30,25 +30,13 @@ export default function PolicyAdd() {
         annotations: [],
         preserveResourceOnDeletion: false,
       },
-      resourceSelectors: [
-        {
-          kind: "deployment",
-          namespace: "",
-          name: "",
-          labelSelectors: [],
-        },
-      ],
+      resourceSelectors: [],
       placement: {
         clusternames: [],
         replicaScheduiling: {
-          replicaSchedulingType: "duplicated",
-          replicaDivisionpreference: "aggregated",
-          staticWeightList: [
-            {
-              targetClusters: [""],
-              weight: 100,
-            },
-          ],
+          replicaSchedulingType: "Duplicated",
+          replicaDivisionpreference: "Aggregated",
+          staticWeightList: [],
         },
       },
     },
@@ -86,7 +74,6 @@ export default function PolicyAdd() {
                   <ResourceSelectors
                     onPrev={() => setCurrentStep("Metadata")}
                     onNext={() => setCurrentStep("Placement")}
-                    onSubmit={() => handleSubmitForm.mutate()}
                   />
                 )}
                 {currentStep === "Placement" && (

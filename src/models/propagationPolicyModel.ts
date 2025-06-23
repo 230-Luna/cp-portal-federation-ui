@@ -37,11 +37,11 @@ export interface Metadata {
 }
 
 export type ResourceKind =
-  | "deployment"
-  | "statefulset"
-  | "daemonset"
-  | "cronjob"
-  | "job";
+  | "Deployment"
+  | "Statefulset"
+  | "Daemonset"
+  | "Cronjob"
+  | "Job";
 
 export interface ResourceSelector {
   kind: ResourceKind;
@@ -56,8 +56,8 @@ export interface WeightPreference {
 }
 
 export interface ReplicaScheduling {
-  replicaSchedulingType?: "divided" | "duplicated";
-  replicaDivisionpreference?: "aggregated" | "weighted";
+  replicaSchedulingType?: "Divided" | "Duplicated";
+  replicaDivisionpreference?: "Aggregated" | "Weighted";
   staticWeightList?: WeightPreference[];
 }
 export interface Placement {
