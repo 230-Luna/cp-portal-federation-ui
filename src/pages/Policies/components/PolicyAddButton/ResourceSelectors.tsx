@@ -18,6 +18,7 @@ import {
   SegmentGroupValueChangeDetails,
   Select,
   createListCollection,
+  SelectValueChangeDetails,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -31,8 +32,11 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { useState } from "react";
-import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
+import { useEffect, useState } from "react";
+import {
+  CreatePropagationPolicy,
+  ResourceSelector,
+} from "@/models/propagationPolicyModel";
 
 export default function ResourceSelectors({
   onPrev,
@@ -80,56 +84,55 @@ function ResouceSelectorViewer() {
       name={`resourceSelectors`}
       control={control}
       defaultValue="[]"
-      render={(field) => {
-        console.log("viewer", fields);
+      render={() => {
         return (
           <>
-            {fields.map((item, index) => {
-              console.log("item", item);
+            {fields.map((field, index) => {
+              const item: Record<string, string> = field;
+              console.log(item);
               return (
-                <></>
-                // <Card.Root key={item.id} variant="small">
-                //   <Card.Body variant="small">
-                //     <CloseButton
-                //       onClick={() => remove(index)}
-                //       variant="inbox"
-                //       marginRight="2.5%"
-                //     />
-                //     <Field.Root variant="horizontal">
-                //       <HStack>
-                //         <Field.Label>Kind</Field.Label>
-                //         <Text variant="small">{item.kind}</Text>
-                //       </HStack>
-                //     </Field.Root>
-                //     {item.namespace && (
-                //       <Field.Root variant="horizontal">
-                //         <HStack>
-                //           <Field.Label>Namespace</Field.Label>
-                //           <Text variant="small">{item.namespace}</Text>
-                //         </HStack>
-                //       </Field.Root>
-                //     )}
-                //     {item.name && (
-                //       <Field.Root variant="horizontal">
-                //         <HStack>
-                //           <Field.Label>Name</Field.Label>
-                //           <Text variant="small">{item.name}</Text>
-                //         </HStack>
-                //       </Field.Root>
-                //     )}
-                //     {Array.isArray(item.labelSelectors) &&
-                //       item.labelSelectors.length > 0 && (
-                //         <Field.Root variant="horizontal">
-                //           <HStack flexWrap="wrap">
-                //             <Field.Label>LabelSelectors</Field.Label>
-                //             {item.labelSelectors.map((label) => (
-                //               <Badge key={label}>{label}</Badge>
-                //             ))}
-                //           </HStack>
-                //         </Field.Root>
-                //       )}
-                //   </Card.Body>
-                // </Card.Root>
+                <Card.Root key={field.id} variant="small" width="49%">
+                  <Card.Body variant="small">
+                    <CloseButton
+                      onClick={() => remove(index)}
+                      variant="inbox"
+                      marginRight="2.5%"
+                    />
+                    <Field.Root variant="horizontal">
+                      <HStack>
+                        <Field.Label>Kind</Field.Label>
+                        <Text variant="small">{item.kind}</Text>
+                      </HStack>
+                    </Field.Root>
+                    {item.namespace && (
+                      <Field.Root variant="horizontal">
+                        <HStack>
+                          <Field.Label>Namespace</Field.Label>
+                          <Text variant="small">{item.namespace}</Text>
+                        </HStack>
+                      </Field.Root>
+                    )}
+                    {item.name && (
+                      <Field.Root variant="horizontal">
+                        <HStack>
+                          <Field.Label>Name</Field.Label>
+                          <Text variant="small">{item.name}</Text>
+                        </HStack>
+                      </Field.Root>
+                    )}
+                    {Array.isArray(item.labelSelectors) &&
+                      item.labelSelectors.length > 0 && (
+                        <Field.Root variant="horizontal">
+                          <HStack flexWrap="wrap">
+                            <Field.Label>LabelSelectors</Field.Label>
+                            {item.labelSelectors.map((label) => (
+                              <Badge key={label}>{label}</Badge>
+                            ))}
+                          </HStack>
+                        </Field.Root>
+                      )}
+                  </Card.Body>
+                </Card.Root>
               );
             })}
           </>
@@ -149,11 +152,10 @@ function ResourceSelectorCreator() {
     kind: "Deployment",
     namespace: "",
     name: "",
-    labelSelectors: [""],
+    labelSelectors: [] as string[],
   });
 
   const handleResouceSelectorSave = () => {
-    console.log("handle", resourceSelectorData);
     append(resourceSelectorData);
   };
 
@@ -201,7 +203,6 @@ function ResourceSelectorCreator() {
                   <LabelSelectorsField
                     kind={resourceSelectorData.kind}
                     namespace={resourceSelectorData.namespace}
-                    value={resourceSelectorData.labelSelectors}
                     onChange={(val) =>
                       setResourceSelectorData((prev) => ({
                         ...prev,
@@ -301,6 +302,12 @@ function NamespaceSelectField({
     },
   });
 
+  useEffect(() => {
+    if (watchLevel === "namespace" && value !== watchNamespace) {
+      onChange(watchNamespace);
+    }
+  }, [watchLevel, watchNamespace, value, onChange]);
+
   return (
     <Field.Root variant="vertical" orientation="horizontal">
       <Field.Label>Namespace</Field.Label>
@@ -309,7 +316,6 @@ function NamespaceSelectField({
           disabled
           placeholder={watchNamespace}
           value={watchNamespace}
-          onChange={(event) => onChange(watchNamespace)}
           readOnly
         />
       ) : (
@@ -377,21 +383,12 @@ function NameSelectField({
 function LabelSelectorsField({
   kind,
   namespace,
-  value,
   onChange,
 }: {
   kind: string;
   namespace: string;
-  value: string[];
   onChange: (val: string[]) => void;
 }) {
-  // const watchKind = useWatch({
-  //   name: `resourceSelectors.${index}.kind`,
-  // });
-  // const watchNamespace = useWatch({
-  //   name: `resourceSelectors.${index}.namespace`,
-  // });
-
   const { data: resourceLabelList } = useSuspenseQuery({
     queryKey: [
       "getResourceLabelListApi",
@@ -401,12 +398,6 @@ function LabelSelectorsField({
       namespace,
     ],
     queryFn: () => {
-      // if (watchNamespace != null) {
-      //   return getResourceLabelListApi({
-      //     kind: watchKind,
-      //     namespace: watchNamespace,
-      //   });
-      // }
       return getResourceLabelListApi({
         kind: kind,
         namespace: namespace,
@@ -416,10 +407,25 @@ function LabelSelectorsField({
   const labelSelectors = createListCollection({
     items: resourceLabelList.labels,
   });
+
+  const handleLabelValueChange = (details: SelectValueChangeDetails) => {
+    if (details.value !== null) {
+      onChange(details.value);
+    }
+  };
+
   return (
     <Field.Root variant="horizontal">
       <Field.Label>LabelSelectors</Field.Label>
-      <Select.Root multiple collection={labelSelectors} size="md">
+      <Select.Root
+        multiple
+        onValueChange={handleLabelValueChange}
+        collection={labelSelectors}
+        size="md"
+        onWheel={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <Select.HiddenSelect />
         <Select.Control>
           <Select.Trigger>
@@ -431,7 +437,7 @@ function LabelSelectorsField({
         </Select.Control>
         <Portal>
           <Select.Positioner>
-            <Select.Content zIndex={1400}>
+            <Select.Content zIndex={1450}>
               {labelSelectors.items.map((label) => (
                 <Select.Item item={label} key={label}>
                   {label}

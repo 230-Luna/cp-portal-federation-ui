@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Metadata from "./Metadata";
 import ResourceSelectors from "./ResourceSelectors";
