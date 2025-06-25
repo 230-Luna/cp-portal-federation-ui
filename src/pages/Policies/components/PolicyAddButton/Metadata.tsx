@@ -226,7 +226,6 @@ function LabelCollapsibleInputField() {
                             Key <Field.RequiredIndicator />
                           </Field.Label>
                           <Input
-                            bg="white"
                             value={keyInput}
                             onChange={(event) =>
                               setKeyInput(event.target.value)
@@ -238,7 +237,6 @@ function LabelCollapsibleInputField() {
                             Value <Field.RequiredIndicator />
                           </Field.Label>
                           <Input
-                            bg="white"
                             value={valueInput}
                             onChange={(event) =>
                               setValueInput(event.target.value)
@@ -341,7 +339,6 @@ function AnnotationCollapsibleInputField() {
                             Key <Field.RequiredIndicator />
                           </Field.Label>
                           <Input
-                            bg="white"
                             value={keyInput}
                             onChange={(event) =>
                               setKeyInput(event.target.value)
@@ -353,7 +350,6 @@ function AnnotationCollapsibleInputField() {
                             Value <Field.RequiredIndicator />
                           </Field.Label>
                           <Input
-                            bg="white"
                             value={valueInput}
                             onChange={(event) =>
                               setValueInput(event.target.value)

@@ -30,7 +30,7 @@ export default function ClusterJoinButton() {
       onOpenChange={(details) => setOpen(details.open)}
     >
       <Dialog.Trigger>
-        <Button variant="largeBlue">
+        <Button colorPalette="blue" variant="largeBlue">
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>

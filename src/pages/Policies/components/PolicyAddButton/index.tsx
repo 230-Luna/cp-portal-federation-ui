@@ -52,7 +52,11 @@ export default function PolicyAdd() {
   });
 
   return (
-    <Dialog.Root variant="resourceSetUp">
+    <Dialog.Root
+      variant="resourceSetUp"
+      closeOnInteractOutside={false}
+      // onExitComplete={() => setCurrentStep("Metadata")}
+    >
       <Dialog.Trigger>
         <Button variant="largeBlue">
           <FaPlus /> Add
@@ -85,7 +89,7 @@ export default function PolicyAdd() {
               </FormProvider>
             </Dialog.Body>
             <Dialog.CloseTrigger>
-              <CloseButton onClick={() => setCurrentStep("Metadata")} />
+              <CloseButton />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>

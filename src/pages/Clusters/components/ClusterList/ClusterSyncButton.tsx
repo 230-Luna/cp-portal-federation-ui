@@ -27,7 +27,7 @@ export default function ClusterSyncButton({
 
   return (
     <Drawer.Root
-      size="sm"
+      size="lg"
       open={open}
       onOpenChange={(details) => setOpen(details.open)}
     >

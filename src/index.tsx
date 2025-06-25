@@ -1,6 +1,7 @@
 import ReactDOM from "react-dom/client";
 import App from "@/App";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
+import { system } from "@/components/theme";
 
 // keycloak에서 토큰 가져오는 로직 추가해야함
 
@@ -15,7 +16,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   // <React.StrictMode>
-  <ChakraProvider value={defaultSystem}>
+  <ChakraProvider value={system}>
     <App />
   </ChakraProvider>
   // </React.StrictMode>

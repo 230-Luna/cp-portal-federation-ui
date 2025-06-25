@@ -301,7 +301,6 @@ function WeightPreference() {
       control={control}
       defaultValue="[]"
       render={({ field }) => {
-        console.log("place field", field);
         const handleCheckboxChange = (value: string[]) => {
           field.onChange(value);
         };
@@ -340,7 +339,7 @@ function WeightPreference() {
                     onClick={() => remove(index)}
                   />
                   <Box width="80%">
-                    <Flex>
+                    <Flex margin="2% 0" wrap="wrap">
                       <Field.Root required width="130px">
                         <Field.Label>
                           - Target Clusters
@@ -356,12 +355,13 @@ function WeightPreference() {
                               field.onChange(details);
                             }}
                           >
-                            <Flex wrap="wrap" gap="2">
+                            <Flex gap="2" margin="2% 0">
                               {clusterList.clusters.map((cluster) => (
                                 <Box key={cluster.name}>
                                   <CheckboxCard.Root
                                     key={cluster.name}
                                     value={cluster.name}
+                                    backgroundColor="white"
                                   >
                                     <CheckboxCard.HiddenInput />
                                     <CheckboxCard.Control>
@@ -378,7 +378,7 @@ function WeightPreference() {
                         )}
                       />
                     </Flex>
-                    <Flex alignItems="center">
+                    <Flex alignItems="center" margin="2% 0">
                       <Field.Root required width="130px">
                         <Field.Label>
                           - Weight

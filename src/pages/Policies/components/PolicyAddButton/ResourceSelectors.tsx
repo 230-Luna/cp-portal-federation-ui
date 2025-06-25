@@ -19,6 +19,8 @@ import {
   Select,
   createListCollection,
   SelectValueChangeDetails,
+  Checkbox,
+  Highlight,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -47,26 +49,31 @@ export default function ResourceSelectors({
 }) {
   return (
     <>
-      <Dialog.Root variant="resourceSetUp">
-        <Heading variant="center" marginTop="2%" marginBottom="3%">
-          Resource Selectors
+      <Heading variant="center" marginTop="2%" marginBottom="3%">
+        Resource Selectors
+        <Dialog.Root
+          variant="resourceSetUp"
+          key="creator"
+          closeOnInteractOutside={false}
+        >
           <Dialog.Trigger>
             <Button type="button" variant="smallBlue" marginLeft="3%">
               <FaPlus />
             </Button>
           </Dialog.Trigger>
-        </Heading>
-        <Flex
-          gap="2"
-          flexWrap="wrap"
-          overflow="auto"
-          height="400px"
-          maxHeight="400px"
-        >
-          <ResouceSelectorViewer />
-        </Flex>
-        <ResourceSelectorCreator />
-      </Dialog.Root>
+          <ResourceSelectorCreator />
+        </Dialog.Root>
+      </Heading>
+
+      <Flex
+        gap="2"
+        flexWrap="wrap"
+        overflow="auto"
+        height="400px"
+        maxHeight="400px"
+      >
+        <ResouceSelectorViewer />
+      </Flex>
       <StepActionButtons onPrev={onPrev} onNext={onNext} />
     </>
   );
@@ -210,6 +217,7 @@ function ResourceSelectorCreator() {
                       }))
                     }
                   />
+                  <CheckWanringInfoField />
                 </Dialog.Body>
                 <Dialog.Footer>
                   <Dialog.ActionTrigger>
@@ -449,6 +457,54 @@ function LabelSelectorsField({
         </Portal>
       </Select.Root>
     </Field.Root>
+  );
+}
+
+function CheckWanringInfoField() {
+  const watchNamespace = useWatch({ name: `metadata.namespace` });
+  const watchName = useWatch({ name: "metadata.name" });
+  const watchLabelSelector = useWatch({
+    name: "metadata.labelSelector",
+  });
+
+  console.log(
+    watchNamespace === true || watchName === true || watchLabelSelector === true
+  );
+
+  return (
+    <Flex marginTop="5%">
+      {watchNamespace === true ||
+      watchName === true ||
+      watchLabelSelector === true ? (
+        <Checkbox.Root colorPalette="blue">
+          <Checkbox.HiddenInput />
+          <Checkbox.Control />
+          <Checkbox.Label>
+            <Highlight
+              query="해당 Kind의 모든 리소스가 전파"
+              styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
+            >
+              Kind 외 옵션이 없을 경우, 해당 Kind의 모든 리소스가 전파되는 것을
+              확인했습니다.
+            </Highlight>
+          </Checkbox.Label>
+        </Checkbox.Root>
+      ) : (
+        <Checkbox.Root colorPalette="blue" disabled checked={true}>
+          <Checkbox.HiddenInput />
+          <Checkbox.Control />
+          <Checkbox.Label>
+            <Highlight
+              query="해당 Kind의 모든 리소스가 전파"
+              styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
+            >
+              Kind 외 옵션이 없을 경우, 해당 Kind의 모든 리소스가 전파되는 것을
+              확인했습니다.
+            </Highlight>
+          </Checkbox.Label>
+        </Checkbox.Root>
+      )}
+    </Flex>
   );
 }
 
