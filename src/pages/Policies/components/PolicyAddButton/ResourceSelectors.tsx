@@ -35,10 +35,6 @@ import {
   useWatch,
 } from "react-hook-form";
 import { useEffect, useState } from "react";
-import {
-  CreatePropagationPolicy,
-  ResourceSelector,
-} from "@/models/propagationPolicyModel";
 
 export default function ResourceSelectors({
   onPrev,
@@ -103,7 +99,7 @@ function ResouceSelectorViewer() {
                     <CloseButton
                       onClick={() => remove(index)}
                       variant="inbox"
-                      marginRight="2.5%"
+                      padding="5%"
                     />
                     <Field.Root variant="horizontal">
                       <HStack>
@@ -165,7 +161,6 @@ function ResourceSelectorCreator() {
   const handleResouceSelectorSave = () => {
     append(resourceSelectorData);
   };
-
   return (
     <Controller
       name={`resourceSelectors`}
@@ -445,7 +440,7 @@ function LabelSelectorsField({
         </Select.Control>
         <Portal>
           <Select.Positioner>
-            <Select.Content zIndex={1450}>
+            <Select.Content>
               {labelSelectors.items.map((label) => (
                 <Select.Item item={label} key={label}>
                   {label}
@@ -466,10 +461,6 @@ function CheckWanringInfoField() {
   const watchLabelSelector = useWatch({
     name: "metadata.labelSelector",
   });
-
-  console.log(
-    watchNamespace === true || watchName === true || watchLabelSelector === true
-  );
 
   return (
     <Flex marginTop="5%">

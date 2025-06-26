@@ -150,6 +150,18 @@ function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
               </Stack>
             </Accordion.Root>
           </Drawer.Body>
+          <Drawer.Footer>
+            <Drawer.ActionTrigger asChild>
+              <Button variant="blueOutline">Cancel</Button>
+            </Drawer.ActionTrigger>
+            <Button
+              variant="blue"
+              // disabled={applySyncMutationCount > 0}
+              // onClick={() => handleApplySync.mutate()}
+            >
+              Apply
+            </Button>
+          </Drawer.Footer>
           <Drawer.CloseTrigger asChild>
             <CloseButton />
           </Drawer.CloseTrigger>
