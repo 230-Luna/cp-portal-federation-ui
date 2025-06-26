@@ -1,4 +1,4 @@
-import { Sync } from "@/models/sync";
+import { Sync, SyncPostBody } from "@/models/sync";
 import { httpClient } from "@/utils/httpClient";
 
 export async function getSyncListApi({
@@ -25,4 +25,14 @@ export async function getSyncListApi({
   return httpClient.get<Sync[]>(
     `/api/v1/sync/resource/${clusterId}?${params.toString()}`
   );
+}
+
+export async function postSyncListApi({
+  clusterId,
+  data,
+}: {
+  clusterId: string;
+  data: SyncPostBody;
+}) {
+  return httpClient.put(`/api/v1/sync/${clusterId}`, { data });
 }

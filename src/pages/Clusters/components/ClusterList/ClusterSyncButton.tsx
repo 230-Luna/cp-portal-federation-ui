@@ -1,22 +1,26 @@
-import { getSyncListApi } from "@/apis/sync";
+import { getSyncListApi, postSyncListApi } from "@/apis/sync";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
-import { Collapsible } from "@/components/Collapsible";
+import { toaster } from "@/components/Toaster";
+import { Sync } from "@/models/sync";
 import {
   Accordion,
-  Box,
   Checkbox,
-  CheckboxGroup,
   Drawer,
-  Fieldset,
-  For,
   HStack,
   Portal,
   Stack,
 } from "@chakra-ui/react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { CheckedChangeDetails } from "@zag-js/checkbox";
 import { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
+import { SyncPostBody } from "./../../../../models/sync";
 
 export default function ClusterSyncButton({
   clusterId,
@@ -35,13 +39,24 @@ export default function ClusterSyncButton({
         <Button variant="blackGhost">Sync</Button>
       </Drawer.Trigger>
       {open === true ? (
-        <ClusterResourceSyncDrawer clusterId={clusterId} />
+        <ClusterResourceSyncDrawer
+          clusterId={clusterId}
+          onClose={() => setOpen(false)}
+        />
       ) : null}
     </Drawer.Root>
   );
 }
 
-function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
+function ClusterResourceSyncDrawer({
+  clusterId,
+  onClose,
+}: {
+  clusterId: string;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+
   const { data: syncNamespaceList } = useSuspenseQuery({
     queryKey: ["getClusterResourceSyncApi", clusterId, "namespace"],
     queryFn: () => getSyncListApi({ clusterId, kind: "namespace" }),
@@ -49,17 +64,70 @@ function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
 
   const [expandedNamespaces, setExpandedNamespaces] = useState<string[]>([]);
   const [checkedNamespaces, setCheckedNamespaces] = useState<string[]>([]);
+  // console.log("expandedNamespaces: ", expandedNamespaces);
+  // console.log("checkedNamespaces: ", checkedNamespaces);
 
-  console.log("expandedNamespaces: ", expandedNamespaces);
-  console.log("checkedNamespaces: ", checkedNamespaces);
+  const handleCheckedNamespaceChange = (
+    checked: CheckedChangeDetails,
+    name: string
+  ) => {
+    setCheckedNamespaces((prev) =>
+      checked ? [...prev, name] : prev.filter((n) => n !== name)
+    );
+  };
+  const data: SyncPostBody = {
+    createNamespace: ["hihihi"],
+    data: [
+      {
+        namespace: "default",
+        list: [
+          {
+            kind: "deployment",
+            list: ["heheheheh"],
+          },
+        ],
+      },
+    ],
+  };
 
-  const kindOptions = [
-    "Deployment",
-    "Statefulset",
-    "Daemonset",
-    "Cronjob",
-    "Job",
-  ];
+  const handleApplySync = useMutation({
+    mutationKey: ["handleApplySync", clusterId],
+    mutationFn: async () => {
+      let loadingToaster;
+      try {
+        onClose();
+        loadingToaster = toaster.create({
+          type: "loading",
+          description: `${clusterId}와 Sync하고 있습니다.`,
+        });
+        await postSyncListApi({
+          clusterId,
+          data,
+        });
+        toaster.remove(loadingToaster);
+        toaster.success({
+          description: `${clusterId}와 성공적으로 Sync되었습니다.`,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["getClusterListApi"],
+        });
+      } catch (error: any) {
+        console.error(error.response.data.message);
+        toaster.error({
+          type: "error",
+          description: `${error.response.data.message || "알 수 없는 오류"}`,
+        });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
+      }
+    },
+  });
+
+  const applySyncMutationCount = useIsMutating({
+    mutationKey: ["handleApplySync", clusterId],
+  });
 
   return (
     <Portal>
@@ -74,79 +142,67 @@ function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
               multiple
               value={expandedNamespaces}
               onValueChange={(details) => setExpandedNamespaces(details.value)}
+              lazyMount={true}
             >
               <Stack gap="2">
-                {syncNamespaceList.map((ns) => (
-                  <Accordion.Item key={ns.name} value={ns.name}>
-                    <HStack>
-                      <Checkbox.Root
-                        checked={checkedNamespaces.includes(ns.name)}
-                        onCheckedChange={(checked) => {
-                          setCheckedNamespaces((prev) =>
-                            checked
-                              ? [...prev, ns.name]
-                              : prev.filter((n) => n !== ns.name)
-                          );
-                        }}
-                        width="100%"
-                      >
-                        <Checkbox.HiddenInput />
-                        <Checkbox.Control>
-                          <Checkbox.Indicator />
-                        </Checkbox.Control>
-                        <Checkbox.Label>{ns.name}</Checkbox.Label>
-                      </Checkbox.Root>
-                      <Accordion.ItemTrigger>
-                        <FaPlus />
-                      </Accordion.ItemTrigger>
-                    </HStack>
-                    <Accordion.ItemContent>
-                      <Accordion.ItemBody>
-                        <Stack marginLeft="20%">
-                          <Accordion.Root
-                            multiple
-                            value={expandedNamespaces}
-                            onValueChange={(details) =>
-                              setExpandedNamespaces(details.value)
+                {syncNamespaceList.map((namespace) => {
+                  const name = namespace.name;
+                  return (
+                    <Accordion.Item key={name} value={name}>
+                      <HStack>
+                        {namespace.isDuplicated === true ? (
+                          <Checkbox.Root
+                            checked={checkedNamespaces.includes(name)}
+                            onCheckedChange={(checked) =>
+                              handleCheckedNamespaceChange(checked, name)
                             }
+                            width="100%"
+                            disabled={true}
                           >
-                            <Stack gap="2">
-                              {kindOptions.map((kind) => (
-                                <Accordion.Item key={kind} value={kind}>
-                                  <HStack>
-                                    <Checkbox.Root key={kind} value={kind}>
-                                      <Checkbox.HiddenInput />
-                                      <Checkbox.Control>
-                                        <Checkbox.Indicator />
-                                      </Checkbox.Control>
-                                      <Checkbox.Label>{kind}</Checkbox.Label>
-                                    </Checkbox.Root>
-                                    <Accordion.ItemTrigger>
-                                      <FaPlus />
-                                    </Accordion.ItemTrigger>
-                                  </HStack>
-                                  <Accordion.ItemContent>
-                                    <Accordion.ItemBody>
-                                      <Stack marginLeft="30%">
-                                        <Checkbox.Root key="a" value="a">
-                                          <Checkbox.HiddenInput />
-                                          <Checkbox.Control>
-                                            <Checkbox.Indicator />
-                                          </Checkbox.Control>
-                                          <Checkbox.Label>a</Checkbox.Label>
-                                        </Checkbox.Root>
-                                      </Stack>
-                                    </Accordion.ItemBody>
-                                  </Accordion.ItemContent>
-                                </Accordion.Item>
-                              ))}
-                            </Stack>
-                          </Accordion.Root>
-                        </Stack>
-                      </Accordion.ItemBody>
-                    </Accordion.ItemContent>
-                  </Accordion.Item>
-                ))}
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control>
+                              <Checkbox.Indicator />
+                            </Checkbox.Control>
+                            <Checkbox.Label>{name}</Checkbox.Label>
+                          </Checkbox.Root>
+                        ) : (
+                          <Checkbox.Root
+                            checked={checkedNamespaces.includes(name)}
+                            onCheckedChange={(checked) =>
+                              handleCheckedNamespaceChange(checked, name)
+                            }
+                            width="100%"
+                          >
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control>
+                              <Checkbox.Indicator />
+                            </Checkbox.Control>
+                            <Checkbox.Label>{name}</Checkbox.Label>
+                          </Checkbox.Root>
+                        )}
+                        <Accordion.ItemTrigger>
+                          <Accordion.ItemIndicator>
+                            {expandedNamespaces.includes(name) ? (
+                              <FaMinus />
+                            ) : (
+                              <FaPlus />
+                            )}
+                          </Accordion.ItemIndicator>
+                        </Accordion.ItemTrigger>
+                      </HStack>
+                      <Accordion.ItemContent>
+                        <Accordion.ItemBody>
+                          <Stack marginLeft="20%">
+                            <KindList
+                              clusterId={clusterId}
+                              namespace={namespace}
+                            />
+                          </Stack>
+                        </Accordion.ItemBody>
+                      </Accordion.ItemContent>
+                    </Accordion.Item>
+                  );
+                })}
               </Stack>
             </Accordion.Root>
           </Drawer.Body>
@@ -156,8 +212,8 @@ function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
             </Drawer.ActionTrigger>
             <Button
               variant="blue"
-              // disabled={applySyncMutationCount > 0}
-              // onClick={() => handleApplySync.mutate()}
+              disabled={applySyncMutationCount > 0}
+              onClick={() => handleApplySync.mutate()}
             >
               Apply
             </Button>
@@ -171,52 +227,150 @@ function ClusterResourceSyncDrawer({ clusterId }: { clusterId: string }) {
   );
 }
 
-{
-  /* <NamespaceDeployments
-  clusterId={clusterId}
-  namespace={ns.name}
-  checkedDeployments={checkedDeployments[ns.name] || []}
-  onChange={(newChecked) => {
-    setCheckedDeployments((prev) => ({
-      ...prev,
-      [ns.name]: newChecked,
-    }));
-  }}
-/>; */
-}
-
-function NamespaceDeployments({
+function KindList({
   clusterId,
   namespace,
-  checkedDeployments,
+}: {
+  clusterId: string;
+  namespace: Sync;
+}) {
+  const kindOptions = [
+    "Deployment",
+    "Statefulset",
+    "Daemonset",
+    "Cronjob",
+    "Job",
+  ];
+
+  const [expandedKinds, setExpandedKinds] = useState<Record<string, string[]>>(
+    {}
+  );
+  const [resourceData, setResourceData] = useState<
+    Record<string, Record<string, any[]>>
+  >({});
+
+  const handleKindExpand = (namespace: string, kinds: string[]) => {
+    setExpandedKinds((prev) => ({ ...prev, [namespace]: kinds }));
+    // console.log("handle,", expandedKinds);
+
+    kinds.forEach((kind) => {
+      if (!resourceData[namespace]?.[kind]) {
+        getSyncListApi({
+          clusterId,
+          kind: kind.toLowerCase(),
+          namespace,
+        }).then((res) => {
+          setResourceData((prev) => ({
+            ...prev,
+            [namespace]: {
+              ...prev[namespace],
+              [kind]: res,
+            },
+          }));
+        });
+      }
+    });
+  };
+
+  return (
+    <Accordion.Root
+      multiple
+      lazyMount={true}
+      value={expandedKinds[namespace.name] || []}
+      onValueChange={(details) =>
+        handleKindExpand(namespace.name, details.value)
+      }
+    >
+      <Stack gap="3">
+        {kindOptions.map((kind) => (
+          <Accordion.Item key={kind} value={kind}>
+            <HStack>
+              {kind}
+              <Accordion.ItemTrigger>
+                <Accordion.ItemIndicator>
+                  {kind ? <FaMinus /> : <FaPlus />}
+                </Accordion.ItemIndicator>
+              </Accordion.ItemTrigger>
+            </HStack>
+
+            <Accordion.ItemContent>
+              <Accordion.ItemBody pl="8">
+                <Stack marginLeft="20%">
+                  <NamespaceResources
+                    clusterId={clusterId}
+                    namespace={namespace.name}
+                    kind={kind}
+                    checkedResource={expandedKinds[namespace.name] || []}
+                    onChange={(newChecked) => {
+                      setExpandedKinds((prev) => ({
+                        ...prev,
+                        [namespace.name]: newChecked,
+                      }));
+                    }}
+                  />
+                </Stack>
+              </Accordion.ItemBody>
+            </Accordion.ItemContent>
+          </Accordion.Item>
+        ))}
+      </Stack>
+    </Accordion.Root>
+  );
+}
+
+function NamespaceResources({
+  clusterId,
+  namespace,
+  kind,
+  checkedResource,
   onChange,
 }: {
   clusterId: string;
   namespace: string;
-  checkedDeployments: string[];
+  kind: string;
+  checkedResource: string[];
   onChange: (val: string[]) => void;
 }) {
-  const { data: deployments } = useSuspenseQuery({
-    queryKey: ["getClusterResourceSyncApi", clusterId, namespace],
+  const { data: resourceList } = useSuspenseQuery({
+    queryKey: ["getClusterResourceSyncApi", clusterId, namespace, kind],
     queryFn: () =>
       getSyncListApi({
         clusterId,
-        kind: "deployment",
+        kind: kind,
         namespace,
       }),
   });
 
+  console.log("resourceList: ", resourceList);
+
+  // const handleCheck = (
+  //   namespace: string,
+  //   kind: string,
+  //   name: string,
+  //   checked: boolean
+  // ) => {
+  //   setCheckedResources((prev) => ({
+  //     ...prev,
+  //     [namespace]: {
+  //       ...prev[namespace],
+  //       [kind]: checked
+  //         ? [...(prev[namespace]?.[kind] || []), name]
+  //         : (prev[namespace]?.[kind] || []).filter((n) => n !== name),
+  //     },
+  //   }));
+  // };
+
   return (
     <Stack pl="4">
-      {deployments.map((deploy: any) => (
+      {resourceList.map((resource: any) => (
         <Checkbox.Root
-          key={deploy.name}
-          checked={checkedDeployments.includes(deploy.name)}
+          key={resource.name}
+          checked={checkedResource.includes(resource.name)}
           onCheckedChange={(checked) => {
             onChange(
               checked
-                ? [...checkedDeployments, deploy.name]
-                : checkedDeployments.filter((n) => n !== deploy.name)
+                ? [...checkedResource, resource.name]
+                : checkedResource.filter((n) => n !== resource.name)
             );
           }}
         >
@@ -224,7 +378,7 @@ function NamespaceDeployments({
           <Checkbox.Control>
             <Checkbox.Indicator />
           </Checkbox.Control>
-          <Checkbox.Label>{deploy.name}</Checkbox.Label>
+          <Checkbox.Label>{resource.name}</Checkbox.Label>
         </Checkbox.Root>
       ))}
     </Stack>

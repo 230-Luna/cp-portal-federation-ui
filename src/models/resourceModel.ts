@@ -4,7 +4,3 @@ export interface Namespaces {
 export interface Names {
   names: string[];
 }
-
-export interface Labels {
-  labels: string[];
-}
