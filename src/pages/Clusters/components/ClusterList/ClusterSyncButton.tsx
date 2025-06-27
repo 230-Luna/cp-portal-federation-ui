@@ -2,7 +2,7 @@ import { getSyncListApi, postSyncListApi } from "@/apis/sync";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { toaster } from "@/components/Toaster";
-import { Sync } from "@/models/sync";
+import { ResourceKind, Sync } from "@/models/sync";
 import {
   Accordion,
   Checkbox,
@@ -64,8 +64,9 @@ function ClusterResourceSyncDrawer({
 
   const [expandedNamespaces, setExpandedNamespaces] = useState<string[]>([]);
   const [checkedNamespaces, setCheckedNamespaces] = useState<string[]>([]);
-  // console.log("expandedNamespaces: ", expandedNamespaces);
-  // console.log("checkedNamespaces: ", checkedNamespaces);
+  const [checkedResources, setCheckedResources] = useState<
+    Record<string, Record<string, string[]>>
+  >({});
 
   const handleCheckedNamespaceChange = (
     checked: CheckedChangeDetails,
@@ -90,9 +91,28 @@ function ClusterResourceSyncDrawer({
     ],
   };
 
+  const generateSyncPostData = (): SyncPostBody => {
+    const namespaces = Object.keys(checkedResources);
+
+    return {
+      createNamespace: checkedNamespaces,
+      data: namespaces.map((namespace) => {
+        const kinds = checkedResources[namespace];
+        return {
+          namespace,
+          list: Object.entries(kinds).map(([kind, resources]) => ({
+            kind: kind.toLowerCase() as ResourceKind,
+            list: resources,
+          })),
+        };
+      }),
+    };
+  };
+
   const handleApplySync = useMutation({
     mutationKey: ["handleApplySync", clusterId],
     mutationFn: async () => {
+      const data = generateSyncPostData();
       let loadingToaster;
       try {
         onClose();
@@ -196,6 +216,8 @@ function ClusterResourceSyncDrawer({
                             <KindList
                               clusterId={clusterId}
                               namespace={namespace}
+                              checkedResources={checkedResources}
+                              setCheckedResources={setCheckedResources}
                             />
                           </Stack>
                         </Accordion.ItemBody>
@@ -230,9 +252,15 @@ function ClusterResourceSyncDrawer({
 function KindList({
   clusterId,
   namespace,
+  checkedResources,
+  setCheckedResources,
 }: {
   clusterId: string;
   namespace: Sync;
+  checkedResources: Record<string, Record<string, string[]>>;
+  setCheckedResources: React.Dispatch<
+    React.SetStateAction<Record<string, Record<string, string[]>>>
+  >;
 }) {
   const kindOptions = [
     "Deployment",
@@ -245,13 +273,13 @@ function KindList({
   const [expandedKinds, setExpandedKinds] = useState<Record<string, string[]>>(
     {}
   );
+
   const [resourceData, setResourceData] = useState<
     Record<string, Record<string, any[]>>
   >({});
 
   const handleKindExpand = (namespace: string, kinds: string[]) => {
     setExpandedKinds((prev) => ({ ...prev, [namespace]: kinds }));
-    // console.log("handle,", expandedKinds);
 
     kinds.forEach((kind) => {
       if (!resourceData[namespace]?.[kind]) {
@@ -292,7 +320,6 @@ function KindList({
                 </Accordion.ItemIndicator>
               </Accordion.ItemTrigger>
             </HStack>
-
             <Accordion.ItemContent>
               <Accordion.ItemBody pl="8">
                 <Stack marginLeft="20%">
@@ -300,11 +327,16 @@ function KindList({
                     clusterId={clusterId}
                     namespace={namespace.name}
                     kind={kind}
-                    checkedResource={expandedKinds[namespace.name] || []}
+                    checkedResource={
+                      checkedResources[namespace.name]?.[kind] || []
+                    }
                     onChange={(newChecked) => {
-                      setExpandedKinds((prev) => ({
+                      setCheckedResources((prev) => ({
                         ...prev,
-                        [namespace.name]: newChecked,
+                        [namespace.name]: {
+                          ...prev[namespace.name],
+                          [kind]: newChecked,
+                        },
                       }));
                     }}
                   />
@@ -340,8 +372,6 @@ function NamespaceResources({
         namespace,
       }),
   });
-
-  console.log("resourceList: ", resourceList);
 
   // const handleCheck = (
   //   namespace: string,

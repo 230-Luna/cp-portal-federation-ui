@@ -92,7 +92,6 @@ function ResouceSelectorViewer() {
           <>
             {fields.map((field, index) => {
               const item: Record<string, string> = field;
-              console.log(item);
               return (
                 <Card.Root key={field.id} variant="small" width="49%">
                   <Card.Body variant="small">
@@ -161,6 +160,7 @@ function ResourceSelectorCreator() {
   const handleResouceSelectorSave = () => {
     append(resourceSelectorData);
   };
+
   return (
     <Controller
       name={`resourceSelectors`}
@@ -362,6 +362,7 @@ function NameSelectField({
     ],
     queryFn: () => getResourceNameListApi({ kind, namespace }),
   });
+
   return (
     <Field.Root variant="horizontal">
       <Field.Label>Name</Field.Label>
@@ -371,8 +372,8 @@ function NameSelectField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
         >
-          {resourceNameList?.names.map((name) => (
-            <option key={name} value={name}>
+          {resourceNameList?.names.map((name, index) => (
+            <option key={name + index} value={name}>
               {name}
             </option>
           ))}
@@ -407,7 +408,7 @@ function LabelSelectorsField({
       });
     },
   });
-  const labelSelectors = createListCollection({
+  const labelSelectors = createListCollection<string>({
     items: resourceLabelList.labels,
   });
 
@@ -425,9 +426,10 @@ function LabelSelectorsField({
         onValueChange={handleLabelValueChange}
         collection={labelSelectors}
         size="md"
-        onWheel={(e) => {
-          e.stopPropagation();
+        onWheel={(event) => {
+          event.stopPropagation();
         }}
+        positioning={{ placement: "bottom", flip: false }}
       >
         <Select.HiddenSelect />
         <Select.Control>
@@ -438,18 +440,16 @@ function LabelSelectorsField({
             <Select.Indicator />
           </Select.IndicatorGroup>
         </Select.Control>
-        <Portal>
-          <Select.Positioner>
-            <Select.Content>
-              {labelSelectors.items.map((label) => (
-                <Select.Item item={label} key={label}>
-                  {label}
-                  <Select.ItemIndicator />
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Positioner>
-        </Portal>
+        <Select.Positioner>
+          <Select.Content>
+            {labelSelectors.items.map((label, index) => (
+              <Select.Item item={label} key={label + index}>
+                {label}
+                <Select.ItemIndicator />
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
       </Select.Root>
     </Field.Root>
   );

@@ -3,6 +3,7 @@ import {
   PropagationPolicyDetail,
 } from "@/models/propagationPolicyModel";
 import { httpClient } from "@/utils/httpClient";
+import { CreatePropagationPolicy } from "./../models/propagationPolicyModel";
 
 export async function getPropagationPolicyListApi({
   namespace,
@@ -76,4 +77,10 @@ export async function updatePropagationPolicyApi({
     `/api/v1/propagationpolicy/namespace/${namespace}/${name}`,
     { propagationData: data }
   );
+}
+
+export async function createPropagationPolicyApi(
+  data: CreatePropagationPolicy
+) {
+  return httpClient.post(`/api/v1/propagationpolicy`, data);
 }

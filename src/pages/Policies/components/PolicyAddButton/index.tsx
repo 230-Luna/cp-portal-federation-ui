@@ -8,14 +8,18 @@ import Metadata from "./Metadata";
 import ResourceSelectors from "./ResourceSelectors";
 import Placement from "./Placement";
 import { Progress } from "@/components/Progress";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
+import { toaster } from "@/components/Toaster";
+import { createPropagationPolicyApi } from "@/apis/propagationPolicy";
 
 type Step = "Metadata" | "ResourceSelectors" | "Placement";
 
 export default function PolicyAdd() {
+  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
   const steps: Step[] = ["Metadata", "ResourceSelectors", "Placement"];
   const [currentStep, setCurrentStep] = useState<Step>("Metadata");
   const currentStepIndex = steps.indexOf(currentStep);
@@ -42,17 +46,45 @@ export default function PolicyAdd() {
     },
   });
 
-  const { register, control } = formData;
-
   const handleSubmitForm = useMutation({
+    mutationKey: [
+      "createPropagationPolicyApi",
+      formData.getValues().metadata.name,
+    ],
     mutationFn: async () => {
-      console.log("apply");
-      // API Post
+      let loadingToaster;
+      try {
+        setOpen(false);
+        loadingToaster = toaster.create({
+          type: "loading",
+          description: `Policy를 추가하고 있습니다.`,
+        });
+        await createPropagationPolicyApi(formData.getValues());
+        toaster.remove(loadingToaster);
+        toaster.success({
+          description: `${name} Policy가 추가되었습니다.`,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["getPropagationPolicyListApi"],
+        });
+      } catch (error: any) {
+        console.error(error.response.data.message);
+        toaster.error({
+          type: "error",
+          description: `${error.response.data.message || "알 수 없는 오류"}`,
+        });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
+      }
     },
   });
 
   return (
     <Dialog.Root
+      open={open}
+      onOpenChange={(details) => setOpen(details.open)}
       variant="resourceSetUp"
       closeOnInteractOutside={false}
       // onExitComplete={() => setCurrentStep("Metadata")}
@@ -94,7 +126,7 @@ export default function PolicyAdd() {
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
-      <DevTool control={control} />
+      <DevTool control={formData.control} />
     </Dialog.Root>
   );
 }

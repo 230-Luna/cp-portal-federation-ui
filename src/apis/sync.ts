@@ -20,8 +20,6 @@ export async function getSyncListApi({
     params.append("namespace", namespace.toLowerCase());
   }
 
-  console.log("sync api : ", params.toString());
-
   return httpClient.get<Sync[]>(
     `/api/v1/sync/resource/${clusterId}?${params.toString()}`
   );
