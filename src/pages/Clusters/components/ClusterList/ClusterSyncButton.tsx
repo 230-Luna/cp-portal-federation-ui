@@ -2,7 +2,7 @@ import { getSyncListApi, postSyncListApi } from "@/apis/sync";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { toaster } from "@/components/Toaster";
-import { ResourceKind, Sync } from "@/models/sync";
+import { Sync } from "@/models/sync";
 import {
   Accordion,
   Checkbox,
@@ -21,6 +21,7 @@ import { CheckedChangeDetails } from "@zag-js/checkbox";
 import { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { SyncPostBody } from "./../../../../models/sync";
+import { ResourceKindLowercase } from "@/models/resourceModel";
 
 export default function ClusterSyncButton({
   clusterId,
@@ -76,20 +77,20 @@ function ClusterResourceSyncDrawer({
       checked ? [...prev, name] : prev.filter((n) => n !== name)
     );
   };
-  const data: SyncPostBody = {
-    createNamespace: ["hihihi"],
-    data: [
-      {
-        namespace: "default",
-        list: [
-          {
-            kind: "deployment",
-            list: ["heheheheh"],
-          },
-        ],
-      },
-    ],
-  };
+  // const data: SyncPostBody = {
+  //   createNamespace: ["hihihi"],
+  //   data: [
+  //     {
+  //       namespace: "default",
+  //       list: [
+  //         {
+  //           kind: "deployment",
+  //           list: ["heheheheh"],
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // };
 
   const generateSyncPostData = (): SyncPostBody => {
     const namespaces = Object.keys(checkedResources);
@@ -101,7 +102,7 @@ function ClusterResourceSyncDrawer({
         return {
           namespace,
           list: Object.entries(kinds).map(([kind, resources]) => ({
-            kind: kind.toLowerCase() as ResourceKind,
+            kind: kind.toLowerCase() as ResourceKindLowercase,
             list: resources,
           })),
         };

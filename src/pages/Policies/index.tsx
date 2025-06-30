@@ -1,26 +1,22 @@
 import SearchBar from "@/components/SearchBar";
-import PolicyAdd from "@/pages/Policies/components/PolicyAddButton";
+import PolicyAddButton from "@/pages/Policies/components/PolicyAddButton";
 import PropagationPolicyList from "@/pages/Policies/components/PropagationPolicyList";
 import { Flex } from "@/components/Flex";
 import { Suspense, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
-import LevelSelect from "@/pages/Policies/components/LevelSelect";
+import LevelSelect, { Level } from "@/pages/Policies/components/LevelSelect";
 import NamespaceSelect from "@/pages/Policies/components/NamespaceSelect";
 import ClusterPropagationPolicyList from "./components/ClusterPropagationPolicyList";
 import SortSelect from "../../components/SortSelect";
 import { useSearchParams } from "react-router-dom";
 
 export default function Policies() {
-  const [policyLevel, setPolicyLevel] = useState("Namespace level");
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [policyLevel, setPolicyLevel] = useState<Level>("namespace");
+  const [_, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    searchParams.delete("filterBy");
-    searchParams.delete("page");
-    searchParams.delete("sortBy");
-    searchParams.delete("namespace");
-    setSearchParams(searchParams);
+    setSearchParams({});
   }, [policyLevel]);
 
   return (
@@ -32,12 +28,15 @@ export default function Policies() {
         marginBottom="50px"
       >
         <Flex>
-          <LevelSelect value={policyLevel} onValueChange={setPolicyLevel} />
-          {policyLevel === "Namespace level" ? <NamespaceSelect /> : null}
+          <LevelSelect
+            value={policyLevel}
+            onValueChange={(policyLevel) => setPolicyLevel(policyLevel)}
+          />
+          {policyLevel === "namespace" ? <NamespaceSelect /> : null}
         </Flex>
         <Flex justify="flex-end">
           <SearchBar key={policyLevel} placeholder="Search Policies" />
-          <PolicyAdd />
+          <PolicyAddButton />
         </Flex>
       </Flex>
       <Flex justify="flex-end">
@@ -45,7 +44,7 @@ export default function Policies() {
       </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback={<LoadingSkeleton />}>
-          {policyLevel === "Namespace level" ? (
+          {policyLevel === "namespace" ? (
             <PropagationPolicyList />
           ) : (
             <ClusterPropagationPolicyList />

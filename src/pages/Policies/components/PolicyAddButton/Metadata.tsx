@@ -16,12 +16,13 @@ import {
   Tag,
 } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { FormEvent, useId, useState } from "react";
+import { MouseEvent, useId, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { HiCheck, HiX } from "react-icons/hi";
 import { Tooltip } from "@/components/Tooltip";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Text } from "@/components/Text";
+import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 
 export default function Metadata({ onNext }: { onNext: () => void }) {
   const watchLevel = useWatch({ name: "metadata.level" });
@@ -37,7 +38,7 @@ export default function Metadata({ onNext }: { onNext: () => void }) {
       <LabelCollapsibleInputField />
       <AnnotationCollapsibleInputField />
       <PrserveResourceOnDeletionField />
-      <StepActionButtons onNext={onNext} />
+      <StepActionButtons onClick={onNext} />
     </>
   );
 }
@@ -48,8 +49,8 @@ function LevelSelectRadioField() {
   return (
     <Controller
       name="metadata.level"
-      control={control}
       defaultValue="namespace"
+      control={control}
       render={({ field }) => {
         const handleValueChange = (details: RadioCardValueChangeDetails) => {
           if (details.value !== null) {
@@ -68,7 +69,7 @@ function LevelSelectRadioField() {
             </Field.Label>
             <RadioCard.Root
               name="level"
-              defaultValue={field.value}
+              defaultValue="namespace"
               onValueChange={(details) => handleValueChange(details)}
             >
               <HStack gap="5">
@@ -163,17 +164,16 @@ function LabelCollapsibleInputField() {
   const { control } = useFormContext();
   const [keyInput, setKeyInput] = useState("");
   const [valueInput, setValueInput] = useState("");
-  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false); //opencollasible
 
   return (
     <Controller
       name="metadata.labels"
       control={control}
-      defaultValue={[]}
       render={({ field, fieldState }) => {
         const labels: string[] = field.value || [];
 
-        const handleAddLabelClick = (event: FormEvent) => {
+        const handleAddLabelClick = (event: MouseEvent<HTMLButtonElement>) => {
           event.preventDefault();
           if (!keyInput.trim() || !valueInput.trim()) {
             // 앞, 중간 공백도 처리해야함. 유효한 특수문자만 넣도록 해야함
@@ -192,76 +192,78 @@ function LabelCollapsibleInputField() {
         };
 
         return (
-          <Field.Root variant="horizontal">
-            <Collapsible.Root
-              open={isCollapsibleOpen}
-              onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
-              width="100%"
-            >
-              <HStack gap="3">
-                <Field.Label>Labels</Field.Label>
-                <Collapsible.Trigger>
-                  {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
-                </Collapsible.Trigger>
-                <Flex gap={1} wrap="wrap" width="80%">
-                  {labels.map((label) => (
-                    <Tag.Root key={label}>
-                      <Tag.Label>{label}</Tag.Label>
-                      <Tag.EndElement>
-                        <Tag.CloseTrigger
-                          onClick={() => handleDeleteLabelClick(label)}
-                        />
-                      </Tag.EndElement>
-                    </Tag.Root>
-                  ))}
-                </Flex>
-              </HStack>
-              <Collapsible.Content marginTop="2%">
-                <Fieldset.Root>
-                  <Flex alignItems="end">
-                    <Fieldset.Content>
-                      <HStack gap="4" m="2%">
-                        <Field.Root required>
-                          <Field.Label>
-                            Key <Field.RequiredIndicator />
-                          </Field.Label>
-                          <Input
-                            value={keyInput}
-                            onChange={(event) =>
-                              setKeyInput(event.target.value)
-                            }
+          <Flex padding="1.5% 0">
+            <Field.Root variant="horizontal" height="12%">
+              <Collapsible.Root
+                open={isCollapsibleOpen}
+                onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
+                width="100%"
+              >
+                <HStack gap="3">
+                  <Field.Label>Labels</Field.Label>
+                  <Collapsible.Trigger>
+                    {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
+                  </Collapsible.Trigger>
+                  <Flex gap={1} wrap="wrap" width="80%">
+                    {labels.map((label) => (
+                      <Tag.Root key={label}>
+                        <Tag.Label>{label}</Tag.Label>
+                        <Tag.EndElement>
+                          <Tag.CloseTrigger
+                            onClick={() => handleDeleteLabelClick(label)}
                           />
-                        </Field.Root>
-                        <Field.Root required>
-                          <Field.Label>
-                            Value <Field.RequiredIndicator />
-                          </Field.Label>
-                          <Input
-                            value={valueInput}
-                            onChange={(event) =>
-                              setValueInput(event.target.value)
-                            }
-                          />
-                        </Field.Root>
-                      </HStack>
-                    </Fieldset.Content>
-                    <Button
-                      variant="mediumBlue"
-                      onClick={handleAddLabelClick}
-                      margin="2.5%"
-                    >
-                      <FaPlus />
-                    </Button>
+                        </Tag.EndElement>
+                      </Tag.Root>
+                    ))}
                   </Flex>
-                </Fieldset.Root>
-              </Collapsible.Content>
-            </Collapsible.Root>
-            {fieldState.error && (
-              <Text color="red.500" fontSize="sm" marginTop="1">
-                {fieldState.error.message}
-              </Text>
-            )}
-          </Field.Root>
+                </HStack>
+                <Collapsible.Content marginTop="2%">
+                  <Fieldset.Root>
+                    <Flex alignItems="end">
+                      <Fieldset.Content>
+                        <HStack gap="4" m="2%">
+                          <Field.Root required>
+                            <Field.Label>
+                              Key <Field.RequiredIndicator />
+                            </Field.Label>
+                            <Input
+                              value={keyInput}
+                              onChange={(event) =>
+                                setKeyInput(event.target.value)
+                              }
+                            />
+                          </Field.Root>
+                          <Field.Root required>
+                            <Field.Label>
+                              Value <Field.RequiredIndicator />
+                            </Field.Label>
+                            <Input
+                              value={valueInput}
+                              onChange={(event) =>
+                                setValueInput(event.target.value)
+                              }
+                            />
+                          </Field.Root>
+                        </HStack>
+                      </Fieldset.Content>
+                      <Button
+                        variant="mediumBlue"
+                        onClick={(e) => handleAddLabelClick(e)}
+                        margin="2.5%"
+                      >
+                        <FaPlus />
+                      </Button>
+                    </Flex>
+                  </Fieldset.Root>
+                </Collapsible.Content>
+              </Collapsible.Root>
+              {fieldState.error && (
+                <Text color="red.500" fontSize="sm" marginTop="1">
+                  {fieldState.error.message}
+                </Text>
+              )}
+            </Field.Root>
+          </Flex>
         );
       }}
     />
@@ -269,7 +271,7 @@ function LabelCollapsibleInputField() {
 }
 
 function AnnotationCollapsibleInputField() {
-  const { control } = useFormContext();
+  const { control } = useFormContext<CreatePropagationPolicy>();
   const [keyInput, setKeyInput] = useState("");
   const [valueInput, setValueInput] = useState("");
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
@@ -278,11 +280,12 @@ function AnnotationCollapsibleInputField() {
     <Controller
       name="metadata.annotations"
       control={control}
-      defaultValue={[]}
       render={({ field, fieldState }) => {
         const annotations: string[] = field.value || [];
 
-        const handleAnnotationClick = (event: FormEvent) => {
+        const handleAnnotationClick = (
+          event: MouseEvent<HTMLButtonElement>
+        ) => {
           event.preventDefault();
           if (!keyInput.trim() || !valueInput.trim()) {
             // 앞, 중간 공백도 처리해야함. 유효한 특수문자만 넣도록 해야함
@@ -303,78 +306,80 @@ function AnnotationCollapsibleInputField() {
         };
 
         return (
-          <Field.Root variant="horizontal">
-            <Collapsible.Root
-              open={isCollapsibleOpen}
-              onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
-              width="100%"
-            >
-              <HStack gap="3">
-                <Field.Label>Annotations</Field.Label>
-                <Collapsible.Trigger>
-                  {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
-                </Collapsible.Trigger>
-                <Flex gap={1} wrap="wrap" width="80%">
-                  {annotations.map((annotation) => (
-                    <Tag.Root key={annotation}>
-                      <Tag.Label>{annotation}</Tag.Label>
-                      <Tag.EndElement>
-                        <Tag.CloseTrigger
-                          onClick={() =>
-                            handleDeleteAnnotationClick(annotation)
-                          }
-                        />
-                      </Tag.EndElement>
-                    </Tag.Root>
-                  ))}
-                </Flex>
-              </HStack>
-              <Collapsible.Content marginTop="2%">
-                <Fieldset.Root>
-                  <Flex alignItems="end">
-                    <Fieldset.Content>
-                      <HStack gap="4" m="2%">
-                        <Field.Root required>
-                          <Field.Label>
-                            Key <Field.RequiredIndicator />
-                          </Field.Label>
-                          <Input
-                            value={keyInput}
-                            onChange={(event) =>
-                              setKeyInput(event.target.value)
+          <Flex padding="1.5% 0">
+            <Field.Root variant="horizontal">
+              <Collapsible.Root
+                open={isCollapsibleOpen}
+                onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
+                width="100%"
+              >
+                <HStack gap="3">
+                  <Field.Label>Annotations</Field.Label>
+                  <Collapsible.Trigger>
+                    {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
+                  </Collapsible.Trigger>
+                  <Flex gap={1} wrap="wrap" width="80%">
+                    {annotations.map((annotation) => (
+                      <Tag.Root key={annotation}>
+                        <Tag.Label>{annotation}</Tag.Label>
+                        <Tag.EndElement>
+                          <Tag.CloseTrigger
+                            onClick={() =>
+                              handleDeleteAnnotationClick(annotation)
                             }
                           />
-                        </Field.Root>
-                        <Field.Root required>
-                          <Field.Label>
-                            Value <Field.RequiredIndicator />
-                          </Field.Label>
-                          <Input
-                            value={valueInput}
-                            onChange={(event) =>
-                              setValueInput(event.target.value)
-                            }
-                          />
-                        </Field.Root>
-                      </HStack>
-                    </Fieldset.Content>
-                    <Button
-                      variant="mediumBlue"
-                      onClick={handleAnnotationClick}
-                      margin="2.5%"
-                    >
-                      <FaPlus />
-                    </Button>
+                        </Tag.EndElement>
+                      </Tag.Root>
+                    ))}
                   </Flex>
-                </Fieldset.Root>
-              </Collapsible.Content>
-            </Collapsible.Root>
-            {fieldState.error && (
-              <Text color="redd.500" fontSize="sm" marginTop="1">
-                {fieldState.error.message}
-              </Text>
-            )}
-          </Field.Root>
+                </HStack>
+                <Collapsible.Content marginTop="2%">
+                  <Fieldset.Root>
+                    <Flex alignItems="end">
+                      <Fieldset.Content>
+                        <HStack gap="4" m="2%">
+                          <Field.Root required>
+                            <Field.Label>
+                              Key <Field.RequiredIndicator />
+                            </Field.Label>
+                            <Input
+                              value={keyInput}
+                              onChange={(event) =>
+                                setKeyInput(event.target.value)
+                              }
+                            />
+                          </Field.Root>
+                          <Field.Root required>
+                            <Field.Label>
+                              Value <Field.RequiredIndicator />
+                            </Field.Label>
+                            <Input
+                              value={valueInput}
+                              onChange={(event) =>
+                                setValueInput(event.target.value)
+                              }
+                            />
+                          </Field.Root>
+                        </HStack>
+                      </Fieldset.Content>
+                      <Button
+                        variant="mediumBlue"
+                        onClick={handleAnnotationClick}
+                        margin="2.5%"
+                      >
+                        <FaPlus />
+                      </Button>
+                    </Flex>
+                  </Fieldset.Root>
+                </Collapsible.Content>
+              </Collapsible.Root>
+              {fieldState.error && (
+                <Text color="redd.500" fontSize="sm" marginTop="1">
+                  {fieldState.error.message}
+                </Text>
+              )}
+            </Field.Root>
+          </Flex>
         );
       }}
     />
@@ -382,15 +387,14 @@ function AnnotationCollapsibleInputField() {
 }
 
 function PrserveResourceOnDeletionField() {
-  const { control } = useFormContext();
+  const { control } = useFormContext<CreatePropagationPolicy>();
   const id = useId();
   return (
     <Controller
       name="metadata.preserveResourceOnDeletion"
       control={control}
-      defaultValue={false}
       render={({ field }) => {
-        const isChecked: boolean = field.value;
+        const isChecked = field.value;
 
         return (
           <Tooltip
@@ -424,12 +428,12 @@ function PrserveResourceOnDeletionField() {
   );
 }
 
-function StepActionButtons({ onNext }: { onNext: () => void }) {
+function StepActionButtons({ onClick }: { onClick: () => void }) {
   return (
     <ButtonGroup width="100%" marginTop="3%">
       <Flex justifyContent="flex-end" width="100%">
         <Button
-          onClick={() => onNext()}
+          onClick={() => onClick()}
           variant="blueSurface"
           marginLeft="5px"
           marginRight="5px"

@@ -25,7 +25,7 @@ export default function Clusters() {
         <ClusterJoinButton />
       </Flex>
       <Flex justify="flex-end">
-        <SortSelect level="Cluster level" />
+        <SortSelect level="cluster" />
       </Flex>
 
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>

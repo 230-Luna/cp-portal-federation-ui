@@ -2,6 +2,7 @@ import { httpClient } from "@/utils/httpClient";
 import {
   ClusterPropagationPolicies,
   ClusterPropagationPolicyDetail,
+  CreateClusterPropagationPolicy,
 } from "@/models/clusterPropagationPolicyModel";
 
 export async function getClusterPropagationPolicyListApi({

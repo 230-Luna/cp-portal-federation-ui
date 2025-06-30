@@ -1,3 +1,5 @@
+import { ResourceKind } from "./resourceModel";
+
 export interface ListMeta {
   totalItems: number;
 }
@@ -30,18 +32,11 @@ type NonEmptyArray<T> = [T, ...T[]];
 
 export interface Metadata {
   name: string;
-  namespace?: string;
+  namespace: string;
   labels?: string[];
   annotations?: string[];
   preserveResourceOnDeletion: false;
 }
-
-export type ResourceKind =
-  | "Deployment"
-  | "Statefulset"
-  | "Daemonset"
-  | "Cronjob"
-  | "Job";
 
 export interface ResourceSelector {
   kind: ResourceKind;

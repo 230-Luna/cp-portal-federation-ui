@@ -8,3 +8,18 @@ export interface Names {
 export interface Labels {
   labels: string[];
 }
+
+export type ResourceKind =
+  | "Deployment"
+  | "Statefulset"
+  | "Daemonset"
+  | "Cronjob"
+  | "Job";
+
+
+  export type ResourceKindLowercase =
+  | "deployment"
+  | "statefulset"
+  | "daemonset"
+  | "cronjob"
+  | "job";

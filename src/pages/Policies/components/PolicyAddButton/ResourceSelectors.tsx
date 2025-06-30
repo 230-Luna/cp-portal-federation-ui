@@ -22,7 +22,7 @@ import {
   Checkbox,
   Highlight,
 } from "@chakra-ui/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import {
   getResourceLabelListApi,
   getResourceNameListApi,
@@ -34,7 +34,8 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 
 export default function ResourceSelectors({
   onPrev,
@@ -76,8 +77,13 @@ export default function ResourceSelectors({
 }
 
 function ResouceSelectorViewer() {
-  const { control } = useFormContext();
-  const { fields, append, remove } = useFieldArray({
+  const { control } = useFormContext<CreatePropagationPolicy>();
+  const { remove } = useFieldArray({
+    control,
+    name: "resourceSelectors",
+  });
+
+  const resourceSelectors = useWatch({
     control,
     name: "resourceSelectors",
   });
@@ -86,21 +92,19 @@ function ResouceSelectorViewer() {
     <Controller
       name={`resourceSelectors`}
       control={control}
-      defaultValue="[]"
       render={() => {
         return (
           <>
-            {fields.map((field, index) => {
-              const item: Record<string, string> = field;
+            {resourceSelectors.map((item, index) => {
               return (
-                <Card.Root key={field.id} variant="small" width="49%">
+                <Card.Root key={index} variant="small" width="49%">
                   <Card.Body variant="small">
                     <CloseButton
                       onClick={() => remove(index)}
                       variant="inbox"
                       padding="5%"
                     />
-                    <Field.Root variant="horizontal">
+                    <Field.Root variant="horizontal" width="80%">
                       <HStack>
                         <Field.Label>Kind</Field.Label>
                         <Text variant="small">{item.kind}</Text>
@@ -157,6 +161,8 @@ function ResourceSelectorCreator() {
     labelSelectors: [] as string[],
   });
 
+  console.log(resourceSelectorData);
+
   const handleResouceSelectorSave = () => {
     append(resourceSelectorData);
   };
@@ -175,12 +181,12 @@ function ResourceSelectorCreator() {
                 <Dialog.Body variant="resourceSetUp" margin="2%">
                   <KindSelectRadioField
                     value={resourceSelectorData.kind}
-                    onChange={(val) =>
+                    onChange={(val) => {
                       setResourceSelectorData((prev) => ({
                         ...prev,
                         kind: val,
-                      }))
-                    }
+                      }));
+                    }}
                   />
                   <NamespaceSelectField
                     value={resourceSelectorData.namespace}
@@ -279,6 +285,10 @@ function KindSelectRadioField({
           </SegmentGroup.Item>
         ))}
       </SegmentGroup.Root>
+      {(() => {
+        console.log("rendered!");
+        return null;
+      })()}
     </Field.Root>
   );
 }
@@ -296,7 +306,7 @@ function NamespaceSelectField({
     name: "resourceSelectors.kind",
   });
 
-  const { data: resourceNamespaceList } = useSuspenseQuery({
+  const { data: resourceNamespaceList } = useQuery({
     queryKey: ["getResourceNamespaceListApi", "resourceSelector", "namespace"],
     queryFn: () => {
       return getResourceNamespaceListApi({
@@ -328,11 +338,13 @@ function NamespaceSelectField({
             value={value}
             onChange={(event) => onChange(event.target.value)}
           >
-            {resourceNamespaceList.namespaces.map((namespace) => (
-              <option value={namespace} key={namespace}>
-                {namespace}
-              </option>
-            ))}
+            {resourceNamespaceList == null
+              ? null
+              : resourceNamespaceList.namespaces.map((namespace) => (
+                  <option value={namespace} key={namespace}>
+                    {namespace}
+                  </option>
+                ))}
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
@@ -352,7 +364,7 @@ function NameSelectField({
   value: string;
   onChange: (val: string) => void;
 }) {
-  const { data: resourceNameList } = useSuspenseQuery({
+  const { data: resourceNameList } = useQuery({
     queryKey: [
       "getResourceNameListApi",
       "resourceSelector",
@@ -372,11 +384,13 @@ function NameSelectField({
           value={value}
           onChange={(event) => onChange(event.target.value)}
         >
-          {resourceNameList?.names.map((name, index) => (
-            <option key={name + index} value={name}>
-              {name}
-            </option>
-          ))}
+          {resourceNameList == null
+            ? null
+            : resourceNameList.names.map((name, index) => (
+                <option key={name + index} value={name}>
+                  {name}
+                </option>
+              ))}
         </NativeSelect.Field>
         <NativeSelect.Indicator />
       </NativeSelect.Root>
@@ -393,7 +407,7 @@ function LabelSelectorsField({
   namespace: string;
   onChange: (val: string[]) => void;
 }) {
-  const { data: resourceLabelList } = useSuspenseQuery({
+  const { data: resourceLabelList } = useQuery({
     queryKey: [
       "getResourceLabelListApi",
       "resourceSelector",
@@ -409,7 +423,7 @@ function LabelSelectorsField({
     },
   });
   const labelSelectors = createListCollection<string>({
-    items: resourceLabelList.labels,
+    items: resourceLabelList == null ? [] : resourceLabelList.labels,
   });
 
   const handleLabelValueChange = (details: SelectValueChangeDetails) => {
@@ -429,7 +443,7 @@ function LabelSelectorsField({
         onWheel={(event) => {
           event.stopPropagation();
         }}
-        positioning={{ placement: "bottom", flip: false }}
+        positioning={{ placement: "bottom", flip: false, strategy: "fixed" }}
       >
         <Select.HiddenSelect />
         <Select.Control>
@@ -440,6 +454,7 @@ function LabelSelectorsField({
             <Select.Indicator />
           </Select.IndicatorGroup>
         </Select.Control>
+
         <Select.Positioner>
           <Select.Content>
             {labelSelectors.items.map((label, index) => (

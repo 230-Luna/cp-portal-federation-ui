@@ -15,7 +15,7 @@ export default function SortSelect({ level }: { level: string }) {
     name: "a,name",
   };
 
-  if (level === "Namespace level") {
+  if (level === "namespace") {
     sortOptions = { ...sortOptions, namespace: "a,namespace" };
   }
 

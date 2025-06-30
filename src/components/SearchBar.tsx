@@ -8,13 +8,13 @@ import { useSearchParams } from "react-router-dom";
 
 export default function SearchBar({ placeholder }: { placeholder: string }) {
   const [searchText, setSearchText] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
   const debouncedOnChange = useDebounce(searchText, 300);
-  const [searchParams, setSearchParams] = useSearchParams();
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [_, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    searchParams.set("filterBy", debouncedOnChange);
-    setSearchParams(searchParams);
+    setSearchParams((prev) => ({ ...prev, filterBy: debouncedOnChange }));
   }, [debouncedOnChange]);
 
   return (
@@ -29,7 +29,7 @@ export default function SearchBar({ placeholder }: { placeholder: string }) {
             }}
             marginEnd="-2"
           />
-        ) : undefined
+        ) : null
       }
       width="450px"
     >

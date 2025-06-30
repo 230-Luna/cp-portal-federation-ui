@@ -23,10 +23,10 @@ export default function FederationInfo({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          <Table.Row key={resources.propagationPolicyNum}>
+          <Table.Row key="resourceInfo">
+            <Table.Cell>{resources.propagationPolicyNum}</Table.Cell>
             <Table.Cell>{resources.namespaceNum}</Table.Cell>
             <Table.Cell>{resources.workloadNum}</Table.Cell>
-            <Table.Cell>{resources.serviceNum}</Table.Cell>
             <Table.Cell>{resources.serviceNum}</Table.Cell>
             <Table.Cell>{resources.configNum}</Table.Cell>
           </Table.Row>

@@ -2,7 +2,7 @@ import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
 import { Portal } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Metadata from "./Metadata";
 import ResourceSelectors from "./ResourceSelectors";
@@ -14,21 +14,20 @@ import { DevTool } from "@hookform/devtools";
 import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 import { toaster } from "@/components/Toaster";
 import { createPropagationPolicyApi } from "@/apis/propagationPolicy";
+import { CreateClusterPropagationPolicy } from "@/models/clusterPropagationPolicyModel";
 
 type Step = "Metadata" | "ResourceSelectors" | "Placement";
 
-export default function PolicyAdd() {
+export default function PolicyAddButton() {
   const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const steps: Step[] = ["Metadata", "ResourceSelectors", "Placement"];
+
+  const steps = ["Metadata", "ResourceSelectors", "Placement"];
   const [currentStep, setCurrentStep] = useState<Step>("Metadata");
   const currentStepIndex = steps.indexOf(currentStep);
-  const progress = ((currentStepIndex + 1) / steps.length) * 100;
 
-  const formData = useForm<CreatePropagationPolicy>({
+  const formData = useForm({
     defaultValues: {
       metadata: {
-        namespace: "",
         name: "",
         labels: [],
         annotations: [],
@@ -46,6 +45,8 @@ export default function PolicyAdd() {
     },
   });
 
+  const queryClient = useQueryClient();
+
   const handleSubmitForm = useMutation({
     mutationKey: [
       "createPropagationPolicyApi",
@@ -53,13 +54,18 @@ export default function PolicyAdd() {
     ],
     mutationFn: async () => {
       let loadingToaster;
+      console.log("formdata: ", formData.getValues());
       try {
         setOpen(false);
         loadingToaster = toaster.create({
           type: "loading",
           description: `Policy를 추가하고 있습니다.`,
         });
-        await createPropagationPolicyApi(formData.getValues());
+        await createPropagationPolicyApi(
+          formData.getValues() as
+            | CreatePropagationPolicy
+            | CreateClusterPropagationPolicy
+        );
         toaster.remove(loadingToaster);
         toaster.success({
           description: `${name} Policy가 추가되었습니다.`,
@@ -99,7 +105,7 @@ export default function PolicyAdd() {
         <Dialog.Positioner>
           <Dialog.Content variant="resourceSetUp" margin="10px auto">
             <Dialog.Body variant="resourceSetUp" margin="5%">
-              <Progress value={progress} />
+              <Progress value={((currentStepIndex + 1) / steps.length) * 100} />
               <FormProvider {...formData}>
                 {currentStep === "Metadata" && (
                   <Metadata
@@ -107,10 +113,12 @@ export default function PolicyAdd() {
                   />
                 )}
                 {currentStep === "ResourceSelectors" && (
-                  <ResourceSelectors
-                    onPrev={() => setCurrentStep("Metadata")}
-                    onNext={() => setCurrentStep("Placement")}
-                  />
+                  <Suspense fallback={null}>
+                    <ResourceSelectors
+                      onPrev={() => setCurrentStep("Metadata")}
+                      onNext={() => setCurrentStep("Placement")}
+                    />
+                  </Suspense>
                 )}
                 {currentStep === "Placement" && (
                   <Placement

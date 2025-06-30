@@ -2,15 +2,17 @@ import { SegmentGroup } from "@/components/SegmentGroup";
 import { SegmentGroupValueChangeDetails } from "@chakra-ui/react";
 import { useSearchParams } from "react-router-dom";
 
+export type Level = "namespace" | "cluster";
+
 export default function LevelSelect({
   value,
   onValueChange,
 }: {
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: Level) => void;
 }) {
   const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
-    const value = details.value;
+    const value = details.value as Level;
     if (value !== null) {
       onValueChange(value);
     }
@@ -23,7 +25,7 @@ export default function LevelSelect({
       onValueChange={handleValueChange}
     >
       <SegmentGroup.Indicator />
-      <SegmentGroup.Items items={["Namespace level", "Cluster level"]} />
+      <SegmentGroup.Items items={["namespace", "cluster"]} />
     </SegmentGroup.Root>
   );
 }
