@@ -23,9 +23,10 @@ import { Tooltip } from "@/components/Tooltip";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Text } from "@/components/Text";
 import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
+import { data } from "react-router-dom";
 
 export default function Metadata({ onNext }: { onNext: () => void }) {
-  const watchLevel = useWatch({ name: "metadata.level" });
+  const watchLevel = useWatch({ name: "level" });
 
   return (
     <>
@@ -48,15 +49,18 @@ function LevelSelectRadioField() {
 
   return (
     <Controller
-      name="metadata.level"
+      name="level"
       defaultValue="namespace"
       control={control}
       render={({ field }) => {
         const handleValueChange = (details: RadioCardValueChangeDetails) => {
           if (details.value !== null) {
-            if (details.value === "namespace" || details.value === "cluster") {
+            if (details.value === "namespace") {
               field.onChange(details.value);
-              setValue("metadata.namespace", "");
+              setValue("data.metadata.namespace", "");
+            }
+            if (details.value === "cluster") {
+              field.onChange(details.value);
             }
           }
         };
@@ -108,7 +112,7 @@ function NamespaceSelectField() {
 
   return (
     <Controller
-      name="metadata.namespace"
+      name="data.metadata.namespace"
       control={control}
       rules={{ required: "Namespace is required" }}
       render={({ field, fieldState }) => (
@@ -143,7 +147,7 @@ function NameInputField() {
 
   return (
     <Controller
-      name="metadata.name"
+      name="data.metadata.name"
       control={control}
       rules={{ required: "Name is required" }}
       render={({ field, fieldState }) => (
@@ -168,7 +172,7 @@ function LabelCollapsibleInputField() {
 
   return (
     <Controller
-      name="metadata.labels"
+      name="data.metadata.labels"
       control={control}
       render={({ field, fieldState }) => {
         const labels: string[] = field.value || [];
@@ -271,14 +275,14 @@ function LabelCollapsibleInputField() {
 }
 
 function AnnotationCollapsibleInputField() {
-  const { control } = useFormContext<CreatePropagationPolicy>();
+  const { control } = useFormContext();
   const [keyInput, setKeyInput] = useState("");
   const [valueInput, setValueInput] = useState("");
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
   return (
     <Controller
-      name="metadata.annotations"
+      name="data.metadata.annotations"
       control={control}
       render={({ field, fieldState }) => {
         const annotations: string[] = field.value || [];
@@ -387,11 +391,11 @@ function AnnotationCollapsibleInputField() {
 }
 
 function PrserveResourceOnDeletionField() {
-  const { control } = useFormContext<CreatePropagationPolicy>();
+  const { control } = useFormContext();
   const id = useId();
   return (
     <Controller
-      name="metadata.preserveResourceOnDeletion"
+      name="data.metadata.preserveResourceOnDeletion"
       control={control}
       render={({ field }) => {
         const isChecked = field.value;

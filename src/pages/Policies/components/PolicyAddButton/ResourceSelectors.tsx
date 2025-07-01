@@ -22,7 +22,7 @@ import {
   Checkbox,
   Highlight,
 } from "@chakra-ui/react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   getResourceLabelListApi,
   getResourceNameListApi,
@@ -34,8 +34,9 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
+import { FormValues } from ".";
 
 export default function ResourceSelectors({
   onPrev,
@@ -77,20 +78,20 @@ export default function ResourceSelectors({
 }
 
 function ResouceSelectorViewer() {
-  const { control } = useFormContext<CreatePropagationPolicy>();
+  const { control } = useFormContext<FormValues>();
   const { remove } = useFieldArray({
     control,
-    name: "resourceSelectors",
+    name: "data.resourceSelectors",
   });
 
   const resourceSelectors = useWatch({
     control,
-    name: "resourceSelectors",
+    name: "data.resourceSelectors",
   });
 
   return (
     <Controller
-      name={`resourceSelectors`}
+      name="data.resourceSelectors"
       control={control}
       render={() => {
         return (
@@ -152,7 +153,7 @@ function ResourceSelectorCreator() {
   const { control } = useFormContext();
   const { append } = useFieldArray({
     control,
-    name: "resourceSelectors",
+    name: "data.resourceSelectors",
   });
   const [resourceSelectorData, setResourceSelectorData] = useState({
     kind: "Deployment",
@@ -169,7 +170,7 @@ function ResourceSelectorCreator() {
 
   return (
     <Controller
-      name={`resourceSelectors`}
+      name="data.resourceSelectors"
       control={control}
       defaultValue="{}"
       render={() => {
@@ -300,7 +301,7 @@ function NamespaceSelectField({
   value: string;
   onChange: (val: string) => void;
 }) {
-  const watchLevel = useWatch({ name: "metadata.level" });
+  const watchLevel = useWatch({ name: ".level" });
   const watchNamespace = useWatch({ name: "metadata.namespace" });
   const watchKind = useWatch({
     name: "resourceSelectors.kind",

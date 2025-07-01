@@ -11,12 +11,28 @@ import { Progress } from "@/components/Progress";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
-import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 import { toaster } from "@/components/Toaster";
 import { createPropagationPolicyApi } from "@/apis/propagationPolicy";
-import { CreateClusterPropagationPolicy } from "@/models/clusterPropagationPolicyModel";
+import { ResourceSelector } from "@/models/propagationPolicyModel";
 
 type Step = "Metadata" | "ResourceSelectors" | "Placement";
+
+export type FormValues = {
+  level: string;
+  data: {
+    metadata: {
+      name: string;
+      labels: string[];
+      annotations: string[];
+      preserveResourceOnDeletion: boolean;
+    };
+    resourceSelectors: ResourceSelector[];
+    placement: {
+      clusternames: string[];
+      replicaScheduiling: Record<string, any>;
+    };
+  };
+};
 
 export default function PolicyAddButton() {
   const [open, setOpen] = useState(false);
@@ -25,21 +41,20 @@ export default function PolicyAddButton() {
   const [currentStep, setCurrentStep] = useState<Step>("Metadata");
   const currentStepIndex = steps.indexOf(currentStep);
 
-  const formData = useForm({
+  const formData = useForm<FormValues>({
     defaultValues: {
-      metadata: {
-        name: "",
-        labels: [],
-        annotations: [],
-        preserveResourceOnDeletion: false,
-      },
-      resourceSelectors: [],
-      placement: {
-        clusternames: [],
-        replicaScheduiling: {
-          replicaSchedulingType: "Duplicated",
-          replicaDivisionpreference: "Aggregated",
-          staticWeightList: [],
+      level: "",
+      data: {
+        metadata: {
+          name: "",
+          labels: [],
+          annotations: [],
+          preserveResourceOnDeletion: false,
+        },
+        resourceSelectors: [],
+        placement: {
+          clusternames: [],
+          replicaScheduiling: {},
         },
       },
     },
@@ -50,22 +65,25 @@ export default function PolicyAddButton() {
   const handleSubmitForm = useMutation({
     mutationKey: [
       "createPropagationPolicyApi",
-      formData.getValues().metadata.name,
+      formData.getValues().data.metadata.name,
     ],
     mutationFn: async () => {
       let loadingToaster;
-      console.log("formdata: ", formData.getValues());
+      const level = formData.getValues().level;
+      const data = formData.getValues().data;
+
       try {
         setOpen(false);
         loadingToaster = toaster.create({
           type: "loading",
           description: `Policy를 추가하고 있습니다.`,
         });
-        await createPropagationPolicyApi(
-          formData.getValues() as
-            | CreatePropagationPolicy
-            | CreateClusterPropagationPolicy
-        );
+
+        await createPropagationPolicyApi({
+          level,
+          data,
+        });
+
         toaster.remove(loadingToaster);
         toaster.success({
           description: `${name} Policy가 추가되었습니다.`,

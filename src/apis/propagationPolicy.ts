@@ -86,11 +86,15 @@ function isClusterPolicy(
   return "metadata.namespace" in data;
 }
 
-export async function createPropagationPolicyApi(
-  data: CreatePropagationPolicy | CreateClusterPropagationPolicy
-) {
+export async function createPropagationPolicyApi({
+  level,
+  data,
+}: {
+  level: string;
+  data: CreatePropagationPolicy;
+}) {
   console.log(isClusterPolicy(data));
-  if (isClusterPolicy(data)) {
+  if (level === "cluster") {
     return httpClient.post(`/api/v1/clusterpropagationpolicy`, data);
   }
   return httpClient.post(`/api/v1/propagationpolicy`, data);

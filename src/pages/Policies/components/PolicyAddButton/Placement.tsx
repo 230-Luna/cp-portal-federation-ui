@@ -1,4 +1,4 @@
-import { FormEventHandler, useState } from "react";
+import { useState } from "react";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
@@ -16,10 +16,7 @@ import {
   CheckboxGroup,
   ButtonGroup,
   RadioCardValueChangeDetails,
-  GridItem,
-  FieldRequiredIndicator,
 } from "@chakra-ui/react";
-import { toaster } from "@/components/Toaster";
 import {
   Controller,
   useFieldArray,
@@ -65,7 +62,7 @@ function ClusterAffinity() {
 
   return (
     <Controller
-      name="placement.clusternames"
+      name="data.placement.clusternames"
       control={control}
       defaultValue={[]}
       render={({ field }) => {
@@ -121,17 +118,17 @@ function ReplicaScheduling() {
   const [isType, setIsType] = useState(false);
   const { control, setValue } = useFormContext();
   const watchType = useWatch({
-    name: "placement.replicaScheduiling.replicaSchedulingType",
+    name: "data.placement.replicaScheduiling.replicaSchedulingType",
   });
   const watchDividedType = useWatch({
-    name: "placement.replicaScheduiling.replicaDivisionpreference",
+    name: "data.placement.replicaScheduiling.replicaDivisionpreference",
   });
   return (
     <Controller
-      name="placement.replicaScheduiling.replicaSchedulingType"
+      name="data.placement.replicaScheduiling.replicaSchedulingType"
       control={control}
       defaultValue="Duplicated"
-      render={({ field }) => {
+      render={() => {
         return (
           <>
             <Text variant="subTitle" marginTop="1.5%">
@@ -145,7 +142,7 @@ function ReplicaScheduling() {
                     onChange={() => {
                       setIsType(!isType);
                       setValue(
-                        "placement.replicaScheduiling.replicaSchedulingType",
+                        "data.placement.replicaScheduiling.replicaSchedulingType",
                         "Duplicated"
                       );
                     }}
@@ -182,7 +179,7 @@ function ReplicaSchedulingType() {
 
   return (
     <Controller
-      name="placement.replicaScheduiling.replicaSchedulingType"
+      name="data.placement.replicaScheduiling.replicaSchedulingType"
       control={control}
       defaultValue="Duplicated"
       render={({ field }) => {
@@ -190,10 +187,10 @@ function ReplicaSchedulingType() {
           if (details.value === "Duplicated" || details.value === "Divided") {
             field.onChange(details.value);
             setValue(
-              "placement.replicaScheduiling.replicaDivisionpreference",
+              "data.placement.replicaScheduiling.replicaDivisionpreference",
               "Aggregated"
             );
-            setValue("placement.replicaScheduiling.staticWeightList", []);
+            setValue("data.placement.replicaScheduiling.staticWeightList", []);
           }
         };
 
@@ -231,14 +228,14 @@ function DivisionPreference() {
 
   return (
     <Controller
-      name="placement.replicaScheduiling.replicaDivisionpreference"
+      name="data.placement.replicaScheduiling.replicaDivisionpreference"
       control={control}
       defaultValue="Aggregated"
       render={({ field }) => {
         const handleValueChange = (details: RadioCardValueChangeDetails) => {
           if (details.value === "Aggregated" || details.value === "Weighted") {
             field.onChange(details.value);
-            setValue("placement.replicaScheduiling.staticWeightList", []);
+            setValue("data.placement.replicaScheduiling.staticWeightList", []);
           }
         };
 
@@ -280,7 +277,7 @@ function WeightPreference() {
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "placement.replicaScheduiling.staticWeightList",
+    name: "data.placement.replicaScheduiling.staticWeightList",
   });
 
   const { data: clusterList } = useSuspenseQuery({
@@ -297,7 +294,7 @@ function WeightPreference() {
 
   return (
     <Controller
-      name="placement.replicaScheduiling.staticWeightList"
+      name="data.placement.replicaScheduiling.staticWeightList"
       control={control}
       defaultValue="[]"
       render={({ field }) => {
@@ -348,7 +345,7 @@ function WeightPreference() {
                       </Field.Root>
                       <Controller
                         control={control}
-                        name={`placement.replicaScheduiling.staticWeightList.${index}.targetClusters`}
+                        name={`data.placement.replicaScheduiling.staticWeightList.${index}.targetClusters`}
                         render={({ field }) => (
                           <CheckboxGroup
                             onValueChange={(details) => {
@@ -387,7 +384,7 @@ function WeightPreference() {
                       </Field.Root>
                       <Controller
                         control={control}
-                        name={`placement.replicaScheduiling.staticWeightList.${index}.weight`}
+                        name={`data.placement.replicaScheduiling.staticWeightList.${index}.weight`}
                         render={({ field }) => (
                           <Input
                             type="number"
