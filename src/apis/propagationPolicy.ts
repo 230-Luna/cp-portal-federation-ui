@@ -93,8 +93,9 @@ export async function createPropagationPolicyApi({
   level: string;
   data: CreatePropagationPolicy;
 }) {
-  console.log(isClusterPolicy(data));
   if (level === "cluster") {
+    delete data.metadata.namespace;
+    console.log("data: ", data);
     return httpClient.post(`/api/v1/clusterpropagationpolicy`, data);
   }
   return httpClient.post(`/api/v1/propagationpolicy`, data);

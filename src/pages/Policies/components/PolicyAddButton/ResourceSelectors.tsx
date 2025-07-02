@@ -35,8 +35,9 @@ import {
   useWatch,
 } from "react-hook-form";
 import { useEffect, useState } from "react";
-import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
 import { FormValues } from ".";
+import { useMatch } from "react-router-dom";
+import { watch } from "fs";
 
 export default function ResourceSelectors({
   onPrev,
@@ -88,6 +89,9 @@ function ResouceSelectorViewer() {
     control,
     name: "data.resourceSelectors",
   });
+
+  const watchLevel = useWatch({ name: "level" });
+  watchLevel.isDirty;
 
   return (
     <Controller
@@ -161,8 +165,6 @@ function ResourceSelectorCreator() {
     name: "",
     labelSelectors: [] as string[],
   });
-
-  console.log(resourceSelectorData);
 
   const handleResouceSelectorSave = () => {
     append(resourceSelectorData);
@@ -287,7 +289,6 @@ function KindSelectRadioField({
         ))}
       </SegmentGroup.Root>
       {(() => {
-        console.log("rendered!");
         return null;
       })()}
     </Field.Root>
@@ -301,10 +302,10 @@ function NamespaceSelectField({
   value: string;
   onChange: (val: string) => void;
 }) {
-  const watchLevel = useWatch({ name: ".level" });
-  const watchNamespace = useWatch({ name: "metadata.namespace" });
+  const watchLevel = useWatch({ name: "level" });
+  const watchNamespace = useWatch({ name: "data.metadata.namespace" });
   const watchKind = useWatch({
-    name: "resourceSelectors.kind",
+    name: "data.resourceSelectors.kind",
   });
 
   const { data: resourceNamespaceList } = useQuery({
@@ -320,18 +321,13 @@ function NamespaceSelectField({
     if (watchLevel === "namespace" && value !== watchNamespace) {
       onChange(watchNamespace);
     }
-  }, [watchLevel, watchNamespace, value, onChange]);
+  }, [watchLevel, watchNamespace, value]);
 
   return (
     <Field.Root variant="vertical" orientation="horizontal">
       <Field.Label>Namespace</Field.Label>
       {watchLevel === "namespace" ? (
-        <Input
-          disabled
-          placeholder={watchNamespace}
-          value={watchNamespace}
-          readOnly
-        />
+        <Input disabled value={watchNamespace} readOnly />
       ) : (
         <NativeSelect.Root>
           <NativeSelect.Field

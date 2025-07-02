@@ -43,7 +43,7 @@ export default function PolicyAddButton() {
 
   const formData = useForm<FormValues>({
     defaultValues: {
-      level: "",
+      level: "namespace",
       data: {
         metadata: {
           name: "",
@@ -65,12 +65,11 @@ export default function PolicyAddButton() {
   const handleSubmitForm = useMutation({
     mutationKey: [
       "createPropagationPolicyApi",
+      formData.getValues().level,
       formData.getValues().data.metadata.name,
     ],
     mutationFn: async () => {
       let loadingToaster;
-      const level = formData.getValues().level;
-      const data = formData.getValues().data;
 
       try {
         setOpen(false);
@@ -80,8 +79,8 @@ export default function PolicyAddButton() {
         });
 
         await createPropagationPolicyApi({
-          level,
-          data,
+          level: formData.getValues().level,
+          data: formData.getValues().data,
         });
 
         toaster.remove(loadingToaster);
@@ -111,7 +110,7 @@ export default function PolicyAddButton() {
       onOpenChange={(details) => setOpen(details.open)}
       variant="resourceSetUp"
       closeOnInteractOutside={false}
-      // onExitComplete={() => setCurrentStep("Metadata")}
+      onExitComplete={() => setCurrentStep("Metadata")}
     >
       <Dialog.Trigger>
         <Button variant="largeBlue">
@@ -147,12 +146,12 @@ export default function PolicyAddButton() {
               </FormProvider>
             </Dialog.Body>
             <Dialog.CloseTrigger>
-              <CloseButton />
+              <CloseButton onClick={() => formData.reset()} />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
-      <DevTool control={formData.control} />
+      <DevTool control={formData.control} placement="left" />
     </Dialog.Root>
   );
 }

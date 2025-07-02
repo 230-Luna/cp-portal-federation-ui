@@ -32,7 +32,7 @@ type NonEmptyArray<T> = [T, ...T[]];
 
 export interface Metadata {
   name: string;
-  namespac?: string;
+  namespace?: string;
   labels?: string[];
   annotations?: string[];
   preserveResourceOnDeletion: boolean;

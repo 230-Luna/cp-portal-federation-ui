@@ -22,11 +22,10 @@ import { HiCheck, HiX } from "react-icons/hi";
 import { Tooltip } from "@/components/Tooltip";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Text } from "@/components/Text";
-import { CreatePropagationPolicy } from "@/models/propagationPolicyModel";
-import { data } from "react-router-dom";
 
 export default function Metadata({ onNext }: { onNext: () => void }) {
   const watchLevel = useWatch({ name: "level" });
+  console.log("watch: ", watchLevel);
 
   return (
     <>
@@ -50,17 +49,18 @@ function LevelSelectRadioField() {
   return (
     <Controller
       name="level"
-      defaultValue="namespace"
       control={control}
       render={({ field }) => {
+        const watchLevel: string = useWatch({ name: "level" });
+
         const handleValueChange = (details: RadioCardValueChangeDetails) => {
           if (details.value !== null) {
             if (details.value === "namespace") {
               field.onChange(details.value);
-              setValue("data.metadata.namespace", "");
             }
             if (details.value === "cluster") {
               field.onChange(details.value);
+              setValue("data.metadata.namespace", "");
             }
           }
         };
@@ -73,7 +73,7 @@ function LevelSelectRadioField() {
             </Field.Label>
             <RadioCard.Root
               name="level"
-              defaultValue="namespace"
+              defaultValue={watchLevel}
               onValueChange={(details) => handleValueChange(details)}
             >
               <HStack gap="5">
