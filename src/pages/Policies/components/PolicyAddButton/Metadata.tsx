@@ -25,7 +25,6 @@ import { Text } from "@/components/Text";
 
 export default function Metadata({ onNext }: { onNext: () => void }) {
   const watchLevel = useWatch({ name: "level" });
-  console.log("watch: ", watchLevel);
 
   return (
     <>

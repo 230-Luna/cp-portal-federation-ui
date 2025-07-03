@@ -36,15 +36,15 @@ import {
 } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { FormValues } from ".";
-import { useMatch } from "react-router-dom";
-import { watch } from "fs";
 
 export default function ResourceSelectors({
   onPrev,
   onNext,
+  resetData,
 }: {
   onPrev: () => void;
   onNext: () => void;
+  resetData: boolean;
 }) {
   return (
     <>
@@ -71,15 +71,15 @@ export default function ResourceSelectors({
         height="400px"
         maxHeight="400px"
       >
-        <ResouceSelectorViewer />
+        <ResouceSelectorViewer resetData={resetData} />
       </Flex>
       <StepActionButtons onPrev={onPrev} onNext={onNext} />
     </>
   );
 }
 
-function ResouceSelectorViewer() {
-  const { control } = useFormContext<FormValues>();
+function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
+  const { control, resetField } = useFormContext<FormValues>();
   const { remove } = useFieldArray({
     control,
     name: "data.resourceSelectors",
@@ -90,8 +90,11 @@ function ResouceSelectorViewer() {
     name: "data.resourceSelectors",
   });
 
-  const watchLevel = useWatch({ name: "level" });
-  watchLevel.isDirty;
+  useEffect(() => {
+    if (resetData) {
+      resetField("data.resourceSelectors", { defaultValue: [] });
+    }
+  }, [resetData]);
 
   return (
     <Controller

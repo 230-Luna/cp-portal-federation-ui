@@ -59,7 +59,6 @@ export default function PropagationPolicyList() {
             <Table.ColumnHeader>Name</Table.ColumnHeader>
             <Table.ColumnHeader>Conflict Resolution</Table.ColumnHeader>
             <Table.ColumnHeader>Affected Clusters</Table.ColumnHeader>
-            <Table.ColumnHeader>Related Resources</Table.ColumnHeader>
             <Table.ColumnHeader>Operation</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
@@ -77,21 +76,6 @@ export default function PropagationPolicyList() {
                         (relatedCluster, index) => (
                           <Tag.Root key={index} margin={0.5}>
                             <Tag.Label>{relatedCluster}</Tag.Label>
-                          </Tag.Root>
-                        )
-                      )
-                    ) : (
-                      <Box>-</Box>
-                    )}
-                  </VStack>
-                </Table.Cell>
-                <Table.Cell>
-                  <VStack>
-                    {propagationPolicy.relatedResources.length !== 0 ? (
-                      propagationPolicy.relatedResources.map(
-                        (relatedResource, index) => (
-                          <Tag.Root key={index} margin={0.5}>
-                            <Tag.Label>{relatedResource}</Tag.Label>
                           </Tag.Root>
                         )
                       )

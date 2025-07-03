@@ -4,7 +4,6 @@ import {
 } from "@/models/propagationPolicyModel";
 import { httpClient } from "@/utils/httpClient";
 import { CreatePropagationPolicy } from "./../models/propagationPolicyModel";
-import { CreateClusterPropagationPolicy } from "./../models/clusterPropagationPolicyModel";
 
 export async function getPropagationPolicyListApi({
   namespace,
@@ -78,12 +77,6 @@ export async function updatePropagationPolicyApi({
     `/api/v1/propagationpolicy/namespace/${namespace}/${name}`,
     { propagationData: data }
   );
-}
-
-function isClusterPolicy(
-  data: CreatePropagationPolicy | CreateClusterPropagationPolicy
-): data is CreateClusterPropagationPolicy {
-  return "metadata.namespace" in data;
 }
 
 export async function createPropagationPolicyApi({

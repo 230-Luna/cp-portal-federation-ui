@@ -60,6 +60,9 @@ export default function PolicyAddButton() {
     },
   });
 
+  const [lastSelecteddLevel, setLastSelectedLevel] = useState("namespace");
+  const [resetData, setResetData] = useState(false);
+
   const queryClient = useQueryClient();
 
   const handleSubmitForm = useMutation({
@@ -126,21 +129,38 @@ export default function PolicyAddButton() {
               <FormProvider {...formData}>
                 {currentStep === "Metadata" && (
                   <Metadata
-                    onNext={() => setCurrentStep("ResourceSelectors")}
+                    onNext={() => {
+                      const currentLevel = formData.getValues("level");
+                      if (currentLevel !== lastSelecteddLevel) {
+                        setResetData(true);
+                        setLastSelectedLevel(currentLevel);
+                      } else {
+                        setResetData(false);
+                      }
+                      setCurrentStep("ResourceSelectors");
+                    }}
                   />
                 )}
                 {currentStep === "ResourceSelectors" && (
                   <Suspense fallback={null}>
                     <ResourceSelectors
-                      onPrev={() => setCurrentStep("Metadata")}
+                      onPrev={() => {
+                        setResetData(false);
+                        setCurrentStep("Metadata");
+                      }}
                       onNext={() => setCurrentStep("Placement")}
+                      resetData={resetData}
                     />
                   </Suspense>
                 )}
                 {currentStep === "Placement" && (
                   <Placement
-                    onPrev={() => setCurrentStep("ResourceSelectors")}
+                    onPrev={() => {
+                      setResetData(false);
+                      setCurrentStep("ResourceSelectors");
+                    }}
                     onSubmit={() => handleSubmitForm.mutate()}
+                    resetData={resetData}
                   />
                 )}
               </FormProvider>

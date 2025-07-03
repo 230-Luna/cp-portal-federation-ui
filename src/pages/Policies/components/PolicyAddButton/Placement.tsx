@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
@@ -29,24 +29,26 @@ import { getClusterListApi } from "@/apis/cluster";
 export default function Placement({
   onPrev,
   onSubmit,
+  resetData,
 }: {
   onPrev: () => void;
   onSubmit: () => void;
+  resetData: boolean;
 }) {
   return (
     <>
       <Heading variant="center" marginTop="2%" marginBottom="3%">
         Placement
       </Heading>
-      <ClusterAffinity />
-      <ReplicaScheduling />
+      <ClusterAffinity resetData={resetData} />
+      <ReplicaScheduling resetData={resetData} />
       <StepActionButtons onPrev={onPrev} onSubmit={onSubmit} />
     </>
   );
 }
 
-function ClusterAffinity() {
-  const { control } = useFormContext();
+function ClusterAffinity({ resetData }: { resetData: boolean }) {
+  const { control, resetField } = useFormContext();
 
   const { data: clusterList } = useSuspenseQuery({
     queryKey: [
@@ -60,16 +62,17 @@ function ClusterAffinity() {
     },
   });
 
+  useEffect(() => {
+    if (resetData) {
+      resetField("data.placement.clusternames", { defaultValue: [] });
+    }
+  }, [resetData]);
+
   return (
     <Controller
       name="data.placement.clusternames"
       control={control}
-      defaultValue={[]}
       render={({ field }) => {
-        const handleCheckboxChange = (value: string[]) => {
-          field.onChange(value);
-        };
-
         return (
           <>
             <Text variant="subTitle" marginTop="1.5%">
@@ -83,7 +86,8 @@ function ClusterAffinity() {
                 </Field.Label>
               </Field.Root>
               <CheckboxGroup
-                onValueChange={(value) => handleCheckboxChange(value)}
+                value={field.value || []}
+                onValueChange={field.onChange}
               >
                 <Flex justify="flex-start">
                   {clusterList.clusters.map((cluster) => {
@@ -114,15 +118,25 @@ function ClusterAffinity() {
   );
 }
 
-function ReplicaScheduling() {
+function ReplicaScheduling({ resetData }: { resetData: boolean }) {
   const [isType, setIsType] = useState(false);
-  const { control, setValue } = useFormContext();
+  const { control, resetField } = useFormContext();
   const watchType = useWatch({
     name: "data.placement.replicaScheduiling.replicaSchedulingType",
   });
   const watchDividedType = useWatch({
     name: "data.placement.replicaScheduiling.replicaDivisionpreference",
   });
+
+  useEffect(() => {
+    if (resetData) {
+      setIsType(false);
+      resetField("data.placement.replicaScheduiling.replicaSchedulingType");
+      resetField("data.placement.replicaScheduiling.replicaDivisionpreference");
+      resetField("data.placement.replicaScheduiling.staticWeightList");
+    }
+  }, [resetData]);
+
   return (
     <Controller
       name="data.placement.replicaScheduiling.replicaSchedulingType"
@@ -141,10 +155,11 @@ function ReplicaScheduling() {
                     colorPalette="blue"
                     onChange={() => {
                       setIsType(!isType);
-                      setValue(
-                        "data.placement.replicaScheduiling.replicaSchedulingType",
-                        "Duplicated"
-                      );
+                      if (isType === false) {
+                        resetField(
+                          "data.placement.replicaScheduiling.replicaSchedulingType"
+                        );
+                      }
                     }}
                   >
                     <Checkbox.HiddenInput />
