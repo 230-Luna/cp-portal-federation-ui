@@ -119,8 +119,7 @@ function ClusterAffinity({ resetData }: { resetData: boolean }) {
 }
 
 function ReplicaScheduling({ resetData }: { resetData: boolean }) {
-  const [isType, setIsType] = useState(false);
-  const { control, resetField } = useFormContext();
+  const { control, resetField, getValues, setValue } = useFormContext();
   const watchType = useWatch({
     name: "data.placement.replicaScheduiling.replicaSchedulingType",
   });
@@ -128,9 +127,10 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
     name: "data.placement.replicaScheduiling.replicaDivisionpreference",
   });
 
+  let isChecked = Boolean(watchType);
+
   useEffect(() => {
     if (resetData) {
-      setIsType(false);
       resetField("data.placement.replicaScheduiling.replicaSchedulingType");
       resetField("data.placement.replicaScheduiling.replicaDivisionpreference");
       resetField("data.placement.replicaScheduiling.staticWeightList");
@@ -154,10 +154,42 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
                   <Checkbox.Root
                     colorPalette="blue"
                     onChange={() => {
-                      setIsType(!isType);
-                      if (isType === false) {
+                      isChecked = !isChecked;
+
+                      if (isChecked === false) {
                         resetField(
                           "data.placement.replicaScheduiling.replicaSchedulingType"
+                        );
+                      }
+                    }}
+                    onCheckedChange={() => {
+                      console.log("isChecked: ", isChecked);
+                      console.log("getvalue", getValues("isType"));
+
+                      setValue("isType", !isChecked);
+                      console.log("-----isChecked: ", isChecked);
+                      console.log("-----getvalue", getValues("isType"));
+
+                      if (isChecked) {
+                        setValue(
+                          "data.placement.replicaScheduiling.replicaSchedulingType",
+                          "Duplicated"
+                        );
+                        resetField(
+                          "data.placement.replicaScheduiling.replicaDivisionpreference"
+                        );
+                        resetField(
+                          "data.placement.replicaScheduiling.staticWeightList"
+                        );
+                      } else {
+                        resetField(
+                          "data.placement.replicaScheduiling.replicaSchedulingType"
+                        );
+                        resetField(
+                          "data.placement.replicaScheduiling.replicaDivisionpreference"
+                        );
+                        resetField(
+                          "data.placement.replicaScheduiling.staticWeightList"
                         );
                       }
                     }}
@@ -168,9 +200,9 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
                   </Checkbox.Root>
                 </Field.Label>
               </Field.Root>
-              {isType === true ? <ReplicaSchedulingType /> : null}
+              {isChecked === true ? <ReplicaSchedulingType /> : null}
             </Flex>
-            {isType === true ? (
+            {isChecked === true ? (
               <>
                 {watchType === "Divided" ? (
                   <>

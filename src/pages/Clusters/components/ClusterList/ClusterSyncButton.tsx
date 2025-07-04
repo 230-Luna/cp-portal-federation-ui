@@ -24,8 +24,10 @@ import { SyncPostBody } from "./../../../../models/sync";
 import { ResourceKindLowercase } from "@/models/resourceModel";
 
 export default function ClusterSyncButton({
+  clusterStatus,
   clusterId,
 }: {
+  clusterStatus: "ready" | "not ready" | "unknown";
   clusterId: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -37,7 +39,13 @@ export default function ClusterSyncButton({
       onOpenChange={(details) => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="blackGhost">Sync</Button>
+        {clusterStatus === "ready" ? (
+          <Button variant="blackGhost">Sync</Button>
+        ) : (
+          <Button disabled variant="blackGhost">
+            Sync
+          </Button>
+        )}
       </Drawer.Trigger>
       {open === true ? (
         <ClusterResourceSyncDrawer

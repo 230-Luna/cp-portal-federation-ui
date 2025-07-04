@@ -17,9 +17,18 @@ export const ProgressWithMarker = ({
 
   const triangleSize = 10;
 
+  if (realTimeUsage === -1) {
+    realTimeUsage = -1;
+  }
+
   return (
     <Box width="100%" padding="10px">
-      <Progress.Root colorPalette={colorPalette} size="lg">
+      <Progress.Root
+        value={realTimeUsage}
+        colorPalette={colorPalette}
+        size="lg"
+        min={-1}
+      >
         <HStack gap="2">
           {label && <Progress.Label width="55px">{kind}</Progress.Label>}
 
