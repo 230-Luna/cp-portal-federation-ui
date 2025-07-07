@@ -224,7 +224,7 @@ function ResourceSelectorCreator() {
                       }))
                     }
                   />
-                  <CheckWanringInfoField />
+                  <CheckWanringInfoField value={resourceSelectorData} />
                 </Dialog.Body>
                 <Dialog.Footer>
                   <Dialog.ActionTrigger>
@@ -470,18 +470,25 @@ function LabelSelectorsField({
   );
 }
 
-function CheckWanringInfoField() {
-  const watchNamespace = useWatch({ name: `metadata.namespace` });
-  const watchName = useWatch({ name: "metadata.name" });
-  const watchLabelSelector = useWatch({
-    name: "metadata.labelSelector",
-  });
+function CheckWanringInfoField({
+  value,
+}: {
+  value: {
+    kind: string;
+    namespace: string;
+    name: string;
+    labelSelectors: string[];
+  };
+}) {
+  console.log("namespace: ", value.namespace);
+  console.log("name: ", value.name);
+  console.log("labelSelectors: ", value.labelSelectors);
 
   return (
     <Flex marginTop="5%">
-      {watchNamespace === true ||
-      watchName === true ||
-      watchLabelSelector === true ? (
+      {value.namespace === "" &&
+      value.name === "" &&
+      value.labelSelectors.length === 0 ? (
         <Checkbox.Root colorPalette="blue">
           <Checkbox.HiddenInput />
           <Checkbox.Control />
@@ -496,7 +503,7 @@ function CheckWanringInfoField() {
           </Checkbox.Label>
         </Checkbox.Root>
       ) : (
-        <Checkbox.Root colorPalette="blue" disabled checked={true}>
+        <Checkbox.Root colorPalette="blue" disabled>
           <Checkbox.HiddenInput />
           <Checkbox.Control />
           <Checkbox.Label>

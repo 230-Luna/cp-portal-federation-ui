@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
@@ -119,18 +119,22 @@ function ClusterAffinity({ resetData }: { resetData: boolean }) {
 }
 
 function ReplicaScheduling({ resetData }: { resetData: boolean }) {
-  const { control, resetField, getValues, setValue } = useFormContext();
-  const watchType = useWatch({
+  const { control, resetField, setValue } = useFormContext();
+
+  let watchSelectReplicaScheduling = useWatch({
+    name: "selectReplicaScheduling",
+  });
+
+  const watchReplicaSchedulingType = useWatch({
     name: "data.placement.replicaScheduiling.replicaSchedulingType",
   });
   const watchDividedType = useWatch({
     name: "data.placement.replicaScheduiling.replicaDivisionpreference",
   });
 
-  let isChecked = Boolean(watchType);
-
   useEffect(() => {
     if (resetData) {
+      setValue("selectReplicaScheduling", false);
       resetField("data.placement.replicaScheduiling.replicaSchedulingType");
       resetField("data.placement.replicaScheduiling.replicaDivisionpreference");
       resetField("data.placement.replicaScheduiling.staticWeightList");
@@ -139,9 +143,8 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
 
   return (
     <Controller
-      name="data.placement.replicaScheduiling.replicaSchedulingType"
+      name="selectReplicaScheduling"
       control={control}
-      defaultValue="Duplicated"
       render={() => {
         return (
           <>
@@ -153,24 +156,14 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
                 <Field.Label>
                   <Checkbox.Root
                     colorPalette="blue"
-                    onChange={() => {
-                      isChecked = !isChecked;
-
-                      if (isChecked === false) {
-                        resetField(
-                          "data.placement.replicaScheduiling.replicaSchedulingType"
-                        );
-                      }
-                    }}
+                    checked={watchSelectReplicaScheduling}
                     onCheckedChange={() => {
-                      console.log("isChecked: ", isChecked);
-                      console.log("getvalue", getValues("isType"));
+                      setValue(
+                        "selectReplicaScheduling",
+                        !watchSelectReplicaScheduling
+                      );
 
-                      setValue("isType", !isChecked);
-                      console.log("-----isChecked: ", isChecked);
-                      console.log("-----getvalue", getValues("isType"));
-
-                      if (isChecked) {
+                      if (watchSelectReplicaScheduling) {
                         setValue(
                           "data.placement.replicaScheduiling.replicaSchedulingType",
                           "Duplicated"
@@ -200,11 +193,13 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
                   </Checkbox.Root>
                 </Field.Label>
               </Field.Root>
-              {isChecked === true ? <ReplicaSchedulingType /> : null}
+              {watchSelectReplicaScheduling === true ? (
+                <ReplicaSchedulingType />
+              ) : null}
             </Flex>
-            {isChecked === true ? (
+            {watchSelectReplicaScheduling === true ? (
               <>
-                {watchType === "Divided" ? (
+                {watchReplicaSchedulingType === "Divided" ? (
                   <>
                     <DivisionPreference />
                     {watchDividedType === "Weighted" ? (
@@ -228,7 +223,6 @@ function ReplicaSchedulingType() {
     <Controller
       name="data.placement.replicaScheduiling.replicaSchedulingType"
       control={control}
-      defaultValue="Duplicated"
       render={({ field }) => {
         const handleValueChange = (details: RadioCardValueChangeDetails) => {
           if (details.value === "Duplicated" || details.value === "Divided") {
@@ -244,6 +238,7 @@ function ReplicaSchedulingType() {
         return (
           <RadioCard.Root
             name="type"
+            defaultValue="Duplicated"
             value={field.value}
             onValueChange={handleValueChange}
           >
@@ -277,7 +272,6 @@ function DivisionPreference() {
     <Controller
       name="data.placement.replicaScheduiling.replicaDivisionpreference"
       control={control}
-      defaultValue="Aggregated"
       render={({ field }) => {
         const handleValueChange = (details: RadioCardValueChangeDetails) => {
           if (details.value === "Aggregated" || details.value === "Weighted") {
@@ -293,7 +287,7 @@ function DivisionPreference() {
             </Field.Root>
             <RadioCard.Root
               name="divisionPreference"
-              defaultValue="Aggregated"
+              value={field.value}
               onValueChange={handleValueChange}
             >
               <Flex justify="flex-start">
@@ -343,7 +337,6 @@ function WeightPreference() {
     <Controller
       name="data.placement.replicaScheduiling.staticWeightList"
       control={control}
-      defaultValue="[]"
       render={({ field }) => {
         const handleCheckboxChange = (value: string[]) => {
           field.onChange(value);
@@ -395,6 +388,7 @@ function WeightPreference() {
                         name={`data.placement.replicaScheduiling.staticWeightList.${index}.targetClusters`}
                         render={({ field }) => (
                           <CheckboxGroup
+                            value={field.value}
                             onValueChange={(details) => {
                               field.onChange(details);
                             }}
