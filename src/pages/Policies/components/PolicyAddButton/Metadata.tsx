@@ -113,30 +113,28 @@ function NamespaceSelectField() {
     <Controller
       name="data.metadata.namespace"
       control={control}
-      rules={{ required: "Namespace is required" }}
-      render={({ field, fieldState }) => (
-        <Field.Root required variant="vertical" orientation="horizontal">
-          <Field.Label>
-            Namespace
-            <Field.RequiredIndicator />
-          </Field.Label>
-          <NativeSelect.Root>
-            <NativeSelect.Field {...field} placeholder="Select Namespace">
-              {resourceNamespaceList.namespaces.map((namespace) => (
-                <option value={namespace} key={namespace}>
-                  {namespace}
-                </option>
-              ))}
-            </NativeSelect.Field>
-            <NativeSelect.Indicator />
-          </NativeSelect.Root>
-          {fieldState.error && (
-            <Text color="red.500" fontSize="sm">
-              {fieldState.error.message}
-            </Text>
-          )}
-        </Field.Root>
-      )}
+      rules={{ required: true }}
+      render={({ field }) => {
+        console.log(field);
+        return (
+          <Field.Root required variant="vertical" orientation="horizontal">
+            <Field.Label>
+              Namespace
+              <Field.RequiredIndicator />
+            </Field.Label>
+            <NativeSelect.Root>
+              <NativeSelect.Field {...field} placeholder="Select Namespace">
+                {resourceNamespaceList.namespaces.map((namespace) => (
+                  <option value={namespace} key={namespace}>
+                    {namespace}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+          </Field.Root>
+        );
+      }}
     />
   );
 }
@@ -149,14 +147,13 @@ function NameInputField() {
       name="data.metadata.name"
       control={control}
       rules={{ required: "Name is required" }}
-      render={({ field, fieldState }) => (
+      render={({ field }) => (
         <Field.Root required variant="horizontal">
           <Field.Label>
             Name
             <Field.RequiredIndicator />
           </Field.Label>
           <Input {...field} placeholder="이름 입력" size="xl" />
-          {fieldState.error && <span>{fieldState.error.message}</span>}
         </Field.Root>
       )}
     />
@@ -173,7 +170,7 @@ function LabelCollapsibleInputField() {
     <Controller
       name="data.metadata.labels"
       control={control}
-      render={({ field, fieldState }) => {
+      render={({ field }) => {
         const labels: string[] = field.value || [];
 
         const handleAddLabelClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -260,11 +257,6 @@ function LabelCollapsibleInputField() {
                   </Fieldset.Root>
                 </Collapsible.Content>
               </Collapsible.Root>
-              {fieldState.error && (
-                <Text color="red.500" fontSize="sm" marginTop="1">
-                  {fieldState.error.message}
-                </Text>
-              )}
             </Field.Root>
           </Flex>
         );
@@ -283,7 +275,7 @@ function AnnotationCollapsibleInputField() {
     <Controller
       name="data.metadata.annotations"
       control={control}
-      render={({ field, fieldState }) => {
+      render={({ field }) => {
         const annotations: string[] = field.value || [];
 
         const handleAnnotationClick = (
@@ -376,11 +368,6 @@ function AnnotationCollapsibleInputField() {
                   </Fieldset.Root>
                 </Collapsible.Content>
               </Collapsible.Root>
-              {fieldState.error && (
-                <Text color="redd.500" fontSize="sm" marginTop="1">
-                  {fieldState.error.message}
-                </Text>
-              )}
             </Field.Root>
           </Flex>
         );
@@ -398,7 +385,6 @@ function PrserveResourceOnDeletionField() {
       control={control}
       render={({ field }) => {
         const isChecked = field.value;
-
         return (
           <Tooltip
             ids={{ trigger: id }}

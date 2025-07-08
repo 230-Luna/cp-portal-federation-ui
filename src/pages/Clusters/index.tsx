@@ -1,6 +1,6 @@
 import { Flex } from "@/components/Flex";
 import SearchBar from "@/components/SearchBar";
-import ClusterJoinButton from "@/pages/Clusters/components/ClusterJoin";
+import ClusterJoinButton from "@/pages/Clusters/components/ClusterJoinButton";
 import ClusterList from "@/pages/Clusters/components/ClusterList";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense, useEffect } from "react";

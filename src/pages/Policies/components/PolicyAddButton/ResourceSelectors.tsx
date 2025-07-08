@@ -187,19 +187,24 @@ function ResourceSelectorCreator() {
                 <Dialog.Body variant="resourceSetUp" margin="2%">
                   <KindSelectRadioField
                     value={resourceSelectorData.kind}
-                    onChange={(val) => {
+                    onChange={(value) => {
                       setResourceSelectorData((prev) => ({
                         ...prev,
-                        kind: val,
+                        kind: value,
+                        namespace: "",
+                        name: "",
+                        labelSelectors: [],
                       }));
                     }}
                   />
                   <NamespaceSelectField
                     value={resourceSelectorData.namespace}
-                    onChange={(val) =>
+                    onChange={(value) =>
                       setResourceSelectorData((prev) => ({
                         ...prev,
-                        namespace: val,
+                        namespace: value,
+                        name: "",
+                        labelSelectors: [],
                       }))
                     }
                   />
@@ -207,20 +212,22 @@ function ResourceSelectorCreator() {
                     kind={resourceSelectorData.kind}
                     namespace={resourceSelectorData.namespace}
                     value={resourceSelectorData.name}
-                    onChange={(val) =>
+                    onChange={(value) =>
                       setResourceSelectorData((prev) => ({
                         ...prev,
-                        name: val,
+                        name: value,
+                        labelSelectors: [],
                       }))
                     }
                   />
                   <LabelSelectorsField
                     kind={resourceSelectorData.kind}
                     namespace={resourceSelectorData.namespace}
-                    onChange={(val) =>
+                    value={resourceSelectorData.labelSelectors}
+                    onChange={(value) =>
                       setResourceSelectorData((prev) => ({
                         ...prev,
-                        labelSelectors: val,
+                        labelSelectors: value,
                       }))
                     }
                   />
@@ -253,7 +260,7 @@ function KindSelectRadioField({
   onChange,
 }: {
   value: string;
-  onChange: (val: string) => void;
+  onChange: (value: string) => void;
 }) {
   const kindOptions = [
     "Deployment",
@@ -264,9 +271,8 @@ function KindSelectRadioField({
   ];
 
   const handleKindValueChange = (details: SegmentGroupValueChangeDetails) => {
-    const value = details.value;
-    if (value !== null) {
-      onChange(value);
+    if (details.value !== null) {
+      onChange(details.value);
     }
   };
 
@@ -277,7 +283,6 @@ function KindSelectRadioField({
         <Field.RequiredIndicator />
       </Field.Label>
       <SegmentGroup.Root
-        // value={field.value}
         value={value}
         onValueChange={handleKindValueChange}
         variant="large"
@@ -303,7 +308,7 @@ function NamespaceSelectField({
   onChange,
 }: {
   value: string;
-  onChange: (val: string) => void;
+  onChange: (value: string) => void;
 }) {
   const watchLevel = useWatch({ name: "level" });
   const watchNamespace = useWatch({ name: "data.metadata.namespace" });
@@ -362,7 +367,7 @@ function NameSelectField({
   kind: string;
   namespace: string;
   value: string;
-  onChange: (val: string) => void;
+  onChange: (value: string) => void;
 }) {
   const { data: resourceNameList } = useQuery({
     queryKey: [
@@ -401,11 +406,13 @@ function NameSelectField({
 function LabelSelectorsField({
   kind,
   namespace,
+  value,
   onChange,
 }: {
   kind: string;
   namespace: string;
-  onChange: (val: string[]) => void;
+  value: string[];
+  onChange: (value: string[]) => void;
 }) {
   const { data: resourceLabelList } = useQuery({
     queryKey: [
@@ -437,13 +444,15 @@ function LabelSelectorsField({
       <Field.Label>LabelSelectors</Field.Label>
       <Select.Root
         multiple
+        value={value}
         onValueChange={handleLabelValueChange}
         collection={labelSelectors}
         size="md"
-        onWheel={(event) => {
-          event.stopPropagation();
+        positioning={{
+          placement: "bottom",
+          strategy: "fixed",
+          sameWidth: true,
         }}
-        positioning={{ placement: "bottom", flip: false, strategy: "fixed" }}
       >
         <Select.HiddenSelect />
         <Select.Control>
@@ -454,7 +463,6 @@ function LabelSelectorsField({
             <Select.Indicator />
           </Select.IndicatorGroup>
         </Select.Control>
-
         <Select.Positioner>
           <Select.Content>
             {labelSelectors.items.map((label, index) => (
@@ -480,10 +488,6 @@ function CheckWanringInfoField({
     labelSelectors: string[];
   };
 }) {
-  console.log("namespace: ", value.namespace);
-  console.log("name: ", value.name);
-  console.log("labelSelectors: ", value.labelSelectors);
-
   return (
     <Flex marginTop="5%">
       {value.namespace === "" &&
@@ -503,18 +507,10 @@ function CheckWanringInfoField({
           </Checkbox.Label>
         </Checkbox.Root>
       ) : (
-        <Checkbox.Root colorPalette="blue" disabled>
+        <Checkbox.Root disabled checked={true} visibility="hidden">
           <Checkbox.HiddenInput />
           <Checkbox.Control />
-          <Checkbox.Label>
-            <Highlight
-              query="해당 Kind의 모든 리소스가 전파"
-              styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
-            >
-              Kind 외 옵션이 없을 경우, 해당 Kind의 모든 리소스가 전파되는 것을
-              확인했습니다.
-            </Highlight>
-          </Checkbox.Label>
+          <Checkbox.Label></Checkbox.Label>
         </Checkbox.Root>
       )}
     </Flex>
