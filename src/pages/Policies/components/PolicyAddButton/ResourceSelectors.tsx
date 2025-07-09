@@ -30,6 +30,7 @@ import {
 } from "@/apis/resource";
 import {
   Controller,
+  useController,
   useFieldArray,
   useFormContext,
   useWatch,
@@ -80,6 +81,10 @@ export default function ResourceSelectors({
 
 function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
   const { control, resetField } = useFormContext<FormValues>();
+  // const { field } = useController({
+  //   name: "data.resourceSelectors",
+  //   control,
+  // });
   const { remove } = useFieldArray({
     control,
     name: "data.resourceSelectors",
@@ -97,67 +102,64 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
   }, [resetData]);
 
   return (
-    <Controller
-      name="data.resourceSelectors"
-      control={control}
-      render={() => {
+    <>
+      {resourceSelectors.map((item, index) => {
         return (
-          <>
-            {resourceSelectors.map((item, index) => {
-              return (
-                <Card.Root key={index} variant="small" width="49%">
-                  <Card.Body variant="small">
-                    <CloseButton
-                      onClick={() => remove(index)}
-                      variant="inbox"
-                      padding="5%"
-                    />
-                    <Field.Root variant="horizontal" width="80%">
-                      <HStack>
-                        <Field.Label>Kind</Field.Label>
-                        <Text variant="small">{item.kind}</Text>
-                      </HStack>
-                    </Field.Root>
-                    {item.namespace && (
-                      <Field.Root variant="horizontal">
-                        <HStack>
-                          <Field.Label>Namespace</Field.Label>
-                          <Text variant="small">{item.namespace}</Text>
-                        </HStack>
-                      </Field.Root>
-                    )}
-                    {item.name && (
-                      <Field.Root variant="horizontal">
-                        <HStack>
-                          <Field.Label>Name</Field.Label>
-                          <Text variant="small">{item.name}</Text>
-                        </HStack>
-                      </Field.Root>
-                    )}
-                    {Array.isArray(item.labelSelectors) &&
-                      item.labelSelectors.length > 0 && (
-                        <Field.Root variant="horizontal">
-                          <HStack flexWrap="wrap">
-                            <Field.Label>LabelSelectors</Field.Label>
-                            {item.labelSelectors.map((label) => (
-                              <Badge key={label}>{label}</Badge>
-                            ))}
-                          </HStack>
-                        </Field.Root>
-                      )}
-                  </Card.Body>
-                </Card.Root>
-              );
-            })}
-          </>
+          <Card.Root key={index} variant="small" width="49%">
+            <Card.Body variant="small">
+              <CloseButton
+                onClick={() => remove(index)}
+                variant="inbox"
+                padding="5%"
+              />
+              <Field.Root variant="horizontal" width="80%">
+                <HStack>
+                  <Field.Label>Kind</Field.Label>
+                  <Text variant="small">{item.kind}</Text>
+                </HStack>
+              </Field.Root>
+              {item.namespace && (
+                <Field.Root variant="horizontal">
+                  <HStack>
+                    <Field.Label>Namespace</Field.Label>
+                    <Text variant="small">{item.namespace}</Text>
+                  </HStack>
+                </Field.Root>
+              )}
+              {item.name && (
+                <Field.Root variant="horizontal">
+                  <HStack>
+                    <Field.Label>Name</Field.Label>
+                    <Text variant="small">{item.name}</Text>
+                  </HStack>
+                </Field.Root>
+              )}
+              {Array.isArray(item.labelSelectors) &&
+                item.labelSelectors.length > 0 && (
+                  <Field.Root variant="horizontal">
+                    <HStack flexWrap="wrap">
+                      <Field.Label>LabelSelectors</Field.Label>
+                      {item.labelSelectors.map((label) => (
+                        <Badge key={label}>{label}</Badge>
+                      ))}
+                    </HStack>
+                  </Field.Root>
+                )}
+            </Card.Body>
+          </Card.Root>
         );
-      }}
-    />
+      })}
+    </>
   );
 }
 
 function ResourceSelectorCreator() {
   const { control } = useFormContext();
+  // const { field } = useController({
+  //   name: "data.resourceSelectors",
+  // defaultValue: "{}",
+  //   control,
+  // });
   const { append } = useFieldArray({
     control,
     name: "data.resourceSelectors",
@@ -174,84 +176,75 @@ function ResourceSelectorCreator() {
   };
 
   return (
-    <Controller
-      name="data.resourceSelectors"
-      control={control}
-      defaultValue="{}"
-      render={() => {
-        return (
-          <Portal>
-            <Dialog.Backdrop />
-            <Dialog.Positioner>
-              <Dialog.Content variant="resourceSetUp" margin="10px auto">
-                <Dialog.Body variant="resourceSetUp" margin="2%">
-                  <KindSelectRadioField
-                    value={resourceSelectorData.kind}
-                    onChange={(value) => {
-                      setResourceSelectorData((prev) => ({
-                        ...prev,
-                        kind: value,
-                        namespace: "",
-                        name: "",
-                        labelSelectors: [],
-                      }));
-                    }}
-                  />
-                  <NamespaceSelectField
-                    value={resourceSelectorData.namespace}
-                    onChange={(value) =>
-                      setResourceSelectorData((prev) => ({
-                        ...prev,
-                        namespace: value,
-                        name: "",
-                        labelSelectors: [],
-                      }))
-                    }
-                  />
-                  <NameSelectField
-                    kind={resourceSelectorData.kind}
-                    namespace={resourceSelectorData.namespace}
-                    value={resourceSelectorData.name}
-                    onChange={(value) =>
-                      setResourceSelectorData((prev) => ({
-                        ...prev,
-                        name: value,
-                        labelSelectors: [],
-                      }))
-                    }
-                  />
-                  <LabelSelectorsField
-                    kind={resourceSelectorData.kind}
-                    namespace={resourceSelectorData.namespace}
-                    value={resourceSelectorData.labelSelectors}
-                    onChange={(value) =>
-                      setResourceSelectorData((prev) => ({
-                        ...prev,
-                        labelSelectors: value,
-                      }))
-                    }
-                  />
-                  <CheckWanringInfoField value={resourceSelectorData} />
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Dialog.ActionTrigger>
-                    <Button variant="blueOutline">Cancel</Button>
-                  </Dialog.ActionTrigger>
-                  <Dialog.Trigger>
-                    <Button onClick={handleResouceSelectorSave} variant="blue">
-                      Save
-                    </Button>
-                  </Dialog.Trigger>
-                </Dialog.Footer>
-                <Dialog.CloseTrigger>
-                  <CloseButton />
-                </Dialog.CloseTrigger>
-              </Dialog.Content>
-            </Dialog.Positioner>
-          </Portal>
-        );
-      }}
-    />
+    <Portal>
+      <Dialog.Backdrop />
+      <Dialog.Positioner>
+        <Dialog.Content variant="resourceSetUp" margin="10px auto">
+          <Dialog.Body variant="resourceSetUp" margin="2%">
+            <KindSelectRadioField
+              value={resourceSelectorData.kind}
+              onChange={(value) => {
+                setResourceSelectorData((prev) => ({
+                  ...prev,
+                  kind: value,
+                  namespace: "",
+                  name: "",
+                  labelSelectors: [],
+                }));
+              }}
+            />
+            <NamespaceSelectField
+              value={resourceSelectorData.namespace}
+              onChange={(value) =>
+                setResourceSelectorData((prev) => ({
+                  ...prev,
+                  namespace: value,
+                  name: "",
+                  labelSelectors: [],
+                }))
+              }
+            />
+            <NameSelectField
+              kind={resourceSelectorData.kind}
+              namespace={resourceSelectorData.namespace}
+              value={resourceSelectorData.name}
+              onChange={(value) =>
+                setResourceSelectorData((prev) => ({
+                  ...prev,
+                  name: value,
+                  labelSelectors: [],
+                }))
+              }
+            />
+            <LabelSelectorsField
+              kind={resourceSelectorData.kind}
+              namespace={resourceSelectorData.namespace}
+              value={resourceSelectorData.labelSelectors}
+              onChange={(value) =>
+                setResourceSelectorData((prev) => ({
+                  ...prev,
+                  labelSelectors: value,
+                }))
+              }
+            />
+            <CheckWanringInfoField value={resourceSelectorData} />
+          </Dialog.Body>
+          <Dialog.Footer>
+            <Dialog.ActionTrigger>
+              <Button variant="blueOutline">Cancel</Button>
+            </Dialog.ActionTrigger>
+            <Dialog.Trigger>
+              <Button onClick={handleResouceSelectorSave} variant="blue">
+                Save
+              </Button>
+            </Dialog.Trigger>
+          </Dialog.Footer>
+          <Dialog.CloseTrigger>
+            <CloseButton />
+          </Dialog.CloseTrigger>
+        </Dialog.Content>
+      </Dialog.Positioner>
+    </Portal>
   );
 }
 
@@ -333,7 +326,16 @@ function NamespaceSelectField({
 
   return (
     <Field.Root variant="vertical" orientation="horizontal">
-      <Field.Label>Namespace</Field.Label>
+      <Field.Label>
+        Namespace{" "}
+        <Field.RequiredIndicator
+          fallback={
+            <Badge size="xs" variant="surface">
+              Optional
+            </Badge>
+          }
+        />
+      </Field.Label>
       {watchLevel === "namespace" ? (
         <Input disabled value={watchNamespace} readOnly />
       ) : (
@@ -382,7 +384,16 @@ function NameSelectField({
 
   return (
     <Field.Root variant="horizontal">
-      <Field.Label>Name</Field.Label>
+      <Field.Label>
+        Name{" "}
+        <Field.RequiredIndicator
+          fallback={
+            <Badge size="xs" variant="surface">
+              Optional
+            </Badge>
+          }
+        />
+      </Field.Label>
       <NativeSelect.Root>
         <NativeSelect.Field
           placeholder="Select Name"
@@ -441,7 +452,16 @@ function LabelSelectorsField({
 
   return (
     <Field.Root variant="horizontal">
-      <Field.Label>LabelSelectors</Field.Label>
+      <Field.Label>
+        LabelSelectors
+        <Field.RequiredIndicator
+          fallback={
+            <Badge size="xs" variant="surface">
+              Optional
+            </Badge>
+          }
+        />
+      </Field.Label>
       <Select.Root
         multiple
         value={value}

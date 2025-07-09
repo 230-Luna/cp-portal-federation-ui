@@ -26,9 +26,11 @@ import { ResourceKindLowercase } from "@/models/resourceModel";
 export default function ClusterSyncButton({
   clusterStatus,
   clusterId,
+  clusterName,
 }: {
   clusterStatus: "ready" | "not ready" | "unknown";
   clusterId: string;
+  clusterName: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -50,6 +52,7 @@ export default function ClusterSyncButton({
       {open === true ? (
         <ClusterResourceSyncDrawer
           clusterId={clusterId}
+          clusterName={clusterName}
           onClose={() => setOpen(false)}
         />
       ) : null}
@@ -59,9 +62,11 @@ export default function ClusterSyncButton({
 
 function ClusterResourceSyncDrawer({
   clusterId,
+  clusterName,
   onClose,
 }: {
   clusterId: string;
+  clusterName: string;
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
@@ -127,7 +132,7 @@ function ClusterResourceSyncDrawer({
         onClose();
         loadingToaster = toaster.create({
           type: "loading",
-          description: `${clusterId}와 Sync하고 있습니다.`,
+          description: `${clusterName}와 Sync하고 있습니다.`,
         });
         await postSyncListApi({
           clusterId,
@@ -135,7 +140,7 @@ function ClusterResourceSyncDrawer({
         });
         toaster.remove(loadingToaster);
         toaster.success({
-          description: `${clusterId}와 성공적으로 Sync되었습니다.`,
+          description: `${clusterName}와 성공적으로 Sync되었습니다.`,
         });
         queryClient.invalidateQueries({
           queryKey: ["getClusterListApi"],
@@ -164,7 +169,7 @@ function ClusterResourceSyncDrawer({
       <Drawer.Positioner>
         <Drawer.Content>
           <Drawer.Header>
-            <Drawer.Title>{clusterId}</Drawer.Title>
+            <Drawer.Title>{clusterName}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
             <Accordion.Root

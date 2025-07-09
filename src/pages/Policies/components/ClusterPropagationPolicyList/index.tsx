@@ -55,7 +55,6 @@ export default function ClusterPropagationPolicyList() {
             <Table.ColumnHeader>Name</Table.ColumnHeader>
             <Table.ColumnHeader>Conflict Resolution</Table.ColumnHeader>
             <Table.ColumnHeader>Affected Clusters</Table.ColumnHeader>
-            <Table.ColumnHeader>Related Resources</Table.ColumnHeader>
             <Table.ColumnHeader>Operation</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
@@ -74,21 +73,6 @@ export default function ClusterPropagationPolicyList() {
                         (relatedCluster, index) => (
                           <Tag.Root key={index} margin={0.5}>
                             <Tag.Label>{relatedCluster}</Tag.Label>
-                          </Tag.Root>
-                        )
-                      )
-                    ) : (
-                      <Box>-</Box>
-                    )}
-                  </VStack>
-                </Table.Cell>
-                <Table.Cell>
-                  <VStack>
-                    {clusterPropagationPolicy.relatedResources.length !== 0 ? (
-                      clusterPropagationPolicy.relatedResources.map(
-                        (relatedResource, index) => (
-                          <Tag.Root key={index} margin={0.5}>
-                            <Tag.Label>{relatedResource}</Tag.Label>
                           </Tag.Root>
                         )
                       )

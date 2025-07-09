@@ -102,6 +102,7 @@ export default function ClusterList() {
                   <ClusterSyncButton
                     clusterStatus={cluster.status}
                     clusterId={cluster.clusterId}
+                    clusterName={cluster.name}
                   />
                   {/* <FaSyncAlt /> */}
                 </Flex>

@@ -70,12 +70,12 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
             if (cluster.code !== 201) {
               toaster.create({
                 type: "error",
-                description: `${cluster.clusterId}가 멤버클러스터 등록에 실패하였습니다.`,
+                description: `${cluster.name}가 멤버클러스터 등록에 실패하였습니다.`,
               });
             } else {
               toaster.create({
                 type: "success",
-                description: `${cluster.clusterId}가 멤버클러스터로 등록되었습니다.`,
+                description: `${cluster.name}가 멤버클러스터로 등록되었습니다.`,
               });
             }
           }

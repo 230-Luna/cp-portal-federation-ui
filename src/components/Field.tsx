@@ -41,5 +41,5 @@ export const Field = {
   Label: ChakraField.Label,
   RequiredIndicator: ChakraField.RequiredIndicator,
   HelperText: ChakraField.HelperText,
-  Indicator: ChakraField.ErrorText,
+  ErrorText: ChakraField.ErrorText,
 };

@@ -42,6 +42,7 @@ export default function PolicyAddButton() {
   const currentStepIndex = steps.indexOf(currentStep);
 
   const formData = useForm<FormValues>({
+    mode: "onBlur",
     defaultValues: {
       level: "namespace",
       data: {

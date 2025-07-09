@@ -16,9 +16,11 @@ import {
   CheckboxGroup,
   ButtonGroup,
   RadioCardValueChangeDetails,
+  Badge,
 } from "@chakra-ui/react";
 import {
   Controller,
+  useController,
   useFieldArray,
   useFormContext,
   useWatch,
@@ -49,6 +51,10 @@ export default function Placement({
 
 function ClusterAffinity({ resetData }: { resetData: boolean }) {
   const { control, resetField } = useFormContext();
+  const { field } = useController({
+    name: "data.placement.clusternames",
+    control,
+  });
 
   const { data: clusterList } = useSuspenseQuery({
     queryKey: [
@@ -69,57 +75,45 @@ function ClusterAffinity({ resetData }: { resetData: boolean }) {
   }, [resetData]);
 
   return (
-    <Controller
-      name="data.placement.clusternames"
-      control={control}
-      render={({ field }) => {
-        return (
-          <>
-            <Text variant="subTitle" marginTop="1.5%">
-              Cluster Affinity
-            </Text>
-            <Flex>
-              <Field.Root required variant="horizontal" width="180px">
-                <Field.Label whiteSpace="nowrap">
-                  Cluster Names
-                  <Field.RequiredIndicator />
-                </Field.Label>
-              </Field.Root>
-              <CheckboxGroup
-                value={field.value || []}
-                onValueChange={field.onChange}
-              >
-                <Flex justify="flex-start">
-                  {clusterList.clusters.map((cluster) => {
-                    return (
-                      <Box key={cluster.name}>
-                        <CheckboxCard.Root
-                          key={cluster.name}
-                          value={cluster.name}
-                        >
-                          <CheckboxCard.HiddenInput />
-                          <CheckboxCard.Control>
-                            <CheckboxCard.Label>
-                              {cluster.name}
-                            </CheckboxCard.Label>
-                            <CheckboxCard.Indicator />
-                          </CheckboxCard.Control>
-                        </CheckboxCard.Root>
-                      </Box>
-                    );
-                  })}
-                </Flex>
-              </CheckboxGroup>
-            </Flex>
-          </>
-        );
-      }}
-    />
+    <>
+      <Text variant="subTitle" marginTop="1.5%">
+        Cluster Affinity
+      </Text>
+      <Flex>
+        <Field.Root required variant="horizontal" width="180px">
+          <Field.Label whiteSpace="nowrap">
+            Cluster Names
+            <Field.RequiredIndicator />
+          </Field.Label>
+        </Field.Root>
+        <CheckboxGroup value={field.value || []} onValueChange={field.onChange}>
+          <Flex justify="flex-start">
+            {clusterList.clusters.map((cluster) => {
+              return (
+                <Box key={cluster.name}>
+                  <CheckboxCard.Root key={cluster.name} value={cluster.name}>
+                    <CheckboxCard.HiddenInput />
+                    <CheckboxCard.Control>
+                      <CheckboxCard.Label>{cluster.name}</CheckboxCard.Label>
+                      <CheckboxCard.Indicator />
+                    </CheckboxCard.Control>
+                  </CheckboxCard.Root>
+                </Box>
+              );
+            })}
+          </Flex>
+        </CheckboxGroup>
+      </Flex>
+    </>
   );
 }
 
 function ReplicaScheduling({ resetData }: { resetData: boolean }) {
   const { control, resetField, setValue } = useFormContext();
+  // const { field } = useController({
+  //   name: "selectReplicaScheduling",
+  //   control,
+  // });
 
   let watchSelectReplicaScheduling = useWatch({
     name: "selectReplicaScheduling",
@@ -142,175 +136,173 @@ function ReplicaScheduling({ resetData }: { resetData: boolean }) {
   }, [resetData]);
 
   return (
-    <Controller
-      name="selectReplicaScheduling"
-      control={control}
-      render={() => {
-        return (
-          <>
-            <Text variant="subTitle" marginTop="1.5%">
-              Replica Scheduling
-            </Text>
-            <Flex marginBottom="2%">
-              <Field.Root variant="horizontal" width="180px">
-                <Field.Label>
-                  <Checkbox.Root
-                    colorPalette="blue"
-                    checked={watchSelectReplicaScheduling}
-                    onCheckedChange={() => {
-                      setValue(
-                        "selectReplicaScheduling",
-                        !watchSelectReplicaScheduling
-                      );
+    <>
+      <Text variant="subTitle" marginTop="1.5%">
+        Replica Scheduling
+      </Text>
+      <Flex marginBottom="2%">
+        <Field.Root variant="horizontal" width="180px">
+          <Field.Label>
+            <Checkbox.Root
+              colorPalette="blue"
+              checked={watchSelectReplicaScheduling}
+              onCheckedChange={() => {
+                setValue(
+                  "selectReplicaScheduling",
+                  !watchSelectReplicaScheduling
+                );
 
-                      if (watchSelectReplicaScheduling) {
-                        setValue(
-                          "data.placement.replicaScheduiling.replicaSchedulingType",
-                          "Duplicated"
-                        );
-                        resetField(
-                          "data.placement.replicaScheduiling.replicaDivisionpreference"
-                        );
-                        resetField(
-                          "data.placement.replicaScheduiling.staticWeightList"
-                        );
-                      } else {
-                        resetField(
-                          "data.placement.replicaScheduiling.replicaSchedulingType"
-                        );
-                        resetField(
-                          "data.placement.replicaScheduiling.replicaDivisionpreference"
-                        );
-                        resetField(
-                          "data.placement.replicaScheduiling.staticWeightList"
-                        );
-                      }
-                    }}
-                  >
-                    <Checkbox.HiddenInput />
-                    <Checkbox.Control />
-                    <Checkbox.Label>Type</Checkbox.Label>
-                  </Checkbox.Root>
-                </Field.Label>
-              </Field.Root>
-              {watchSelectReplicaScheduling === true ? (
-                <ReplicaSchedulingType />
-              ) : null}
-            </Flex>
-            {watchSelectReplicaScheduling === true ? (
-              <>
-                {watchReplicaSchedulingType === "Divided" ? (
-                  <>
-                    <DivisionPreference />
-                    {watchDividedType === "Weighted" ? (
-                      <WeightPreference />
-                    ) : null}
-                  </>
-                ) : null}
-              </>
-            ) : null}
-          </>
-        );
-      }}
-    />
+                if (watchSelectReplicaScheduling) {
+                  setValue(
+                    "data.placement.replicaScheduiling.replicaSchedulingType",
+                    "Duplicated"
+                  );
+                  resetField(
+                    "data.placement.replicaScheduiling.replicaDivisionpreference"
+                  );
+                  resetField(
+                    "data.placement.replicaScheduiling.staticWeightList"
+                  );
+                } else {
+                  resetField(
+                    "data.placement.replicaScheduiling.replicaSchedulingType"
+                  );
+                  resetField(
+                    "data.placement.replicaScheduiling.replicaDivisionpreference"
+                  );
+                  resetField(
+                    "data.placement.replicaScheduiling.staticWeightList"
+                  );
+                }
+              }}
+            >
+              <Checkbox.HiddenInput />
+              <Checkbox.Control />
+              <Checkbox.Label>Type</Checkbox.Label>
+              <Field.RequiredIndicator
+                fallback={
+                  <Badge size="xs" variant="surface" colorPalette="gray">
+                    Optional
+                  </Badge>
+                }
+              />
+            </Checkbox.Root>
+          </Field.Label>
+        </Field.Root>
+        {watchSelectReplicaScheduling === true ? (
+          <ReplicaSchedulingType />
+        ) : null}
+      </Flex>
+      {watchSelectReplicaScheduling === true ? (
+        <>
+          {watchReplicaSchedulingType === "Divided" ? (
+            <>
+              <DivisionPreference />
+              {watchDividedType === "Weighted" ? <WeightPreference /> : null}
+            </>
+          ) : null}
+        </>
+      ) : null}
+    </>
   );
 }
 
 function ReplicaSchedulingType() {
   const { control, setValue } = useFormContext();
+  const { field } = useController({
+    name: "data.placement.replicaScheduiling.replicaSchedulingType",
+    control,
+  });
+
+  const handleValueChange = (details: RadioCardValueChangeDetails) => {
+    if (details.value === "Duplicated" || details.value === "Divided") {
+      field.onChange(details.value);
+      setValue(
+        "data.placement.replicaScheduiling.replicaDivisionpreference",
+        "Aggregated"
+      );
+      setValue("data.placement.replicaScheduiling.staticWeightList", []);
+    }
+  };
 
   return (
-    <Controller
-      name="data.placement.replicaScheduiling.replicaSchedulingType"
-      control={control}
-      render={({ field }) => {
-        const handleValueChange = (details: RadioCardValueChangeDetails) => {
-          if (details.value === "Duplicated" || details.value === "Divided") {
-            field.onChange(details.value);
-            setValue(
-              "data.placement.replicaScheduiling.replicaDivisionpreference",
-              "Aggregated"
-            );
-            setValue("data.placement.replicaScheduiling.staticWeightList", []);
-          }
-        };
-
-        return (
-          <RadioCard.Root
-            name="type"
-            defaultValue="Duplicated"
-            value={field.value}
-            onValueChange={handleValueChange}
-          >
-            <Flex justify="flex-start">
-              <RadioCard.Item value="Duplicated">
-                <RadioCard.ItemHiddenInput />
-                <RadioCard.ItemControl>
-                  <RadioCard.ItemText>Duplicated</RadioCard.ItemText>
-                  <RadioCard.ItemIndicator />
-                </RadioCard.ItemControl>
-              </RadioCard.Item>
-              <RadioCard.Item value="Divided">
-                <RadioCard.ItemHiddenInput />
-                <RadioCard.ItemControl>
-                  <RadioCard.ItemText>Divided</RadioCard.ItemText>
-                  <RadioCard.ItemIndicator />
-                </RadioCard.ItemControl>
-              </RadioCard.Item>
-            </Flex>
-          </RadioCard.Root>
-        );
-      }}
-    />
+    <RadioCard.Root
+      name="type"
+      defaultValue="Duplicated"
+      value={field.value}
+      onValueChange={handleValueChange}
+    >
+      <Flex justify="flex-start">
+        <RadioCard.Item value="Duplicated">
+          <RadioCard.ItemHiddenInput />
+          <RadioCard.ItemControl>
+            <RadioCard.ItemText>Duplicated</RadioCard.ItemText>
+            <RadioCard.ItemIndicator />
+          </RadioCard.ItemControl>
+        </RadioCard.Item>
+        <RadioCard.Item value="Divided">
+          <RadioCard.ItemHiddenInput />
+          <RadioCard.ItemControl>
+            <RadioCard.ItemText>Divided</RadioCard.ItemText>
+            <RadioCard.ItemIndicator />
+          </RadioCard.ItemControl>
+        </RadioCard.Item>
+      </Flex>
+    </RadioCard.Root>
   );
 }
 
 function DivisionPreference() {
   const { control, setValue } = useFormContext();
+  const { field } = useController({
+    name: "data.placement.replicaScheduiling.replicaDivisionpreference",
+    control,
+  });
+
+  const handleValueChange = (details: RadioCardValueChangeDetails) => {
+    if (details.value === "Aggregated" || details.value === "Weighted") {
+      field.onChange(details.value);
+      setValue("data.placement.replicaScheduiling.staticWeightList", []);
+    }
+  };
 
   return (
-    <Controller
-      name="data.placement.replicaScheduiling.replicaDivisionpreference"
-      control={control}
-      render={({ field }) => {
-        const handleValueChange = (details: RadioCardValueChangeDetails) => {
-          if (details.value === "Aggregated" || details.value === "Weighted") {
-            field.onChange(details.value);
-            setValue("data.placement.replicaScheduiling.staticWeightList", []);
-          }
-        };
-
-        return (
-          <Flex marginBottom="2%">
-            <Field.Root variant="horizontal" width="180px">
-              <Field.Label whiteSpace="nowrap">Division Preference</Field.Label>
-            </Field.Root>
-            <RadioCard.Root
-              name="divisionPreference"
-              value={field.value}
-              onValueChange={handleValueChange}
-            >
-              <Flex justify="flex-start">
-                <RadioCard.Item value="Aggregated">
-                  <RadioCard.ItemHiddenInput />
-                  <RadioCard.ItemControl>
-                    <RadioCard.ItemText>Aggregated</RadioCard.ItemText>
-                    <RadioCard.ItemIndicator />
-                  </RadioCard.ItemControl>
-                </RadioCard.Item>
-                <RadioCard.Item value="Weighted">
-                  <RadioCard.ItemHiddenInput />
-                  <RadioCard.ItemControl>
-                    <RadioCard.ItemText>Weighted</RadioCard.ItemText>
-                    <RadioCard.ItemIndicator />
-                  </RadioCard.ItemControl>
-                </RadioCard.Item>
-              </Flex>
-            </RadioCard.Root>
-          </Flex>
-        );
-      }}
-    />
+    <Flex marginBottom="2%">
+      <Field.Root variant="horizontal" width="180px">
+        <Field.Label whiteSpace="nowrap">
+          Division Preference
+          <Field.RequiredIndicator
+            fallback={
+              <Badge size="xs" variant="surface">
+                Optional
+              </Badge>
+            }
+          />
+        </Field.Label>
+      </Field.Root>
+      <RadioCard.Root
+        name="divisionPreference"
+        value={field.value}
+        onValueChange={handleValueChange}
+      >
+        <Flex justify="flex-start">
+          <RadioCard.Item value="Aggregated">
+            <RadioCard.ItemHiddenInput />
+            <RadioCard.ItemControl>
+              <RadioCard.ItemText>Aggregated</RadioCard.ItemText>
+              <RadioCard.ItemIndicator />
+            </RadioCard.ItemControl>
+          </RadioCard.Item>
+          <RadioCard.Item value="Weighted">
+            <RadioCard.ItemHiddenInput />
+            <RadioCard.ItemControl>
+              <RadioCard.ItemText>Weighted</RadioCard.ItemText>
+              <RadioCard.ItemIndicator />
+            </RadioCard.ItemControl>
+          </RadioCard.Item>
+        </Flex>
+      </RadioCard.Root>
+    </Flex>
   );
 }
 
@@ -345,7 +337,16 @@ function WeightPreference() {
           <>
             <Field.Root variant="horizontal">
               <HStack gap="3">
-                <Field.Label whiteSpace="nowrap">Weight Preference</Field.Label>
+                <Field.Label whiteSpace="nowrap">
+                  Weight Preference{" "}
+                  <Field.RequiredIndicator
+                    fallback={
+                      <Badge size="xs" variant="surface">
+                        Optional
+                      </Badge>
+                    }
+                  />
+                </Field.Label>
                 <Button
                   variant="smallBlue"
                   onClick={() => append({ targetClusters: [], weight: 1 })}
