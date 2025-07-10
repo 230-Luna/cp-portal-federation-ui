@@ -51,9 +51,13 @@ export default function Placement({
 
 function ClusterAffinity({ resetData }: { resetData: boolean }) {
   const { control, resetField } = useFormContext();
-  const { field } = useController({
+  const {
+    field,
+    fieldState: { error },
+  } = useController({
     name: "data.placement.clusternames",
     control,
+    rules: { required: "cluster를 하나이상 선택하세요" },
   });
 
   const { data: clusterList } = useSuspenseQuery({
@@ -80,11 +84,12 @@ function ClusterAffinity({ resetData }: { resetData: boolean }) {
         Cluster Affinity
       </Text>
       <Flex>
-        <Field.Root required variant="horizontal" width="180px">
+        <Field.Root required invalid={Boolean(error)} width="180px">
           <Field.Label whiteSpace="nowrap">
             Cluster Names
             <Field.RequiredIndicator />
           </Field.Label>
+          {error ? <Field.ErrorText>{error.message}</Field.ErrorText> : null}
         </Field.Root>
         <CheckboxGroup value={field.value || []} onValueChange={field.onChange}>
           <Flex justify="flex-start">

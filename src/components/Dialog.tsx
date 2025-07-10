@@ -35,8 +35,8 @@ const contentStyleConfig: Record<
   resourceSetUp: {
     rounded: "lg",
     borderWidth: "1px",
-    maxWidth: "800px",
-    maxHeight: "875px",
+    // maxWidth: "800px",
+    // maxHeight: "875px",
     shadow: "1px 1px 3px rgba(0,0,0,0.3)",
     padding: "6px",
     as: "form",

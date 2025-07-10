@@ -44,7 +44,10 @@ export default function Metadata({ onNext }: { onNext: () => void }) {
 
 function LevelSelectRadioField() {
   const { control, setValue } = useFormContext();
-  const { field } = useController({
+  const {
+    field,
+    fieldState: { error },
+  } = useController({
     name: "level",
     control,
     rules: { required: "level을 선택하세요" },
@@ -65,7 +68,7 @@ function LevelSelectRadioField() {
   };
 
   return (
-    <Field.Root required variant="horizontal">
+    <Field.Root required invalid={Boolean(error)}>
       <Field.Label>
         Level
         <Field.RequiredIndicator />
@@ -92,6 +95,7 @@ function LevelSelectRadioField() {
           </RadioCard.Item>
         </HStack>
       </RadioCard.Root>
+      {error ? <Field.ErrorText>{error.message}</Field.ErrorText> : null}
     </Field.Root>
   );
 }
@@ -115,7 +119,12 @@ function NamespaceSelectField() {
   });
 
   return (
-    <Field.Root required variant="vertical" orientation="horizontal">
+    <Field.Root
+      required
+      invalid={Boolean(error)}
+      variant="vertical"
+      height="104px"
+    >
       <Field.Label>
         Namespace
         <Field.RequiredIndicator />
@@ -140,7 +149,7 @@ function NamespaceSelectField() {
 
         <NativeSelect.Indicator />
       </NativeSelect.Root>
-      {error ? <p>{error.message}</p> : <p> </p>}
+      {error ? <Field.ErrorText>{error.message}</Field.ErrorText> : null}
     </Field.Root>
   );
 }
@@ -153,16 +162,21 @@ function NameInputField() {
   } = useController({
     name: "data.metadata.name",
     control,
-    rules: { required: "namespace 필요합니다" },
+    rules: { required: "name을 입력하세요" },
   });
 
   return (
-    <Field.Root required variant="horizontal">
+    <Field.Root required invalid={Boolean(error)} height="104px">
       <Field.Label>
         Name
         <Field.RequiredIndicator />
       </Field.Label>
       <Input {...field} placeholder="이름 입력" size="xl" />
+      {error ? (
+        <Field.ErrorText>{error.message}</Field.ErrorText>
+      ) : (
+        <Field.HelperText></Field.HelperText>
+      )}
     </Field.Root>
   );
 }
@@ -176,21 +190,39 @@ function LabelCollapsibleInputField() {
 
   const [keyInput, setKeyInput] = useState("");
   const [valueInput, setValueInput] = useState("");
-  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false); //opencollasible
+  const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
   const labels: string[] = field.value || [];
 
+  const [isKeyValid, setIsKeyValid] = useState(false);
+  const [isValueValid, setIsValueValid] = useState(false);
+
   const handleAddLabelClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!keyInput.trim() || !valueInput.trim()) {
-      // 앞, 중간 공백도 처리해야함. 유효한 특수문자만 넣도록 해야함
+
+    if (!keyInput.trim()) {
+      setIsKeyValid(true);
+
       return;
     }
+    if (!valueInput.trim()) {
+      setIsValueValid(true);
+      if (keyInput.trim()) {
+        setIsKeyValid(false);
+      }
+      return;
+    }
+
+    console.log("labels : ", labels);
+    console.log("keyinput : ", keyInput);
+    console.log("valueInput : ", valueInput);
 
     const updated = [...labels, `${keyInput}=${valueInput}`];
     field.onChange(updated);
     setKeyInput("");
     setValueInput("");
+    setIsKeyValid(false);
+    setIsValueValid(false);
   };
 
   const handleDeleteLabelClick = (label: string) => {
@@ -238,7 +270,7 @@ function LabelCollapsibleInputField() {
               <Flex alignItems="end">
                 <Fieldset.Content>
                   <HStack gap="4" m="2%">
-                    <Field.Root required>
+                    <Field.Root required invalid={isKeyValid}>
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
@@ -246,8 +278,13 @@ function LabelCollapsibleInputField() {
                         value={keyInput}
                         onChange={(event) => setKeyInput(event.target.value)}
                       />
+                      {isKeyValid ? (
+                        <Field.ErrorText>Key를 입력하세요</Field.ErrorText>
+                      ) : (
+                        <Field.HelperText></Field.HelperText>
+                      )}
                     </Field.Root>
-                    <Field.Root required>
+                    <Field.Root required invalid={isValueValid}>
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
@@ -255,12 +292,17 @@ function LabelCollapsibleInputField() {
                         value={valueInput}
                         onChange={(event) => setValueInput(event.target.value)}
                       />
+                      {isValueValid ? (
+                        <Field.ErrorText>Value를 입력하세요</Field.ErrorText>
+                      ) : (
+                        <Field.HelperText></Field.HelperText>
+                      )}
                     </Field.Root>
                   </HStack>
                 </Fieldset.Content>
                 <Button
                   variant="mediumBlue"
-                  onClick={(e) => handleAddLabelClick(e)}
+                  onClick={(event) => handleAddLabelClick(event)}
                   margin="2.5%"
                 >
                   <FaPlus />
@@ -287,10 +329,22 @@ function AnnotationCollapsibleInputField() {
 
   const annotations: string[] = field.value || [];
 
+  const [isKeyValid, setIsKeyValid] = useState(false);
+  const [isValueValid, setIsValueValid] = useState(false);
+
   const handleAnnotationClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    if (!keyInput.trim() || !valueInput.trim()) {
-      // 앞, 중간 공백도 처리해야함. 유효한 특수문자만 넣도록 해야함
+
+    if (!keyInput.trim()) {
+      setIsKeyValid(true);
+
+      return;
+    }
+    if (!valueInput.trim()) {
+      setIsValueValid(true);
+      if (keyInput.trim()) {
+        setIsKeyValid(false);
+      }
       return;
     }
 
@@ -298,6 +352,8 @@ function AnnotationCollapsibleInputField() {
     field.onChange(updated);
     setKeyInput("");
     setValueInput("");
+    setIsKeyValid(false);
+    setIsValueValid(false);
   };
 
   const handleDeleteAnnotationClick = (annotation: string) => {
@@ -348,7 +404,7 @@ function AnnotationCollapsibleInputField() {
               <Flex alignItems="end">
                 <Fieldset.Content>
                   <HStack gap="4" m="2%">
-                    <Field.Root required>
+                    <Field.Root required invalid={isKeyValid}>
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
@@ -356,8 +412,13 @@ function AnnotationCollapsibleInputField() {
                         value={keyInput}
                         onChange={(event) => setKeyInput(event.target.value)}
                       />
+                      {isKeyValid ? (
+                        <Field.ErrorText>Key를 입력하세요</Field.ErrorText>
+                      ) : (
+                        <Field.HelperText></Field.HelperText>
+                      )}
                     </Field.Root>
-                    <Field.Root required>
+                    <Field.Root required invalid={isValueValid}>
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
@@ -365,6 +426,11 @@ function AnnotationCollapsibleInputField() {
                         value={valueInput}
                         onChange={(event) => setValueInput(event.target.value)}
                       />
+                      {isValueValid ? (
+                        <Field.ErrorText>Value를 입력하세요</Field.ErrorText>
+                      ) : (
+                        <Field.HelperText></Field.HelperText>
+                      )}
                     </Field.Root>
                   </HStack>
                 </Fieldset.Content>

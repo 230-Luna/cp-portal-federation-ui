@@ -1,7 +1,7 @@
 import { Button } from "@/components/Button";
 import { Dialog } from "@/components/Dialog";
 import { CloseButton } from "@/components/CloseButton";
-import { Portal } from "@chakra-ui/react";
+import { DialogOpenChangeDetails, Portal } from "@chakra-ui/react";
 import { Suspense, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import Metadata from "./Metadata";
@@ -22,6 +22,7 @@ export type FormValues = {
   data: {
     metadata: {
       name: string;
+      namespace: string;
       labels: string[];
       annotations: string[];
       preserveResourceOnDeletion: boolean;
@@ -48,6 +49,7 @@ export default function PolicyAddButton() {
       data: {
         metadata: {
           name: "",
+          namespace: "",
           labels: [],
           annotations: [],
           preserveResourceOnDeletion: false,
@@ -111,10 +113,11 @@ export default function PolicyAddButton() {
   return (
     <Dialog.Root
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={(details: DialogOpenChangeDetails) => setOpen(details.open)}
       variant="resourceSetUp"
       closeOnInteractOutside={false}
       onExitComplete={() => setCurrentStep("Metadata")}
+      scrollBehavior="outside"
     >
       <Dialog.Trigger>
         <Button variant="largeBlue">
@@ -130,7 +133,16 @@ export default function PolicyAddButton() {
               <FormProvider {...formData}>
                 {currentStep === "Metadata" && (
                   <Metadata
-                    onNext={() => {
+                    onNext={async () => {
+                      const isValid = await formData.trigger([
+                        "level",
+                        "data.metadata.name",
+                        "data.metadata.namespace",
+                      ]);
+                      if (!isValid) {
+                        return;
+                      }
+
                       const currentLevel = formData.getValues("level");
                       if (currentLevel !== lastSelecteddLevel) {
                         setResetData(true);
@@ -149,7 +161,15 @@ export default function PolicyAddButton() {
                         setResetData(false);
                         setCurrentStep("Metadata");
                       }}
-                      onNext={() => setCurrentStep("Placement")}
+                      onNext={async () => {
+                        const isValid = await formData.trigger([
+                          "data.resourceSelectors",
+                        ]);
+                        if (!isValid) {
+                          return;
+                        }
+                        setCurrentStep("Placement");
+                      }}
                       resetData={resetData}
                     />
                   </Suspense>
@@ -160,7 +180,15 @@ export default function PolicyAddButton() {
                       setResetData(false);
                       setCurrentStep("ResourceSelectors");
                     }}
-                    onSubmit={() => handleSubmitForm.mutate()}
+                    onSubmit={async () => {
+                      const isValid = await formData.trigger([
+                        "data.placement.clusternames",
+                      ]);
+                      if (!isValid) {
+                        return;
+                      }
+                      handleSubmitForm.mutate();
+                    }}
                     resetData={resetData}
                   />
                 )}

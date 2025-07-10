@@ -28,13 +28,7 @@ import {
   getResourceNameListApi,
   getResourceNamespaceListApi,
 } from "@/apis/resource";
-import {
-  Controller,
-  useController,
-  useFieldArray,
-  useFormContext,
-  useWatch,
-} from "react-hook-form";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { FormValues } from ".";
 
@@ -81,9 +75,10 @@ export default function ResourceSelectors({
 
 function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
   const { control, resetField } = useFormContext<FormValues>();
-  // const { field } = useController({
+  // const { field,  fieldState: { error }, } = useController({
   //   name: "data.resourceSelectors",
   //   control,
+    // rules: { required: "resourceSelector가 적어도 하나 필요합니다" },
   // });
   const { remove } = useFieldArray({
     control,
