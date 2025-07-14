@@ -28,7 +28,12 @@ import {
   getResourceNameListApi,
   getResourceNamespaceListApi,
 } from "@/apis/resource";
-import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
+import {
+  useController,
+  useFieldArray,
+  useFormContext,
+  useWatch,
+} from "react-hook-form";
 import { useEffect, useState } from "react";
 import { FormValues } from ".";
 
@@ -75,11 +80,15 @@ export default function ResourceSelectors({
 
 function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
   const { control, resetField } = useFormContext<FormValues>();
-  // const { field,  fieldState: { error }, } = useController({
-  //   name: "data.resourceSelectors",
-  //   control,
-    // rules: { required: "resourceSelector가 적어도 하나 필요합니다" },
-  // });
+  const {
+    fieldState: { error },
+  } = useController({
+    name: "data.resourceSelectors",
+    control,
+    rules: {
+      required: "적어도 하나 이상의 ResourceSelector를 추가하세요",
+    },
+  });
   const { remove } = useFieldArray({
     control,
     name: "data.resourceSelectors",
@@ -144,17 +153,17 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
           </Card.Root>
         );
       })}
+      {error ? (
+        <Text color="red" textAlign="center" width="100%">
+          {error.root?.message}
+        </Text>
+      ) : null}
     </>
   );
 }
 
 function ResourceSelectorCreator() {
   const { control } = useFormContext();
-  // const { field } = useController({
-  //   name: "data.resourceSelectors",
-  // defaultValue: "{}",
-  //   control,
-  // });
   const { append } = useFieldArray({
     control,
     name: "data.resourceSelectors",
@@ -168,6 +177,12 @@ function ResourceSelectorCreator() {
 
   const handleResouceSelectorSave = () => {
     append(resourceSelectorData);
+    setResourceSelectorData({
+      kind: "Deployment",
+      namespace: "",
+      name: "",
+      labelSelectors: [] as string[],
+    });
   };
 
   return (

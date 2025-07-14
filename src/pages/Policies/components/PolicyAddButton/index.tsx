@@ -162,9 +162,9 @@ export default function PolicyAddButton() {
                         setCurrentStep("Metadata");
                       }}
                       onNext={async () => {
-                        const isValid = await formData.trigger([
-                          "data.resourceSelectors",
-                        ]);
+                        const isValid = await formData.trigger(
+                          "data.resourceSelectors"
+                        );
                         if (!isValid) {
                           return;
                         }

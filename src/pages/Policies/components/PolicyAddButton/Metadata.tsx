@@ -213,11 +213,10 @@ function LabelCollapsibleInputField() {
       return;
     }
 
-    console.log("labels : ", labels);
-    console.log("keyinput : ", keyInput);
-    console.log("valueInput : ", valueInput);
-
-    const updated = [...labels, `${keyInput}=${valueInput}`];
+    const updated = [
+      ...labels.filter((label) => !label.startsWith(`${keyInput}=`)),
+      `${keyInput}=${valueInput}`,
+    ];
     field.onChange(updated);
     setKeyInput("");
     setValueInput("");
@@ -348,7 +347,12 @@ function AnnotationCollapsibleInputField() {
       return;
     }
 
-    const updated = [...annotations, `${keyInput}=${valueInput}`];
+    const updated = [
+      ...annotations.filter(
+        (annotation) => !annotation.startsWith(`${keyInput}=`)
+      ),
+      `${keyInput}=${valueInput}`,
+    ];
     field.onChange(updated);
     setKeyInput("");
     setValueInput("");
