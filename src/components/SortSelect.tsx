@@ -34,7 +34,7 @@ export default function SortSelect({ level }: { level: string }) {
       defaultValue={["newest"]}
       onValueChange={handleSelectValueChange}
       size="sm"
-      width="100px"
+      width="120px"
       marginBottom="10px"
     >
       <Select.HiddenSelect />

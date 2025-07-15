@@ -114,11 +114,7 @@ function ClusterAffinity({ resetData }: { resetData: boolean }) {
 }
 
 function ReplicaScheduling({ resetData }: { resetData: boolean }) {
-  const { control, resetField, setValue } = useFormContext();
-  // const { field } = useController({
-  //   name: "selectReplicaScheduling",
-  //   control,
-  // });
+  const { resetField, setValue } = useFormContext();
 
   let watchSelectReplicaScheduling = useWatch({
     name: "selectReplicaScheduling",
@@ -330,126 +326,137 @@ function WeightPreference() {
     },
   });
 
+  
+
   return (
-    <Controller
-      name="data.placement.replicaScheduiling.staticWeightList"
-      control={control}
-      render={({ field }) => {
-        const handleCheckboxChange = (value: string[]) => {
-          field.onChange(value);
-        };
-        return (
-          <>
-            <Field.Root variant="horizontal">
-              <HStack gap="3">
-                <Field.Label whiteSpace="nowrap">
-                  Weight Preference{" "}
-                  <Field.RequiredIndicator
-                    fallback={
-                      <Badge size="xs" variant="surface">
-                        Optional
-                      </Badge>
-                    }
-                  />
-                </Field.Label>
-                <Button
-                  variant="smallBlue"
-                  onClick={() => append({ targetClusters: [], weight: 1 })}
-                >
-                  <FaPlus />
-                </Button>
-              </HStack>
-            </Field.Root>
-            <Flex
-              overflowY="auto"
-              maxHeight="250px"
-              flexDirection="row"
-              width="100%"
-            >
-              {fields.map((item, index) => (
-                <Box
-                  key={item.id}
-                  position="relative"
-                  padding="2%"
-                  backgroundColor="gray.100"
-                  margin="1%"
-                  width="100%"
-                >
-                  <CloseButton
-                    position="absolute"
-                    variant="inbox"
-                    marginRight="2.5%"
-                    onClick={() => remove(index)}
-                  />
-                  <Box width="80%">
-                    <Flex margin="2% 0" wrap="wrap">
-                      <Field.Root required width="130px">
-                        <Field.Label>
-                          - Target Clusters
-                          <Field.RequiredIndicator />
-                        </Field.Label>
-                      </Field.Root>
-                      <Controller
-                        control={control}
-                        name={`data.placement.replicaScheduiling.staticWeightList.${index}.targetClusters`}
-                        render={({ field }) => (
-                          <CheckboxGroup
-                            value={field.value}
-                            onValueChange={(details) => {
-                              field.onChange(details);
-                            }}
-                          >
-                            <Flex gap="2" margin="2% 0">
-                              {clusterList.clusters.map((cluster) => (
-                                <Box key={cluster.name}>
-                                  <CheckboxCard.Root
-                                    key={cluster.name}
-                                    value={cluster.name}
-                                    backgroundColor="white"
-                                  >
-                                    <CheckboxCard.HiddenInput />
-                                    <CheckboxCard.Control>
-                                      <CheckboxCard.Label>
-                                        {cluster.name}
-                                      </CheckboxCard.Label>
-                                      <CheckboxCard.Indicator />
-                                    </CheckboxCard.Control>
-                                  </CheckboxCard.Root>
-                                </Box>
-                              ))}
-                            </Flex>
-                          </CheckboxGroup>
-                        )}
+    <>
+      <Field.Root variant="horizontal">
+        <HStack gap="3">
+          <Field.Label whiteSpace="nowrap">
+            Weight Preference
+            <Field.RequiredIndicator
+              fallback={
+                <Badge size="xs" variant="surface">
+                  Optional
+                </Badge>
+              }
+            />
+          </Field.Label>
+          <Button
+            variant="smallBlue"
+            onClick={() => append({ targetClusters: [], weight: 1 })}
+          >
+            <FaPlus />
+          </Button>
+        </HStack>
+      </Field.Root>
+      <Flex overflowY="auto" maxHeight="250px" flexDirection="row" width="100%">
+        {fields.map((item, index) => (
+          <Box
+            key={item.id}
+            position="relative"
+            padding="2%"
+            backgroundColor="gray.100"
+            margin="1%"
+            width="100%"
+          >
+            <CloseButton
+              position="absolute"
+              variant="inbox"
+              marginRight="2.5%"
+              onClick={() => remove(index)}
+            />
+            <Box width="80%">
+              <Flex margin="2% 0" wrap="wrap">
+                <Field.Root required width="130px">
+                  <Field.Label>
+                    - Target Clusters
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                </Field.Root>
+                <Controller
+                  control={control}
+                  name={`data.placement.replicaScheduiling.staticWeightList.${index}.targetClusters`}
+                  rules={{
+                    validate: (value) =>
+                      Array.isArray(value) && value.length > 0
+                        ? true
+                        : "최소 하나 이상의 클러스터를 선택해야 합니다.",
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <CheckboxGroup
+                        value={field.value}
+                        onValueChange={(details) => {
+                          field.onChange(details);
+                        }}
+                      >
+                        <Flex gap="2" margin="2% 0">
+                          {clusterList.clusters.map((cluster) => (
+                            <Box key={cluster.name}>
+                              <CheckboxCard.Root
+                                key={cluster.name}
+                                value={cluster.name}
+                                backgroundColor="white"
+                              >
+                                <CheckboxCard.HiddenInput />
+                                <CheckboxCard.Control>
+                                  <CheckboxCard.Label>
+                                    {cluster.name}
+                                  </CheckboxCard.Label>
+                                  <CheckboxCard.Indicator />
+                                </CheckboxCard.Control>
+                              </CheckboxCard.Root>
+                            </Box>
+                          ))}
+                        </Flex>
+                      </CheckboxGroup>
+                      {fieldState.error && (
+                        <Text color="red" fontSize="sm" marginTop="1%">
+                          {fieldState.error.message}
+                        </Text>
+                      )}
+                    </>
+                  )}
+                />
+              </Flex>
+              <Flex alignItems="center" margin="2% 0">
+                <Field.Root required width="130px">
+                  <Field.Label>
+                    - Weight
+                    <Field.RequiredIndicator />
+                  </Field.Label>
+                </Field.Root>
+                <Controller
+                  control={control}
+                  name={`data.placement.replicaScheduiling.staticWeightList.${index}.weight`}
+                  rules={{
+                    required: "Weight 값을 입력해주세요.",
+                    validate: (value) =>
+                      value > 0 ? true : "0보다 큰 수를 입력하세요",
+                  }}
+                  render={({ field, fieldState }) => (
+                    <>
+                      <Input
+                        type="number"
+                        value={field.value}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        width="100px"
                       />
-                    </Flex>
-                    <Flex alignItems="center" margin="2% 0">
-                      <Field.Root required width="130px">
-                        <Field.Label>
-                          - Weight
-                          <Field.RequiredIndicator />
-                        </Field.Label>
-                      </Field.Root>
-                      <Controller
-                        control={control}
-                        name={`data.placement.replicaScheduiling.staticWeightList.${index}.weight`}
-                        render={({ field }) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            width="100px"
-                          />
-                        )}
-                      />
-                    </Flex>
-                  </Box>
-                </Box>
-              ))}
-            </Flex>
-          </>
-        );
-      }}
-    />
+                      {fieldState.error && (
+                        <Text color="red" fontSize="sm" marginLeft="2%">
+                          {fieldState.error.message}
+                        </Text>
+                      )}
+                    </>
+                  )}
+                />
+              </Flex>
+            </Box>
+          </Box>
+        ))}
+      </Flex>
+    </>
   );
 }
 

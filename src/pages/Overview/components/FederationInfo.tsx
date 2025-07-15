@@ -15,7 +15,7 @@ export default function FederationInfo({
       <Table.Root>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader>Propagation Policy</Table.ColumnHeader>
+            <Table.ColumnHeader>Policies</Table.ColumnHeader>
             <Table.ColumnHeader>Namespace</Table.ColumnHeader>
             <Table.ColumnHeader>Workloads</Table.ColumnHeader>
             <Table.ColumnHeader>Networks</Table.ColumnHeader>

@@ -21,8 +21,8 @@ import {
   SelectValueChangeDetails,
   Checkbox,
   Highlight,
-  Switch,
   RadioCardValueChangeDetails,
+  CheckboxCheckedChangeDetails,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -38,7 +38,6 @@ import {
 } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { FormValues } from ".";
-import { HiCheck, HiX } from "react-icons/hi";
 import { RadioCard } from "@/components/RadioCard";
 
 export default function ResourceSelectors({
@@ -58,6 +57,7 @@ export default function ResourceSelectors({
           variant="resourceSetUp"
           key="creator"
           closeOnInteractOutside={false}
+          preventScroll
         >
           <Dialog.Trigger>
             <Button type="button" variant="smallBlue" marginLeft="3%">
@@ -167,6 +167,10 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
 }
 
 function ResourceSelectorCreator() {
+  const [method, setMethod] = useState("name");
+  const [checkWarningInfo, setCheckWarningInfo] = useState(false);
+  const [suppressAutoCheck, setSuppressAutoCheck] = useState(false);
+
   const { control } = useFormContext();
   const { append } = useFieldArray({
     control,
@@ -188,9 +192,23 @@ function ResourceSelectorCreator() {
       labelSelectors: [] as string[],
     });
   };
-  const [nameChecked, setNameChecked] = useState(true);
 
-  const [selectType, setSelectType] = useState("Name");
+  const handleMethodChange = (nextMethod: string) => {
+    if (method === nextMethod) return;
+
+    setMethod(nextMethod);
+    setSuppressAutoCheck(true);
+
+    setResourceSelectorData((prev) => ({
+      ...prev,
+      name: "",
+      labelSelectors: [],
+    }));
+
+    setTimeout(() => {
+      setSuppressAutoCheck(false);
+    }, 0);
+  };
 
   return (
     <Portal>
@@ -221,19 +239,8 @@ function ResourceSelectorCreator() {
                 }))
               }
             />
-            {/* <SwitchNameAndLabelSelectorsField
-              checked={nameChecked}
-              onChange={(value) => setNameChecked(value)}
-            /> */}
-            {/* <SelectTypeField
-              value={selectType}
-              onChange={(value) => setSelectType(value)}
-            /> */}
-            <TypeRadioField
-              value={selectType}
-              onChange={(value) => setSelectType(value)}
-            />
-            {selectType === "Name" ? (
+            <MethodRadioField value={method} onChange={handleMethodChange} />
+            {method === "name" ? (
               <NameSelectField
                 kind={resourceSelectorData.kind}
                 namespace={resourceSelectorData.namespace}
@@ -259,14 +266,23 @@ function ResourceSelectorCreator() {
                 }
               />
             )}
-            <CheckWanringInfoField value={resourceSelectorData} />
+            <CheckWarningInfoField
+              value={resourceSelectorData}
+              checked={checkWarningInfo}
+              onCheckedChange={setCheckWarningInfo}
+              suppressAutoCheck={suppressAutoCheck}
+            />
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
               <Button variant="blueOutline">Cancel</Button>
             </Dialog.ActionTrigger>
             <Dialog.Trigger>
-              <Button onClick={handleResouceSelectorSave} variant="blue">
+              <Button
+                onClick={handleResouceSelectorSave}
+                variant="blue"
+                disabled={!checkWarningInfo}
+              >
                 Save
               </Button>
             </Dialog.Trigger>
@@ -302,7 +318,7 @@ function KindSelectRadioField({
   };
 
   return (
-    <Field.Root required variant="horizontal" display="inline-block">
+    <Field.Root required variant="horizontal" marginTop="3%">
       <Field.Label>
         Kind
         <Field.RequiredIndicator />
@@ -310,7 +326,7 @@ function KindSelectRadioField({
       <SegmentGroup.Root
         value={value}
         onValueChange={handleKindValueChange}
-        variant="large"
+        variant="medium"
         width="100%"
       >
         <SegmentGroup.Indicator width="20%" />
@@ -357,7 +373,7 @@ function NamespaceSelectField({
   }, [watchLevel, watchNamespace, value]);
 
   return (
-    <Field.Root variant="vertical" orientation="horizontal">
+    <Field.Root variant="vertical" orientation="horizontal" marginTop="3%">
       <Field.Label>
         Namespace{" "}
         <Field.RequiredIndicator
@@ -392,85 +408,7 @@ function NamespaceSelectField({
   );
 }
 
-function SwitchNameAndLabelSelectorsField({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <>
-      <Switch.Root
-        checked={checked}
-        onCheckedChange={(event) => onChange(event.checked)}
-        margin="3% 0%"
-        size="lg"
-        required
-        color="#47494d"
-        fontWeight="300"
-        fontFamily="Apple SD Gothic Neo Noto Sans KR 맑은 고딕 Font Awesome 5 Free monospace"
-        fontStyle="normal"
-        colorPalette="blue"
-        // display="flex"
-        // justifyContent="center"
-        // alignItems="center"
-      >
-        <Switch.Label>Name</Switch.Label>
-        <Switch.HiddenInput />
-        <Switch.Control>
-          <Switch.Thumb>
-            <Switch.ThumbIndicator />
-          </Switch.Thumb>
-        </Switch.Control>
-        <Switch.Label>LabelSelectors</Switch.Label>{" "}
-        <Badge size="xs" variant="surface" colorPalette="gray">
-          Optional
-        </Badge>
-      </Switch.Root>
-    </>
-  );
-}
-function SelectTypeField({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const selectTypeOptions = ["Name", "LabelSelectors"];
-
-  const handleSelectTypeValueChange = (
-    details: SegmentGroupValueChangeDetails
-  ) => {
-    if (details.value !== null) {
-      onChange(details.value);
-    }
-  };
-
-  return (
-    <>
-      <SegmentGroup.Root
-        value={value}
-        onValueChange={handleSelectTypeValueChange}
-        variant="small"
-        margin="3% 0%"
-      >
-        <SegmentGroup.Indicator />
-        {selectTypeOptions.map((type) => (
-          <SegmentGroup.Item key={type} value={type}>
-            <SegmentGroup.ItemHiddenInput />
-            <SegmentGroup.ItemText>{type}</SegmentGroup.ItemText>
-          </SegmentGroup.Item>
-        ))}
-      </SegmentGroup.Root>
-      <Badge size="xs" variant="surface">
-        Optional
-      </Badge>
-    </>
-  );
-}
-function TypeRadioField({
+function MethodRadioField({
   value,
   onChange,
 }: {
@@ -484,29 +422,33 @@ function TypeRadioField({
   };
 
   return (
-    <RadioCard.Root
-      size="sm"
-      value={value}
-      onValueChange={(details) => handleValueChange(details)}
-      margin="3% 0%"
-    >
-      <HStack gap="5">
-        <RadioCard.Item key="Name" value="Name">
-          <RadioCard.ItemHiddenInput />
-          <RadioCard.ItemControl>
-            <RadioCard.ItemText>Name</RadioCard.ItemText>
-            <RadioCard.ItemIndicator />
-          </RadioCard.ItemControl>
-        </RadioCard.Item>
-        <RadioCard.Item key="LabelSelectors" value="LabelSelectors">
-          <RadioCard.ItemHiddenInput />
-          <RadioCard.ItemControl>
-            <RadioCard.ItemText>LabelSelectors</RadioCard.ItemText>
-            <RadioCard.ItemIndicator />
-          </RadioCard.ItemControl>
-        </RadioCard.Item>
-      </HStack>
-    </RadioCard.Root>
+    <HStack gap="4" align="center" marginTop="3%">
+      <RadioCard.Root
+        size="sm"
+        value={value}
+        onValueChange={(details) => handleValueChange(details)}
+      >
+        <HStack gap="5">
+          <RadioCard.Item key="name" value="name">
+            <RadioCard.ItemHiddenInput />
+            <RadioCard.ItemControl>
+              <RadioCard.ItemText>Name</RadioCard.ItemText>
+              <RadioCard.ItemIndicator />
+            </RadioCard.ItemControl>
+          </RadioCard.Item>
+          <RadioCard.Item key="labelselectors" value="labelselectors">
+            <RadioCard.ItemHiddenInput />
+            <RadioCard.ItemControl>
+              <RadioCard.ItemText>LabelSelectors</RadioCard.ItemText>
+              <RadioCard.ItemIndicator />
+            </RadioCard.ItemControl>
+          </RadioCard.Item>
+        </HStack>
+      </RadioCard.Root>
+      <Badge size="xs" variant="surface">
+        Optional
+      </Badge>
+    </HStack>
   );
 }
 
@@ -533,7 +475,7 @@ function NameSelectField({
   });
 
   return (
-    <Field.Root variant="horizontal">
+    <Field.Root variant="horizontal" marginTop="3%">
       <NativeSelect.Root>
         <NativeSelect.Field
           placeholder="Select Name"
@@ -591,7 +533,7 @@ function LabelSelectorsField({
   };
 
   return (
-    <Field.Root variant="horizontal">
+    <Field.Root variant="horizontal" marginTop="3%">
       <Select.Root
         multiple
         value={value}
@@ -628,8 +570,11 @@ function LabelSelectorsField({
   );
 }
 
-function CheckWanringInfoField({
+function CheckWarningInfoField({
   value,
+  checked,
+  onCheckedChange,
+  suppressAutoCheck,
 }: {
   value: {
     kind: string;
@@ -637,34 +582,84 @@ function CheckWanringInfoField({
     name: string;
     labelSelectors: string[];
   };
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  suppressAutoCheck?: boolean;
 }) {
+  const isOnlyKindSelected =
+    value.namespace === "" &&
+    value.name === "" &&
+    value.labelSelectors.length === 0;
+
+  useEffect(() => {
+    if (suppressAutoCheck) return;
+
+    if (isOnlyKindSelected) {
+      onCheckedChange(false);
+    } else {
+      onCheckedChange(true);
+    }
+  }, [value.namespace, value.name, value.labelSelectors, suppressAutoCheck]);
+
+  if (!isOnlyKindSelected) return null;
+
   return (
-    <Flex marginTop="5%">
-      {value.namespace === "" &&
-      value.name === "" &&
-      value.labelSelectors.length === 0 ? (
-        <Checkbox.Root colorPalette="blue">
-          <Checkbox.HiddenInput />
-          <Checkbox.Control />
-          <Checkbox.Label>
-            <Highlight
-              query="해당 Kind의 모든 리소스가 전파"
-              styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
-            >
-              Kind 외 옵션이 없을 경우, 해당 Kind의 모든 리소스가 전파되는 것을
-              확인했습니다.
-            </Highlight>
-          </Checkbox.Label>
-        </Checkbox.Root>
-      ) : (
-        <Checkbox.Root disabled checked={true} visibility="hidden">
-          <Checkbox.HiddenInput />
-          <Checkbox.Control />
-          <Checkbox.Label></Checkbox.Label>
-        </Checkbox.Root>
-      )}
+    <Flex marginTop="3%">
+      <Checkbox.Root
+        colorPalette="blue"
+        checked={checked}
+        onCheckedChange={(value: CheckboxCheckedChangeDetails) =>
+          onCheckedChange(value.checked as boolean)
+        }
+      >
+        <Checkbox.HiddenInput />
+        <Checkbox.Control />
+        <Checkbox.Label>
+          <Highlight
+            query="해당 Kind의 모든 리소스가 전파"
+            styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
+          >
+            Kind 외 추가한 옵션이 없을 경우, 해당 Kind의 모든 리소스가 전파되는
+            것을 확인했습니다.
+          </Highlight>
+        </Checkbox.Label>
+      </Checkbox.Root>
     </Flex>
   );
+
+  // return (
+  //   <Flex marginTop="3%">
+  //     {value.namespace === "" &&
+  //     value.name === "" &&
+  //     value.labelSelectors.length === 0 ? (
+  //       <Checkbox.Root
+  //         colorPalette="blue"
+  //         checked={checked}
+  //         onCheckedChange={(value: CheckboxCheckedChangeDetails) => {
+  //           onCheckedChange(value.checked as boolean);
+  //         }}
+  //       >
+  //         <Checkbox.HiddenInput />
+  //         <Checkbox.Control />
+  //         <Checkbox.Label>
+  //           <Highlight
+  //             query="해당 Kind의 모든 리소스가 전파"
+  //             styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
+  //           >
+  //             Kind 외 추가한 옵션이 없을 경우, 해당 Kind의 모든 리소스가
+  //             전파되는 것을 확인했습니다.
+  //           </Highlight>
+  //         </Checkbox.Label>
+  //       </Checkbox.Root>
+  //     ) : (
+  //       <Checkbox.Root disabled checked={true} visibility="hidden">
+  //         <Checkbox.HiddenInput />
+  //         <Checkbox.Control />
+  //         <Checkbox.Label></Checkbox.Label>
+  //       </Checkbox.Root>
+  //     )}
+  //   </Flex>
+  // );
 }
 
 function StepActionButtons({

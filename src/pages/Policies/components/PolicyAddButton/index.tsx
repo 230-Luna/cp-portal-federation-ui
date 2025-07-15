@@ -110,6 +110,29 @@ export default function PolicyAddButton() {
     },
   });
 
+  const validateStaticWeightList = (getValues: () => any) => {
+    const values = getValues();
+    const list = values.data.placement.replicaScheduiling.staticWeightList;
+
+    if (!list || list.length === 0) return true;
+
+    for (let i = 0; i < list.length; i++) {
+      const { targetClusters, weight } = list[i];
+
+      if (!Array.isArray(targetClusters) || targetClusters.length === 0) {
+        return `WeightPreference 항목 ${
+          i + 1
+        }: 하나 이상의 클러스터를 선택해주세요.`;
+      }
+
+      if (typeof weight !== "number" || weight <= 0) {
+        return `WeightPreference 항목 ${i + 1}: Weight는 0보다 커야 합니다.`;
+      }
+    }
+
+    return true;
+  };
+
   return (
     <Dialog.Root
       open={open}
@@ -181,12 +204,21 @@ export default function PolicyAddButton() {
                       setCurrentStep("ResourceSelectors");
                     }}
                     onSubmit={async () => {
-                      const isValid = await formData.trigger([
-                        "data.placement.clusternames",
-                      ]);
-                      if (!isValid) {
+                      const isValid = await formData.trigger();
+
+                      if (!isValid) return;
+
+                      const weightError = validateStaticWeightList(
+                        formData.getValues
+                      );
+
+                      if (weightError !== true) {
+                        toaster.error({
+                          description: weightError,
+                        });
                         return;
                       }
+
                       handleSubmitForm.mutate();
                     }}
                     resetData={resetData}
