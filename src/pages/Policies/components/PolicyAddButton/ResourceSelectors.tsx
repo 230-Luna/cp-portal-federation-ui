@@ -21,6 +21,8 @@ import {
   SelectValueChangeDetails,
   Checkbox,
   Highlight,
+  Switch,
+  RadioCardValueChangeDetails,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -36,6 +38,8 @@ import {
 } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { FormValues } from ".";
+import { HiCheck, HiX } from "react-icons/hi";
+import { RadioCard } from "@/components/RadioCard";
 
 export default function ResourceSelectors({
   onPrev,
@@ -184,6 +188,9 @@ function ResourceSelectorCreator() {
       labelSelectors: [] as string[],
     });
   };
+  const [nameChecked, setNameChecked] = useState(true);
+
+  const [selectType, setSelectType] = useState("Name");
 
   return (
     <Portal>
@@ -214,29 +221,44 @@ function ResourceSelectorCreator() {
                 }))
               }
             />
-            <NameSelectField
-              kind={resourceSelectorData.kind}
-              namespace={resourceSelectorData.namespace}
-              value={resourceSelectorData.name}
-              onChange={(value) =>
-                setResourceSelectorData((prev) => ({
-                  ...prev,
-                  name: value,
-                  labelSelectors: [],
-                }))
-              }
+            {/* <SwitchNameAndLabelSelectorsField
+              checked={nameChecked}
+              onChange={(value) => setNameChecked(value)}
+            /> */}
+            {/* <SelectTypeField
+              value={selectType}
+              onChange={(value) => setSelectType(value)}
+            /> */}
+            <TypeRadioField
+              value={selectType}
+              onChange={(value) => setSelectType(value)}
             />
-            <LabelSelectorsField
-              kind={resourceSelectorData.kind}
-              namespace={resourceSelectorData.namespace}
-              value={resourceSelectorData.labelSelectors}
-              onChange={(value) =>
-                setResourceSelectorData((prev) => ({
-                  ...prev,
-                  labelSelectors: value,
-                }))
-              }
-            />
+            {selectType === "Name" ? (
+              <NameSelectField
+                kind={resourceSelectorData.kind}
+                namespace={resourceSelectorData.namespace}
+                value={resourceSelectorData.name}
+                onChange={(value) =>
+                  setResourceSelectorData((prev) => ({
+                    ...prev,
+                    name: value,
+                    labelSelectors: [],
+                  }))
+                }
+              />
+            ) : (
+              <LabelSelectorsField
+                kind={resourceSelectorData.kind}
+                namespace={resourceSelectorData.namespace}
+                value={resourceSelectorData.labelSelectors}
+                onChange={(value) =>
+                  setResourceSelectorData((prev) => ({
+                    ...prev,
+                    labelSelectors: value,
+                  }))
+                }
+              />
+            )}
             <CheckWanringInfoField value={resourceSelectorData} />
           </Dialog.Body>
           <Dialog.Footer>
@@ -280,7 +302,7 @@ function KindSelectRadioField({
   };
 
   return (
-    <Field.Root required variant="horizontal">
+    <Field.Root required variant="horizontal" display="inline-block">
       <Field.Label>
         Kind
         <Field.RequiredIndicator />
@@ -370,6 +392,124 @@ function NamespaceSelectField({
   );
 }
 
+function SwitchNameAndLabelSelectorsField({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return (
+    <>
+      <Switch.Root
+        checked={checked}
+        onCheckedChange={(event) => onChange(event.checked)}
+        margin="3% 0%"
+        size="lg"
+        required
+        color="#47494d"
+        fontWeight="300"
+        fontFamily="Apple SD Gothic Neo Noto Sans KR 맑은 고딕 Font Awesome 5 Free monospace"
+        fontStyle="normal"
+        colorPalette="blue"
+        // display="flex"
+        // justifyContent="center"
+        // alignItems="center"
+      >
+        <Switch.Label>Name</Switch.Label>
+        <Switch.HiddenInput />
+        <Switch.Control>
+          <Switch.Thumb>
+            <Switch.ThumbIndicator />
+          </Switch.Thumb>
+        </Switch.Control>
+        <Switch.Label>LabelSelectors</Switch.Label>{" "}
+        <Badge size="xs" variant="surface" colorPalette="gray">
+          Optional
+        </Badge>
+      </Switch.Root>
+    </>
+  );
+}
+function SelectTypeField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const selectTypeOptions = ["Name", "LabelSelectors"];
+
+  const handleSelectTypeValueChange = (
+    details: SegmentGroupValueChangeDetails
+  ) => {
+    if (details.value !== null) {
+      onChange(details.value);
+    }
+  };
+
+  return (
+    <>
+      <SegmentGroup.Root
+        value={value}
+        onValueChange={handleSelectTypeValueChange}
+        variant="small"
+        margin="3% 0%"
+      >
+        <SegmentGroup.Indicator />
+        {selectTypeOptions.map((type) => (
+          <SegmentGroup.Item key={type} value={type}>
+            <SegmentGroup.ItemHiddenInput />
+            <SegmentGroup.ItemText>{type}</SegmentGroup.ItemText>
+          </SegmentGroup.Item>
+        ))}
+      </SegmentGroup.Root>
+      <Badge size="xs" variant="surface">
+        Optional
+      </Badge>
+    </>
+  );
+}
+function TypeRadioField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const handleValueChange = (details: RadioCardValueChangeDetails) => {
+    if (details.value !== null) {
+      onChange(details.value);
+    }
+  };
+
+  return (
+    <RadioCard.Root
+      size="sm"
+      value={value}
+      onValueChange={(details) => handleValueChange(details)}
+      margin="3% 0%"
+    >
+      <HStack gap="5">
+        <RadioCard.Item key="Name" value="Name">
+          <RadioCard.ItemHiddenInput />
+          <RadioCard.ItemControl>
+            <RadioCard.ItemText>Name</RadioCard.ItemText>
+            <RadioCard.ItemIndicator />
+          </RadioCard.ItemControl>
+        </RadioCard.Item>
+        <RadioCard.Item key="LabelSelectors" value="LabelSelectors">
+          <RadioCard.ItemHiddenInput />
+          <RadioCard.ItemControl>
+            <RadioCard.ItemText>LabelSelectors</RadioCard.ItemText>
+            <RadioCard.ItemIndicator />
+          </RadioCard.ItemControl>
+        </RadioCard.Item>
+      </HStack>
+    </RadioCard.Root>
+  );
+}
+
 function NameSelectField({
   kind,
   namespace,
@@ -394,16 +534,6 @@ function NameSelectField({
 
   return (
     <Field.Root variant="horizontal">
-      <Field.Label>
-        Name{" "}
-        <Field.RequiredIndicator
-          fallback={
-            <Badge size="xs" variant="surface">
-              Optional
-            </Badge>
-          }
-        />
-      </Field.Label>
       <NativeSelect.Root>
         <NativeSelect.Field
           placeholder="Select Name"
@@ -462,16 +592,6 @@ function LabelSelectorsField({
 
   return (
     <Field.Root variant="horizontal">
-      <Field.Label>
-        LabelSelectors
-        <Field.RequiredIndicator
-          fallback={
-            <Badge size="xs" variant="surface">
-              Optional
-            </Badge>
-          }
-        />
-      </Field.Label>
       <Select.Root
         multiple
         value={value}

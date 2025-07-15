@@ -1,7 +1,7 @@
 import { SegmentGroup as ChakraSegmentGroup } from "@chakra-ui/react";
 import type { ComponentProps } from "react";
 
-type Variant = "medium" | "large";
+type Variant = "small" | "medium" | "large";
 
 type SegmentSubComponent =
   | typeof ChakraSegmentGroup.Root
@@ -19,6 +19,7 @@ const rootStyleConfig: Record<
   Variant,
   ComponentProps<typeof ChakraSegmentGroup.Root>
 > = {
+  small: { size: "sm" },
   medium: { size: "md" },
   large: {
     size: "md",
