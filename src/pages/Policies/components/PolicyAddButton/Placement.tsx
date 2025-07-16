@@ -326,8 +326,6 @@ function WeightPreference() {
     },
   });
 
-  
-
   return (
     <>
       <Field.Root variant="horizontal">

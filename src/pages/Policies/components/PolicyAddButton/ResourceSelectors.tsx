@@ -23,6 +23,7 @@ import {
   Highlight,
   RadioCardValueChangeDetails,
   CheckboxCheckedChangeDetails,
+  Box,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -49,6 +50,8 @@ export default function ResourceSelectors({
   onNext: () => void;
   resetData: boolean;
 }) {
+  const watchResourceSelectors = useWatch({ name: "data.resourceSelectors" });
+
   return (
     <>
       <Heading variant="center" marginTop="2%" marginBottom="3%">
@@ -60,9 +63,15 @@ export default function ResourceSelectors({
           preventScroll
         >
           <Dialog.Trigger>
-            <Button type="button" variant="smallBlue" marginLeft="3%">
-              <FaPlus />
-            </Button>
+            {watchResourceSelectors.length < 20 ? (
+              <Button type="button" variant="smallBlue" marginLeft="3%">
+                <FaPlus />
+              </Button>
+            ) : (
+              <Text variant="small" color="red" textAlign="center" width="100%">
+                더이상 추가할 수 없습니다. 최대 20개까지 추가 가능합니다.
+              </Text>
+            )}
           </Dialog.Trigger>
           <ResourceSelectorCreator />
         </Dialog.Root>
@@ -157,11 +166,6 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
           </Card.Root>
         );
       })}
-      {error ? (
-        <Text color="red" textAlign="center" width="100%">
-          {error.root?.message}
-        </Text>
-      ) : null}
     </>
   );
 }
@@ -526,8 +530,16 @@ function LabelSelectorsField({
     items: resourceLabelList == null ? [] : resourceLabelList.labels,
   });
 
+  const [limitExceeded, setLimitExceeded] = useState(false);
+
   const handleLabelValueChange = (details: SelectValueChangeDetails) => {
     if (details.value !== null) {
+      if (details.value.length > 20) {
+        setLimitExceeded(true);
+        return;
+      }
+
+      setLimitExceeded(false);
       onChange(details.value);
     }
   };
@@ -546,6 +558,13 @@ function LabelSelectorsField({
           sameWidth: true,
         }}
       >
+        <Field.HelperText>
+          {limitExceeded === true ? (
+            <Text color="red">
+              Label Selector는 최대 20개까지 선택할 수 있습니다.
+            </Text>
+          ) : null}
+        </Field.HelperText>
         <Select.HiddenSelect />
         <Select.Control>
           <Select.Trigger>

@@ -9,6 +9,7 @@ import {
   Collapsible,
   Fieldset,
   Flex,
+  HoverCard,
   HStack,
   NativeSelect,
   RadioCardValueChangeDetails,
@@ -123,7 +124,7 @@ function NamespaceSelectField() {
       required
       invalid={Boolean(error)}
       variant="vertical"
-      height="104px"
+      height="90px"
     >
       <Field.Label>
         Namespace
@@ -162,11 +163,21 @@ function NameInputField() {
   } = useController({
     name: "data.metadata.name",
     control,
-    rules: { required: "name을 입력하세요" },
+    rules: {
+      required: "name을 입력하세요",
+      validate: (value) => {
+        const regex = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
+        if (!value) return "name을 입력하세요";
+        if (value.length > 253) return "최대 길이는 253자입니다";
+        if (!regex.test(value))
+          return "영어 소문자, 숫자, '-'를 포함할 수 있고, 시작과 끝은 영어 소문자 또는 숫자여야 합니다";
+        return true;
+      },
+    },
   });
 
   return (
-    <Field.Root required invalid={Boolean(error)} height="104px">
+    <Field.Root required invalid={Boolean(error)} height="90px">
       <Field.Label>
         Name
         <Field.RequiredIndicator />
@@ -194,44 +205,82 @@ function LabelCollapsibleInputField() {
 
   const labels: string[] = field.value || [];
 
-  const [isKeyValid, setIsKeyValid] = useState(false);
-  const [isValueValid, setIsValueValid] = useState(false);
+  const [isKeyValid, setIsKeyValid] = useState<false | "empty" | "invalid">(
+    false
+  );
+  const [isValueValid, setIsValueValid] = useState<false | "empty" | "invalid">(
+    false
+  );
+  const [labelLimitExceeded, setLabelLimitExceeded] = useState(false);
+  const labelKeyValueRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-._]*[a-zA-Z0-9])?$/;
 
   const handleAddLabelClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    if (!keyInput.trim()) {
-      setIsKeyValid(true);
+    const trimmedKey = keyInput.trim();
+    const trimmedValue = valueInput.trim();
 
+    let hasError = false;
+
+    const isDuplicate = labels.some((label) =>
+      label.startsWith(`${trimmedKey}=`)
+    );
+    const willExceedLimit = !isDuplicate && labels.length >= 20;
+
+    if (willExceedLimit) {
+      setLabelLimitExceeded(true);
       return;
+    } else {
+      setLabelLimitExceeded(false);
     }
-    if (!valueInput.trim()) {
-      setIsValueValid(true);
-      if (keyInput.trim()) {
-        setIsKeyValid(false);
-      }
-      return;
+
+    if (!trimmedKey) {
+      setIsKeyValid("empty");
+      hasError = true;
+    } else if (trimmedKey.length > 63 || !labelKeyValueRegex.test(trimmedKey)) {
+      setIsKeyValid("invalid");
+      hasError = true;
+    } else {
+      setIsKeyValid(false);
     }
+
+    if (!trimmedValue) {
+      setIsValueValid("empty");
+      hasError = true;
+    } else if (
+      trimmedValue.length > 63 ||
+      !labelKeyValueRegex.test(trimmedValue)
+    ) {
+      setIsValueValid("invalid");
+      hasError = true;
+    } else {
+      setIsValueValid(false);
+    }
+
+    if (hasError) return;
 
     const updated = [
-      ...labels.filter((label) => !label.startsWith(`${keyInput}=`)),
-      `${keyInput}=${valueInput}`,
+      ...labels.filter((label) => !label.startsWith(`${trimmedKey}=`)),
+      `${trimmedKey}=${trimmedValue}`,
     ];
     field.onChange(updated);
+
     setKeyInput("");
     setValueInput("");
     setIsKeyValid(false);
     setIsValueValid(false);
+    setLabelLimitExceeded(false);
   };
 
   const handleDeleteLabelClick = (label: string) => {
     const updated = labels.filter((originLabel) => originLabel !== label);
     field.onChange(updated);
+    setLabelLimitExceeded(false);
   };
 
   return (
     <Flex padding="1.5% 0">
-      <Field.Root variant="horizontal" height="12%">
+      <Field.Root variant="horizontal" invalid={labelLimitExceeded}>
         <Collapsible.Root
           open={isCollapsibleOpen}
           onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
@@ -249,27 +298,34 @@ function LabelCollapsibleInputField() {
               />
             </Field.Label>
             <Collapsible.Trigger>
-              {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
+              {isCollapsibleOpen === true ? <FaMinus /> : <FaPlus />}
             </Collapsible.Trigger>
             <Flex gap={1} wrap="wrap" width="80%">
               {labels.map((label) => (
-                <Tag.Root key={label}>
-                  <Tag.Label>{label}</Tag.Label>
-                  <Tag.EndElement>
-                    <Tag.CloseTrigger
-                      onClick={() => handleDeleteLabelClick(label)}
-                    />
-                  </Tag.EndElement>
-                </Tag.Root>
+                <Tooltip showArrow content={label} key={label}>
+                  <Tag.Root key={label} maxW="300px">
+                    <Tag.Label>{label}</Tag.Label>
+                    <Tag.EndElement>
+                      <Tag.CloseTrigger
+                        onClick={() => handleDeleteLabelClick(label)}
+                      />
+                    </Tag.EndElement>
+                  </Tag.Root>
+                </Tooltip>
               ))}
             </Flex>
           </HStack>
+          {labelLimitExceeded === true ? (
+            <Field.ErrorText>
+              Label은 최대 20개까지 추가할 수 있습니다.
+            </Field.ErrorText>
+          ) : null}
           <Collapsible.Content marginTop="2%">
             <Fieldset.Root>
               <Flex alignItems="end">
                 <Fieldset.Content>
                   <HStack gap="4" m="2%">
-                    <Field.Root required invalid={isKeyValid}>
+                    <Field.Root required invalid={!!isKeyValid}>
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
@@ -277,13 +333,16 @@ function LabelCollapsibleInputField() {
                         value={keyInput}
                         onChange={(event) => setKeyInput(event.target.value)}
                       />
-                      {isKeyValid ? (
+                      {isKeyValid === "empty" ? (
                         <Field.ErrorText>Key를 입력하세요</Field.ErrorText>
-                      ) : (
-                        <Field.HelperText></Field.HelperText>
-                      )}
+                      ) : isKeyValid === "invalid" ? (
+                        <Field.ErrorText>
+                          1~63자의 영문자 또는 숫자로 시작하고 끝나야 하며, '-',
+                          '.', '_'를 포함할 수 있습니다.
+                        </Field.ErrorText>
+                      ) : null}
                     </Field.Root>
-                    <Field.Root required invalid={isValueValid}>
+                    <Field.Root required invalid={!!isValueValid}>
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
@@ -291,17 +350,20 @@ function LabelCollapsibleInputField() {
                         value={valueInput}
                         onChange={(event) => setValueInput(event.target.value)}
                       />
-                      {isValueValid ? (
+                      {isValueValid === "empty" ? (
                         <Field.ErrorText>Value를 입력하세요</Field.ErrorText>
-                      ) : (
-                        <Field.HelperText></Field.HelperText>
-                      )}
+                      ) : isValueValid === "invalid" ? (
+                        <Field.ErrorText>
+                          1~63자의 영문자 또는 숫자로 시작하고 끝나야 하며, '-',
+                          '.', '_'를 포함할 수 있습니다.
+                        </Field.ErrorText>
+                      ) : null}
                     </Field.Root>
                   </HStack>
                 </Fieldset.Content>
                 <Button
                   variant="mediumBlue"
-                  onClick={(event) => handleAddLabelClick(event)}
+                  onClick={handleAddLabelClick}
                   margin="2.5%"
                 >
                   <FaPlus />
@@ -328,36 +390,73 @@ function AnnotationCollapsibleInputField() {
 
   const annotations: string[] = field.value || [];
 
-  const [isKeyValid, setIsKeyValid] = useState(false);
-  const [isValueValid, setIsValueValid] = useState(false);
+  const [isKeyValid, setIsKeyValid] = useState<false | "empty" | "invalid">(
+    false
+  );
+  const [isValueValid, setIsValueValid] = useState<false | "empty" | "invalid">(
+    false
+  );
+  const [annotationLimitExceeded, setAnnotationLimitExceeded] = useState(false);
+  const annotationKeyValueRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-._]*[a-zA-Z0-9])?$/;
 
   const handleAnnotationClick = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    if (!keyInput.trim()) {
-      setIsKeyValid(true);
+    const trimmedKey = keyInput.trim();
+    const trimmedValue = valueInput.trim();
 
+    let hasError = false;
+
+    const isDuplicate = annotations.some((annotation) =>
+      annotation.startsWith(`${trimmedKey}=`)
+    );
+    const willExceedLimit = !isDuplicate && annotations.length >= 20;
+
+    if (willExceedLimit) {
+      setAnnotationLimitExceeded(true);
       return;
+    } else {
+      setAnnotationLimitExceeded(false);
     }
-    if (!valueInput.trim()) {
-      setIsValueValid(true);
-      if (keyInput.trim()) {
-        setIsKeyValid(false);
-      }
-      return;
+
+    if (!trimmedKey) {
+      setIsKeyValid("empty");
+      hasError = true;
+    } else if (
+      trimmedKey.length > 63 ||
+      !annotationKeyValueRegex.test(trimmedKey)
+    ) {
+      setIsKeyValid("invalid");
+      hasError = true;
+    } else {
+      setIsKeyValid(false);
     }
+
+    if (!trimmedValue) {
+      setIsValueValid("empty");
+      hasError = true;
+    } else if (!annotationKeyValueRegex.test(trimmedValue)) {
+      setIsValueValid("invalid");
+      hasError = true;
+    } else {
+      setIsValueValid(false);
+    }
+
+    if (hasError) return;
 
     const updated = [
       ...annotations.filter(
-        (annotation) => !annotation.startsWith(`${keyInput}=`)
+        (annotation) => !annotation.startsWith(`${trimmedKey}=`)
       ),
-      `${keyInput}=${valueInput}`,
+      `${trimmedKey}=${trimmedValue}`,
     ];
     field.onChange(updated);
+
     setKeyInput("");
     setValueInput("");
     setIsKeyValid(false);
     setIsValueValid(false);
+    setAnnotationLimitExceeded(false);
   };
 
   const handleDeleteAnnotationClick = (annotation: string) => {
@@ -365,11 +464,12 @@ function AnnotationCollapsibleInputField() {
       (originAnnotation) => originAnnotation !== annotation
     );
     field.onChange(updated);
+    setAnnotationLimitExceeded(false);
   };
 
   return (
     <Flex padding="1.5% 0">
-      <Field.Root variant="horizontal">
+      <Field.Root variant="horizontal" invalid={annotationLimitExceeded}>
         <Collapsible.Root
           open={isCollapsibleOpen}
           onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
@@ -386,29 +486,35 @@ function AnnotationCollapsibleInputField() {
                 }
               />
             </Field.Label>
-
             <Collapsible.Trigger>
-              {isCollapsibleOpen == true ? <FaMinus /> : <FaPlus />}
+              {isCollapsibleOpen === true ? <FaMinus /> : <FaPlus />}
             </Collapsible.Trigger>
             <Flex gap={1} wrap="wrap" width="80%">
               {annotations.map((annotation) => (
-                <Tag.Root key={annotation}>
-                  <Tag.Label>{annotation}</Tag.Label>
-                  <Tag.EndElement>
-                    <Tag.CloseTrigger
-                      onClick={() => handleDeleteAnnotationClick(annotation)}
-                    />
-                  </Tag.EndElement>
-                </Tag.Root>
+                <Tooltip showArrow content={annotation} key={annotation}>
+                  <Tag.Root key={annotation} maxW="270px">
+                    <Tag.Label>{annotation}</Tag.Label>
+                    <Tag.EndElement>
+                      <Tag.CloseTrigger
+                        onClick={() => handleDeleteAnnotationClick(annotation)}
+                      />
+                    </Tag.EndElement>
+                  </Tag.Root>
+                </Tooltip>
               ))}
             </Flex>
           </HStack>
+          {annotationLimitExceeded === true ? (
+            <Field.ErrorText>
+              Annotation은 최대 20개까지 추가할 수 있습니다.
+            </Field.ErrorText>
+          ) : null}
           <Collapsible.Content marginTop="2%">
             <Fieldset.Root>
               <Flex alignItems="end">
                 <Fieldset.Content>
                   <HStack gap="4" m="2%">
-                    <Field.Root required invalid={isKeyValid}>
+                    <Field.Root required invalid={!!isKeyValid}>
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
@@ -416,13 +522,16 @@ function AnnotationCollapsibleInputField() {
                         value={keyInput}
                         onChange={(event) => setKeyInput(event.target.value)}
                       />
-                      {isKeyValid ? (
+                      {isKeyValid === "empty" ? (
                         <Field.ErrorText>Key를 입력하세요</Field.ErrorText>
-                      ) : (
-                        <Field.HelperText></Field.HelperText>
-                      )}
+                      ) : isKeyValid === "invalid" ? (
+                        <Field.ErrorText>
+                          1~63자의 영문자 또는 숫자로 시작하고 끝나야 하며, '-',
+                          '.', '_'를 포함할 수 있습니다.
+                        </Field.ErrorText>
+                      ) : null}
                     </Field.Root>
-                    <Field.Root required invalid={isValueValid}>
+                    <Field.Root required invalid={!!isValueValid}>
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
@@ -430,11 +539,14 @@ function AnnotationCollapsibleInputField() {
                         value={valueInput}
                         onChange={(event) => setValueInput(event.target.value)}
                       />
-                      {isValueValid ? (
+                      {isValueValid === "empty" ? (
                         <Field.ErrorText>Value를 입력하세요</Field.ErrorText>
-                      ) : (
-                        <Field.HelperText></Field.HelperText>
-                      )}
+                      ) : isValueValid === "invalid" ? (
+                        <Field.ErrorText>
+                          영문자 또는 숫자로 시작하고 끝나야 하며, '-', '.',
+                          '_'를 포함할 수 있습니다.
+                        </Field.ErrorText>
+                      ) : null}
                     </Field.Root>
                   </HStack>
                 </Fieldset.Content>
@@ -465,6 +577,7 @@ function PrserveResourceOnDeletionField() {
 
   return (
     <Tooltip
+      showArrow
       ids={{ trigger: id }}
       content="해당 policy를 삭제할 때 멤버 클러스터에 전파되어있는 리소스들을 같이 삭제할지 선택하는 옵션"
     >
