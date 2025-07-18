@@ -17,7 +17,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 import { Text } from "@/components/Text";
 
 export default function ClusterJoinButton() {
@@ -103,7 +102,7 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
             Cluster Join
           </Heading>
           <Dialog.Body variant="resourceSetUp" margin="2%">
-            <Suspense fallback={<LoadingSkeleton />}>
+            <Suspense fallback="">
               <RegisterableClusters
                 onValueChange={setSelectedData}
                 onRegisterableClustersChange={setIsExistRegisterableClusters}

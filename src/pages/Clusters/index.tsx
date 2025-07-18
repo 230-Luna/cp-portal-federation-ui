@@ -4,7 +4,6 @@ import ClusterJoinButton from "@/pages/Clusters/components/ClusterJoinButton";
 import ClusterList from "@/pages/Clusters/components/ClusterList";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense, useEffect } from "react";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 import SortSelect from "@/components/SortSelect";
 import { useSearchParams } from "react-router-dom";
 
@@ -29,7 +28,7 @@ export default function Clusters() {
       </Flex>
 
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
-        <Suspense fallback={<LoadingSkeleton />}>
+        <Suspense fallback="">
           <ClusterList />
         </Suspense>
       </ErrorBoundary>

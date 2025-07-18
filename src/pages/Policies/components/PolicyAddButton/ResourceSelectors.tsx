@@ -23,7 +23,6 @@ import {
   Highlight,
   RadioCardValueChangeDetails,
   CheckboxCheckedChangeDetails,
-  Box,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -37,9 +36,10 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FormValues } from ".";
 import { RadioCard } from "@/components/RadioCard";
+import { Tooltip } from "@/components/Tooltip";
 
 export default function ResourceSelectors({
   onPrev,
@@ -128,8 +128,10 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
                 onClick={() => remove(index)}
                 variant="inbox"
                 padding="5%"
+                top="0px"
+                right="0px"
               />
-              <Field.Root variant="horizontal" width="80%">
+              <Field.Root variant="horizontal">
                 <HStack>
                   <Field.Label>Kind</Field.Label>
                   <Text variant="small">{item.kind}</Text>
@@ -151,21 +153,30 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
                   </HStack>
                 </Field.Root>
               )}
-              {Array.isArray(item.labelSelectors) &&
-                item.labelSelectors.length > 0 && (
-                  <Field.Root variant="horizontal">
-                    <HStack flexWrap="wrap">
-                      <Field.Label>LabelSelectors</Field.Label>
+              {Array.isArray(item.labelSelectors) === true &&
+              item.labelSelectors.length > 0 ? (
+                <Field.Root variant="horizontal">
+                  <HStack flexWrap="wrap">
+                    <Field.Label>LabelSelectors</Field.Label>
+                    <Flex gap={1} wrap="wrap" width="290px">
                       {item.labelSelectors.map((label) => (
-                        <Badge key={label}>{label}</Badge>
+                        <Tooltip showArrow content={label} key={label}>
+                          <Badge key={label}>{label}</Badge>
+                        </Tooltip>
                       ))}
-                    </HStack>
-                  </Field.Root>
-                )}
+                    </Flex>
+                  </HStack>
+                </Field.Root>
+              ) : null}
             </Card.Body>
           </Card.Root>
         );
       })}
+      {error ? (
+        <Text color="red" textAlign="center" width="100%">
+          {error.root?.message}
+        </Text>
+      ) : null}
     </>
   );
 }
@@ -173,13 +184,14 @@ function ResouceSelectorViewer({ resetData }: { resetData: boolean }) {
 function ResourceSelectorCreator() {
   const [method, setMethod] = useState("name");
   const [checkWarningInfo, setCheckWarningInfo] = useState(false);
-  const [suppressAutoCheck, setSuppressAutoCheck] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
-  const { control } = useFormContext();
+  const { control, getValues, trigger } = useFormContext();
   const { append } = useFieldArray({
     control,
     name: "data.resourceSelectors",
   });
+
   const [resourceSelectorData, setResourceSelectorData] = useState({
     kind: "Deployment",
     namespace: "",
@@ -187,31 +199,49 @@ function ResourceSelectorCreator() {
     labelSelectors: [] as string[],
   });
 
-  const handleResouceSelectorSave = () => {
+  const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
+  const handleResouceSelectorSave = async () => {
+    const existing = getValues("data.resourceSelectors");
+
+    const isDup = existing.some((selector: typeof resourceSelectorData) => {
+      return (
+        selector.kind === resourceSelectorData.kind &&
+        selector.namespace === resourceSelectorData.namespace &&
+        selector.name === resourceSelectorData.name &&
+        JSON.stringify(selector.labelSelectors ?? []) ===
+          JSON.stringify(resourceSelectorData.labelSelectors ?? [])
+      );
+    });
+
+    if (isDup) {
+      setIsDuplicate(true);
+      return;
+    }
+
+    setIsDuplicate(false);
     append(resourceSelectorData);
+    await trigger("data.resourceSelectors");
     setResourceSelectorData({
       kind: "Deployment",
       namespace: "",
       name: "",
-      labelSelectors: [] as string[],
+      labelSelectors: [],
     });
+    dialogCloseRef.current?.click();
   };
 
   const handleMethodChange = (nextMethod: string) => {
     if (method === nextMethod) return;
 
     setMethod(nextMethod);
-    setSuppressAutoCheck(true);
+    setIsDuplicate(false);
 
     setResourceSelectorData((prev) => ({
       ...prev,
       name: "",
       labelSelectors: [],
     }));
-
-    setTimeout(() => {
-      setSuppressAutoCheck(false);
-    }, 0);
   };
 
   return (
@@ -223,6 +253,7 @@ function ResourceSelectorCreator() {
             <KindSelectRadioField
               value={resourceSelectorData.kind}
               onChange={(value) => {
+                setIsDuplicate(false);
                 setResourceSelectorData((prev) => ({
                   ...prev,
                   kind: value,
@@ -234,14 +265,15 @@ function ResourceSelectorCreator() {
             />
             <NamespaceSelectField
               value={resourceSelectorData.namespace}
-              onChange={(value) =>
+              onChange={(value) => {
+                setIsDuplicate(false);
                 setResourceSelectorData((prev) => ({
                   ...prev,
                   namespace: value,
                   name: "",
                   labelSelectors: [],
-                }))
-              }
+                }));
+              }}
             />
             <MethodRadioField value={method} onChange={handleMethodChange} />
             {method === "name" ? (
@@ -249,50 +281,63 @@ function ResourceSelectorCreator() {
                 kind={resourceSelectorData.kind}
                 namespace={resourceSelectorData.namespace}
                 value={resourceSelectorData.name}
-                onChange={(value) =>
+                onChange={(value) => {
+                  setIsDuplicate(false);
                   setResourceSelectorData((prev) => ({
                     ...prev,
                     name: value,
                     labelSelectors: [],
-                  }))
-                }
+                  }));
+                }}
               />
             ) : (
               <LabelSelectorsField
                 kind={resourceSelectorData.kind}
                 namespace={resourceSelectorData.namespace}
                 value={resourceSelectorData.labelSelectors}
-                onChange={(value) =>
+                onChange={(value) => {
+                  setIsDuplicate(false);
                   setResourceSelectorData((prev) => ({
                     ...prev,
                     labelSelectors: value,
-                  }))
-                }
+                  }));
+                }}
               />
             )}
             <CheckWarningInfoField
               value={resourceSelectorData}
               checked={checkWarningInfo}
-              onCheckedChange={setCheckWarningInfo}
-              suppressAutoCheck={suppressAutoCheck}
+              onCheckedChange={(val) => {
+                setCheckWarningInfo(val);
+                setIsDuplicate(false);
+              }}
             />
+            {isDuplicate && (
+              <Text color="red.500" fontSize="sm" mt="2">
+                이미 존재하는 설정입니다.
+              </Text>
+            )}
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
               <Button variant="blueOutline">Cancel</Button>
             </Dialog.ActionTrigger>
-            <Dialog.Trigger>
-              <Button
-                onClick={handleResouceSelectorSave}
-                variant="blue"
-                disabled={!checkWarningInfo}
-              >
-                Save
-              </Button>
-            </Dialog.Trigger>
+
+            <Button
+              onClick={handleResouceSelectorSave}
+              variant="blue"
+              disabled={!checkWarningInfo}
+            >
+              Save
+            </Button>
           </Dialog.Footer>
+
           <Dialog.CloseTrigger>
-            <CloseButton />
+            <button
+              ref={dialogCloseRef}
+              style={{ display: "none" }}
+              aria-hidden
+            />
           </Dialog.CloseTrigger>
         </Dialog.Content>
       </Dialog.Positioner>
@@ -433,6 +478,9 @@ function MethodRadioField({
         onValueChange={(details) => handleValueChange(details)}
       >
         <HStack gap="5">
+          <Badge size="xs" variant="surface" colorPalette="gray">
+            Optional
+          </Badge>
           <RadioCard.Item key="name" value="name">
             <RadioCard.ItemHiddenInput />
             <RadioCard.ItemControl>
@@ -449,9 +497,6 @@ function MethodRadioField({
           </RadioCard.Item>
         </HStack>
       </RadioCard.Root>
-      <Badge size="xs" variant="surface">
-        Optional
-      </Badge>
     </HStack>
   );
 }
@@ -593,7 +638,6 @@ function CheckWarningInfoField({
   value,
   checked,
   onCheckedChange,
-  suppressAutoCheck,
 }: {
   value: {
     kind: string;
@@ -603,7 +647,6 @@ function CheckWarningInfoField({
   };
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-  suppressAutoCheck?: boolean;
 }) {
   const isOnlyKindSelected =
     value.namespace === "" &&
@@ -611,14 +654,12 @@ function CheckWarningInfoField({
     value.labelSelectors.length === 0;
 
   useEffect(() => {
-    if (suppressAutoCheck) return;
-
     if (isOnlyKindSelected) {
       onCheckedChange(false);
     } else {
       onCheckedChange(true);
     }
-  }, [value.namespace, value.name, value.labelSelectors, suppressAutoCheck]);
+  }, [value.namespace, value.name, value.labelSelectors]);
 
   if (!isOnlyKindSelected) return null;
 
@@ -645,40 +686,6 @@ function CheckWarningInfoField({
       </Checkbox.Root>
     </Flex>
   );
-
-  // return (
-  //   <Flex marginTop="3%">
-  //     {value.namespace === "" &&
-  //     value.name === "" &&
-  //     value.labelSelectors.length === 0 ? (
-  //       <Checkbox.Root
-  //         colorPalette="blue"
-  //         checked={checked}
-  //         onCheckedChange={(value: CheckboxCheckedChangeDetails) => {
-  //           onCheckedChange(value.checked as boolean);
-  //         }}
-  //       >
-  //         <Checkbox.HiddenInput />
-  //         <Checkbox.Control />
-  //         <Checkbox.Label>
-  //           <Highlight
-  //             query="해당 Kind의 모든 리소스가 전파"
-  //             styles={{ px: "0.5", bg: "yellow.subtle", color: "orange.fg" }}
-  //           >
-  //             Kind 외 추가한 옵션이 없을 경우, 해당 Kind의 모든 리소스가
-  //             전파되는 것을 확인했습니다.
-  //           </Highlight>
-  //         </Checkbox.Label>
-  //       </Checkbox.Root>
-  //     ) : (
-  //       <Checkbox.Root disabled checked={true} visibility="hidden">
-  //         <Checkbox.HiddenInput />
-  //         <Checkbox.Control />
-  //         <Checkbox.Label></Checkbox.Label>
-  //       </Checkbox.Root>
-  //     )}
-  //   </Flex>
-  // );
 }
 
 function StepActionButtons({

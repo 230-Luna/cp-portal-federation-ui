@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Heading } from "@/components/Heading";
 import { CheckboxCard } from "@/components/CheckboxCard";
 import { CloseButton } from "@/components/CloseButton";
@@ -326,6 +326,18 @@ function WeightPreference() {
     },
   });
 
+  const [limitExceeded, setLimitExceeded] = useState(false);
+
+  const handleAddButtonClick = () => {
+    if (fields.length >= 20) {
+      setLimitExceeded(true);
+      return;
+    }
+
+    setLimitExceeded(false);
+    append({ targetClusters: [], weight: 1 });
+  };
+
   return (
     <>
       <Field.Root variant="horizontal">
@@ -340,13 +352,17 @@ function WeightPreference() {
               }
             />
           </Field.Label>
-          <Button
-            variant="smallBlue"
-            onClick={() => append({ targetClusters: [], weight: 1 })}
-          >
+          <Button variant="smallBlue" onClick={handleAddButtonClick}>
             <FaPlus />
           </Button>
         </HStack>
+        <Field.HelperText>
+          {limitExceeded === true ? (
+            <Text color="red">
+              Weight Preference는 최대 20개까지 추가할 수 있습니다.
+            </Text>
+          ) : null}
+        </Field.HelperText>
       </Field.Root>
       <Flex overflowY="auto" maxHeight="250px" flexDirection="row" width="100%">
         {fields.map((item, index) => (

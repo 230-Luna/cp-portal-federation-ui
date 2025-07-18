@@ -232,7 +232,7 @@ export default function PolicyAddButton() {
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
-      <DevTool control={formData.control} placement="left" />
+      {/* <DevTool control={formData.control} placement="left" /> */}
     </Dialog.Root>
   );
 }

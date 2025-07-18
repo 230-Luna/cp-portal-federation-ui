@@ -52,7 +52,6 @@ const bodyStyleConfig: Record<
   small: {
     gap: "1",
     overflowX: "hidden",
-    overflowY: "auto",
   },
 };
 

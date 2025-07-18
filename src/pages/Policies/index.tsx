@@ -4,7 +4,6 @@ import PropagationPolicyList from "@/pages/Policies/components/PropagationPolicy
 import { Flex } from "@/components/Flex";
 import { Suspense, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import LoadingSkeleton from "@/components/LoadingSkeleton";
 import LevelSelect, { Level } from "@/pages/Policies/components/LevelSelect";
 import NamespaceSelect from "@/pages/Policies/components/NamespaceSelect";
 import ClusterPropagationPolicyList from "./components/ClusterPropagationPolicyList";
@@ -43,7 +42,7 @@ export default function Policies() {
         <SortSelect key={policyLevel} level={policyLevel} />
       </Flex>
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
-        <Suspense fallback={<LoadingSkeleton />}>
+        <Suspense fallback="">
           {policyLevel === "namespace" ? (
             <PropagationPolicyList />
           ) : (
