@@ -11,13 +11,12 @@ export interface Labels {
 
 export type ResourceKind =
   | "Deployment"
-  | "Statefulset"
-  | "Daemonset"
-  | "Cronjob"
+  | "StatefulSet"
+  | "DaemonSet"
+  | "CronJob"
   | "Job";
 
-
-  export type ResourceKindLowercase =
+export type ResourceKindLowercase =
   | "deployment"
   | "statefulset"
   | "daemonset"

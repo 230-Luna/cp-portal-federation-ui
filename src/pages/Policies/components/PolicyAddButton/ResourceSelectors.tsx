@@ -354,9 +354,9 @@ function KindSelectRadioField({
 }) {
   const kindOptions = [
     "Deployment",
-    "Statefulset",
-    "Daemonset",
-    "Cronjob",
+    "StatefulSet",
+    "DaemonSet",
+    "CronJob",
     "Job",
   ];
 
