@@ -13,6 +13,7 @@ import {
   registerClustersApi,
 } from "@/apis/cluster";
 import {
+  useIsMutating,
   useMutation,
   useQueryClient,
   useSuspenseQuery,
@@ -21,6 +22,9 @@ import { Text } from "@/components/Text";
 
 export default function ClusterJoinButton() {
   const [open, setOpen] = useState(false);
+  const clusterJoinMutationCount = useIsMutating({
+    mutationKey: ["handleRegisterCluster"],
+  });
 
   return (
     <Dialog.Root
@@ -29,7 +33,11 @@ export default function ClusterJoinButton() {
       onOpenChange={(details) => setOpen(details.open)}
     >
       <Dialog.Trigger>
-        <Button colorPalette="blue" variant="largeBlue">
+        <Button
+          colorPalette="blue"
+          variant="largeBlue"
+          disabled={clusterJoinMutationCount > 0}
+        >
           <FaPlus /> Join
         </Button>
       </Dialog.Trigger>
@@ -47,6 +55,7 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
 
   const handleRegisterCluster = useMutation({
+    mutationKey: ["handleRegisterCluster"],
     mutationFn: async () => {
       let loadingToaster;
       try {

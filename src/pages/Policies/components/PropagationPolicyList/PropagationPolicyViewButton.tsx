@@ -6,7 +6,6 @@ import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { toaster } from "@/components/Toaster";
 import { Box, Drawer, Portal } from "@chakra-ui/react";
-import { Editor } from "@monaco-editor/react";
 import {
   useIsMutating,
   useMutation,
@@ -14,6 +13,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { monaco, MonacoDiffEditor } from "react-monaco-editor";
 
 export default function PropagationPolicyViewButton({
   namespace,
@@ -26,7 +26,7 @@ export default function PropagationPolicyViewButton({
 
   return (
     <Drawer.Root
-      size="xl"
+      size="full"
       open={open}
       onOpenChange={(details) => setOpen(details.open)}
     >
@@ -54,7 +54,8 @@ function PropagationPolicyYamlViwerDrawer({
   onClose: () => void;
 }) {
   const [propagationPolicyData, setPropagationPolicyData] = useState("");
-  const editorRef = useRef(null);
+  const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
+
   const queryClient = useQueryClient();
 
   const { data: propagationPolicyDetail } = useSuspenseQuery({
@@ -114,7 +115,7 @@ function PropagationPolicyYamlViwerDrawer({
     }
   };
 
-  const handleEditorMount = (editor: any) => {
+  const handleEditorMount = (editor: monaco.editor.IStandaloneDiffEditor) => {
     editorRef.current = editor;
   };
 
@@ -127,21 +128,24 @@ function PropagationPolicyYamlViwerDrawer({
             <Drawer.Title>{propagationPolicyDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <Box height="92vh">
-              <Editor
-                defaultValue={propagationPolicyDetail.yaml}
+            <Box height="92%">
+              <MonacoDiffEditor
+                original={propagationPolicyDetail.yaml}
                 value={propagationPolicyDetail.yaml}
                 onChange={handleEditorChange}
-                onMount={handleEditorMount}
-                height="90vh"
-                defaultLanguage="yaml"
+                editorDidMount={handleEditorMount}
+                language="yaml"
+                height="100%"
                 options={{
                   scrollbar: {
-                    vertical: "hidden",
-                    horizontal: "hidden",
+                    vertical: "auto",
+                    horizontal: "auto",
                     handleMouseWheel: true,
                   },
                   overviewRulerLanes: 0,
+                  scrollBeyondLastLine: false,
+                  renderOverviewRuler: false,
+                  renderSideBySide: false,
                 }}
               />
             </Box>

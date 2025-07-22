@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { toaster } from "@/components/Toaster";
 import { Box, Drawer, Portal } from "@chakra-ui/react";
-import { Editor } from "@monaco-editor/react";
+import { monaco, MonacoDiffEditor } from "react-monaco-editor";
 import {
   useIsMutating,
   useMutation,
@@ -24,7 +24,7 @@ export default function ClusterPropagationPolicyViewButton({
 
   return (
     <Drawer.Root
-      size="xl"
+      size="full"
       open={open}
       onOpenChange={(details) => setOpen(details.open)}
     >
@@ -50,7 +50,9 @@ function ClusterPropagationPolicyYamlViwerDrawer({
 }) {
   const [clusterPropagationPolicyData, setClusterPropagationPolicyData] =
     useState("");
-  const editorRef = useRef(null);
+
+  const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
+
   const queryClient = useQueryClient();
 
   const { data: clusterPropagationPolicyDetail } = useSuspenseQuery({
@@ -109,7 +111,9 @@ function ClusterPropagationPolicyYamlViwerDrawer({
     }
   };
 
-  const handleEditorMount = (editor: any) => {
+  const handleEditorDidMount = (
+    editor: monaco.editor.IStandaloneDiffEditor
+  ) => {
     editorRef.current = editor;
   };
 
@@ -122,21 +126,20 @@ function ClusterPropagationPolicyYamlViwerDrawer({
             <Drawer.Title>{clusterPropagationPolicyDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <Box height="92vh">
-              <Editor
-                defaultValue={clusterPropagationPolicyDetail.yaml}
-                value={clusterPropagationPolicyDetail.yaml}
+            <Box height="92%">
+              <MonacoDiffEditor
+                original={clusterPropagationPolicyDetail.yaml}
+                value={clusterPropagationPolicyData}
                 onChange={handleEditorChange}
-                onMount={handleEditorMount}
-                height="90vh"
-                defaultLanguage="yaml"
+                editorDidMount={handleEditorDidMount}
                 options={{
                   scrollbar: {
-                    vertical: "hidden",
-                    horizontal: "hidden",
-                    handleMouseWheel: true,
+                    vertical: "visible",
+                    horizontal: "visible",
                   },
                   overviewRulerLanes: 0,
+                  scrollBeyondLastLine: false,
+                  renderOverviewRuler: false,
                 }}
               />
             </Box>

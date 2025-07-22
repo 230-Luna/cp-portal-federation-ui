@@ -8,7 +8,11 @@ import Metadata from "./Metadata";
 import ResourceSelectors from "./ResourceSelectors";
 import Placement from "./Placement";
 import { Progress } from "@/components/Progress";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { toaster } from "@/components/Toaster";
@@ -106,8 +110,17 @@ export default function PolicyAddButton() {
         if (loadingToaster) {
           toaster.remove(loadingToaster);
         }
+        formData.reset();
       }
     },
+  });
+
+  const policyAddMutationCount = useIsMutating({
+    mutationKey: [
+      "createPropagationPolicyApi",
+      formData.getValues().level,
+      formData.getValues().data.metadata.name,
+    ],
   });
 
   const validateStaticWeightList = (getValues: () => any) => {
@@ -143,7 +156,7 @@ export default function PolicyAddButton() {
       scrollBehavior="outside"
     >
       <Dialog.Trigger>
-        <Button variant="largeBlue">
+        <Button variant="largeBlue" disabled={policyAddMutationCount > 0}>
           <FaPlus /> Add
         </Button>
       </Dialog.Trigger>
@@ -232,7 +245,7 @@ export default function PolicyAddButton() {
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
-      {/* <DevTool control={formData.control} placement="left" /> */}
+      <DevTool control={formData.control} placement="left" />
     </Dialog.Root>
   );
 }
