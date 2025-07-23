@@ -10,8 +10,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import Pagination from "@/components/Pagination";
 import { useSearchParams } from "react-router-dom";
 import { Heading } from "@/components/Heading";
-import { Button } from "@/components/Button";
-import { FaSyncAlt } from "react-icons/fa";
 import ClusterSyncButton from "./ClusterSyncButton";
 
 export default function ClusterList() {

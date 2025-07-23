@@ -17,6 +17,7 @@ import {
   ButtonGroup,
   RadioCardValueChangeDetails,
   Badge,
+  Stack,
 } from "@chakra-ui/react";
 import {
   Controller,
@@ -89,7 +90,11 @@ function ClusterAffinity({ resetData }: { resetData: boolean }) {
             Cluster Names
             <Field.RequiredIndicator />
           </Field.Label>
-          {error ? <Field.ErrorText>{error.message}</Field.ErrorText> : null}
+          {error ? (
+            <Field.ErrorText>{error.message}</Field.ErrorText>
+          ) : (
+            <Stack height="16px"></Stack>
+          )}
         </Field.Root>
         <CheckboxGroup value={field.value || []} onValueChange={field.onChange}>
           <Flex justify="flex-start">
@@ -371,18 +376,18 @@ function WeightPreference() {
             position="relative"
             padding="2%"
             backgroundColor="gray.100"
-            margin="1%"
             width="100%"
           >
             <CloseButton
               position="absolute"
               variant="inbox"
-              marginRight="2.5%"
-              onClick={() => remove(index)}
+              onClick={() => {
+                remove(index), setLimitExceeded(false);
+              }}
             />
             <Box width="80%">
               <Flex margin="2% 0" wrap="wrap">
-                <Field.Root required width="130px">
+                <Field.Root required width="130px" height="82px">
                   <Field.Label>
                     - Target Clusters
                     <Field.RequiredIndicator />
@@ -398,14 +403,14 @@ function WeightPreference() {
                         : "최소 하나 이상의 클러스터를 선택해야 합니다.",
                   }}
                   render={({ field, fieldState }) => (
-                    <>
+                    <Stack direction="column">
                       <CheckboxGroup
                         value={field.value}
                         onValueChange={(details) => {
                           field.onChange(details);
                         }}
                       >
-                        <Flex gap="2" margin="2% 0">
+                        <Flex gap="2">
                           {clusterList.clusters.map((cluster) => (
                             <Box key={cluster.name}>
                               <CheckboxCard.Root
@@ -425,12 +430,12 @@ function WeightPreference() {
                           ))}
                         </Flex>
                       </CheckboxGroup>
-                      {fieldState.error && (
-                        <Text color="red" fontSize="sm" marginTop="1%">
+                      {fieldState.error == null ? null : (
+                        <Text color="red" fontSize="sm">
                           {fieldState.error.message}
                         </Text>
                       )}
-                    </>
+                    </Stack>
                   )}
                 />
               </Flex>

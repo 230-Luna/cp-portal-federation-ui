@@ -176,7 +176,7 @@ function NameInputField() {
   });
 
   return (
-    <Field.Root required invalid={Boolean(error)} height="90px">
+    <Field.Root required invalid={Boolean(error)} height="117px">
       <Field.Label>
         Name
         <Field.RequiredIndicator />
@@ -318,13 +318,15 @@ function LabelCollapsibleInputField() {
             <Field.ErrorText>
               Label은 최대 20개까지 추가할 수 있습니다.
             </Field.ErrorText>
-          ) : null}
-          <Collapsible.Content marginTop="2%">
+          ) : (
+            <HStack height="20px"></HStack>
+          )}
+          <Collapsible.Content>
             <Fieldset.Root>
               <Flex alignItems="end">
                 <Fieldset.Content>
-                  <HStack gap="4" m="2%">
-                    <Field.Root required invalid={!!isKeyValid}>
+                  <HStack gap="4" margin="2%">
+                    <Field.Root required invalid={!!isKeyValid} height="120px">
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
@@ -341,7 +343,11 @@ function LabelCollapsibleInputField() {
                         </Field.ErrorText>
                       ) : null}
                     </Field.Root>
-                    <Field.Root required invalid={!!isValueValid}>
+                    <Field.Root
+                      required
+                      invalid={!!isValueValid}
+                      height="120px"
+                    >
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
@@ -507,13 +513,15 @@ function AnnotationCollapsibleInputField() {
             <Field.ErrorText>
               Annotation은 최대 20개까지 추가할 수 있습니다.
             </Field.ErrorText>
-          ) : null}
-          <Collapsible.Content marginTop="2%">
+          ) : (
+            <HStack height="20px"></HStack>
+          )}
+          <Collapsible.Content>
             <Fieldset.Root>
               <Flex alignItems="end">
                 <Fieldset.Content>
-                  <HStack gap="4" m="2%">
-                    <Field.Root required invalid={!!isKeyValid}>
+                  <HStack gap="4" margin="2%">
+                    <Field.Root required invalid={!!isKeyValid} height="120px">
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
@@ -530,7 +538,11 @@ function AnnotationCollapsibleInputField() {
                         </Field.ErrorText>
                       ) : null}
                     </Field.Root>
-                    <Field.Root required invalid={!!isValueValid}>
+                    <Field.Root
+                      required
+                      invalid={!!isValueValid}
+                      height="120px"
+                    >
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
