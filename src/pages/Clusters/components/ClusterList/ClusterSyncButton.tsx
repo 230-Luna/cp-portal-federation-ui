@@ -2,15 +2,13 @@ import { getSyncListApi, postSyncListApi } from "@/apis/sync";
 import { Button } from "@/components/Button";
 import { CloseButton } from "@/components/CloseButton";
 import { toaster } from "@/components/Toaster";
-import { Sync } from "@/models/sync";
 import {
-  Accordion,
+  Box,
   Checkbox,
   createTreeCollection,
   Drawer,
-  HStack,
+  Flex,
   Portal,
-  Stack,
   TreeView,
 } from "@chakra-ui/react";
 import {
@@ -19,18 +17,19 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { CheckedChangeDetails } from "@zag-js/checkbox";
-import { useState } from "react";
-import { FaMinus, FaPlus } from "react-icons/fa";
-import { SyncPostBody } from "./../../../../models/sync";
+import { CheckedChangeDetails, CheckedState } from "@zag-js/checkbox";
+import { useMemo, useState } from "react";
+import { SyncPostBody } from "@/models/sync";
 import { ResourceKindLowercase } from "@/models/resourceModel";
-import {
-  LuChevronRight,
-  LuFile,
-  LuFolder,
-  LuSquareMinus,
-  LuSquarePlus,
-} from "react-icons/lu";
+import { LuSquareMinus, LuSquarePlus } from "react-icons/lu";
+
+const kindOptions = [
+  "Deployment",
+  "StatefulSet",
+  "DaemonSet",
+  "CronJob",
+  "Job",
+];
 
 export default function ClusterSyncButton({
   clusterStatus,
@@ -43,6 +42,10 @@ export default function ClusterSyncButton({
 }) {
   const [open, setOpen] = useState(false);
 
+  const applySyncMutationCount = useIsMutating({
+    mutationKey: ["handleApplySync", clusterId],
+  });
+
   return (
     <Drawer.Root
       size="lg"
@@ -51,7 +54,9 @@ export default function ClusterSyncButton({
     >
       <Drawer.Trigger asChild>
         {clusterStatus === "ready" ? (
-          <Button variant="blackGhost">Sync</Button>
+          <Button variant="blackGhost" disabled={applySyncMutationCount > 0}>
+            Sync
+          </Button>
         ) : (
           <Button disabled variant="blackGhost">
             Sync
@@ -80,39 +85,147 @@ function ClusterResourceSyncDrawer({
 }) {
   const queryClient = useQueryClient();
 
-  const { data: syncNamespaceList } = useSuspenseQuery({
-    queryKey: ["getClusterResourceSyncApi", clusterId, "namespace"],
+  const { data: syncResourceList } = useSuspenseQuery({
+    queryKey: ["getSyncListApi", clusterId, "namespace"],
     queryFn: () => getSyncListApi({ clusterId, kind: "namespace" }),
   });
 
-  const [expandedNamespaces, setExpandedNamespaces] = useState<string[]>([]);
   const [checkedNamespaces, setCheckedNamespaces] = useState<string[]>([]);
   const [checkedResources, setCheckedResources] = useState<
     Record<string, Record<string, string[]>>
   >({});
+  const [resourceTreeMap, setResourceTreeMap] = useState<
+    Record<string, Record<string, { name: string; isDuplicated: boolean }[]>>
+  >({});
+
+  const updateCheckedResource = (
+    namespace: string,
+    kind: string,
+    name: string,
+    checked: CheckedState
+  ) => {
+    setCheckedResources((prev) => {
+      const current = prev[namespace]?.[kind] || [];
+      const newNamespace = { ...(prev[namespace] || {}) };
+      const updatedList =
+        checked === true
+          ? Array.from(new Set([...current, name]))
+          : current.filter((n) => n !== name);
+
+      console.log("-------------------------------------");
+      console.log("namespace: ", namespace);
+      console.log("kind: ", kind);
+      console.log("name: ", name);
+
+      console.log("current: ", current);
+      console.log("newNamespace: ", newNamespace);
+      console.log("-------------------------------------");
+
+      return {
+        ...prev,
+        [namespace]: {
+          ...newNamespace,
+          [kind]: updatedList,
+        },
+      };
+    });
+  };
+
+  const handleNamespaceExpand = async (
+    name: string,
+    namespace: string,
+    kind: ResourceKindLowercase
+  ) => {
+    if (resourceTreeMap[namespace]?.[name]) return;
+
+    const res = await getSyncListApi({
+      clusterId,
+      namespace,
+      kind: kind.toLowerCase(),
+    });
+    console.log("res: ", res);
+    setResourceTreeMap((prev) => ({
+      ...prev,
+      [namespace]: {
+        ...prev[namespace],
+        [kind]: res,
+      },
+    }));
+  };
+  console.log("handleNamespaceExpand: ", resourceTreeMap);
+
+  const handleKindExpand = async (
+    name: string,
+    namespace: string,
+    kind: ResourceKindLowercase
+  ) => {
+    if (resourceTreeMap[namespace]?.[name]) return;
+
+    const res = await getSyncListApi({
+      clusterId,
+      namespace,
+      kind: kind.toLowerCase(),
+    });
+    console.log("res: ", res);
+    setResourceTreeMap((prev) => ({
+      ...prev,
+      [namespace]: {
+        ...prev[namespace],
+        [kind]: res,
+      },
+    }));
+  };
+  console.log("handleKindExpand: ", resourceTreeMap);
+
+  const treeData = useMemo(() => {
+    return syncResourceList.map((namespace) => ({
+      id: `ns-${namespace.name}`,
+      name: namespace.name,
+      kind: "namespace",
+      isDuplicated: namespace.isDuplicated,
+      children: kindOptions.map((kind) => ({
+        id: `${namespace.name}-${kind.toLowerCase()}`,
+        name: kind,
+        kind,
+        namespace: namespace.name,
+        children: resourceTreeMap[namespace.name]?.[kind]
+          ? resourceTreeMap[namespace.name][kind].map((resource) => ({
+              id: `${namespace.name}-${kind}-${resource.name}`,
+              name: resource.name,
+              kind,
+              namespace: namespace.name,
+              isDuplicated: resource.isDuplicated,
+            }))
+          : [
+              {
+                id: `placeholder-${namespace.name}-${kind}`,
+                name: "loading...",
+                kind,
+                namespace: namespace.name,
+                isPlaceholder: true,
+              },
+            ],
+      })),
+    }));
+  }, [syncResourceList, kindOptions, resourceTreeMap]);
+  console.log("tree: ", treeData);
+
+  const collection = useMemo(() => {
+    return createTreeCollection({
+      rootNode: { id: "root", name: "ROOT", children: treeData },
+      nodeToValue: (node) => node.id,
+      nodeToString: (node) => node.name,
+    });
+  }, [treeData]);
 
   const handleCheckedNamespaceChange = (
-    checked: CheckedChangeDetails,
+    checked: CheckedState,
     name: string
   ) => {
     setCheckedNamespaces((prev) =>
-      checked ? [...prev, name] : prev.filter((n) => n !== name)
+      checked === true ? [...prev, name] : prev.filter((n) => n !== name)
     );
   };
-  // const data: SyncPostBody = {
-  //   createNamespace: ["hihihi"],
-  //   data: [
-  //     {
-  //       namespace: "default",
-  //       list: [
-  //         {
-  //           kind: "deployment",
-  //           list: ["heheheheh"],
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // };
 
   const generateSyncPostData = (): SyncPostBody => {
     const namespaces = Object.keys(checkedResources);
@@ -168,55 +281,6 @@ function ClusterResourceSyncDrawer({
     },
   });
 
-  const applySyncMutationCount = useIsMutating({
-    mutationKey: ["handleApplySync", clusterId],
-  });
-
-  interface Node {
-    id: string;
-    name: string;
-    children?: Node[];
-  }
-
-  const collection = createTreeCollection<Node>({
-    nodeToValue: (node) => node.id,
-    nodeToString: (node) => node.name,
-    rootNode: {
-      id: "ROOT",
-      name: "",
-      children: [
-        {
-          id: "node_modules",
-          name: "node_modules",
-          children: [
-            { id: "node_modules/zag-js", name: "zag-js" },
-            { id: "node_modules/pandacss", name: "panda" },
-            {
-              id: "node_modules/@types",
-              name: "@types",
-              children: [
-                { id: "node_modules/@types/react", name: "react" },
-                { id: "node_modules/@types/react-dom", name: "react-dom" },
-              ],
-            },
-          ],
-        },
-        {
-          id: "src",
-          name: "src",
-          children: [
-            { id: "src/app.tsx", name: "app.tsx" },
-            { id: "src/index.ts", name: "index.ts" },
-          ],
-        },
-        { id: "panda.config", name: "panda.config.ts" },
-        { id: "package.json", name: "package.json" },
-        { id: "renovate.json", name: "renovate.json" },
-        { id: "readme.md", name: "README.md" },
-      ],
-    },
-  });
-
   return (
     <Portal>
       <Drawer.Backdrop />
@@ -226,95 +290,113 @@ function ClusterResourceSyncDrawer({
             <Drawer.Title>{clusterName}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <TreeView.Root collection={collection} maxW="sm" size="md">
+            <TreeView.Root maxW="sm" size="md" collection={collection}>
               <TreeView.Tree>
                 <TreeView.Node
-                  render={({ node, nodeState }) =>
-                    nodeState.isBranch ? (
-                      <TreeView.BranchControl>
-                        {nodeState.expanded ? (
-                          <LuSquareMinus />
-                        ) : (
-                          <LuSquarePlus />
-                        )}
-                        <TreeView.BranchText>{node.name}</TreeView.BranchText>
-                      </TreeView.BranchControl>
-                    ) : (
-                      <TreeView.Item>{node.name}</TreeView.Item>
-                    )
-                  }
+                  indentGuide={<TreeView.BranchIndentGuide />}
+                  render={({ node, nodeState }) => {
+                    const {
+                      children,
+                      isPlaceholder,
+                      kind,
+                      name,
+                      isDuplicated,
+                      namespace,
+                    } = node;
+
+                    if (kind === "namespace") {
+                      return (
+                        <Box display="flex" alignItems="center" gap={2}>
+                          <TreeView.BranchControl
+                            onClick={() =>
+                              handleNamespaceExpand(name, namespace, kind)
+                            }
+                          >
+                            {nodeState.expanded ? (
+                              <LuSquareMinus />
+                            ) : (
+                              <LuSquarePlus />
+                            )}
+                          </TreeView.BranchControl>
+                          <Checkbox.Root
+                            checked={checkedNamespaces.includes(name)}
+                            disabled={!isDuplicated}
+                            onCheckedChange={(detail) =>
+                              handleCheckedNamespaceChange(detail.checked, name)
+                            }
+                          >
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control>
+                              <Checkbox.Indicator />
+                            </Checkbox.Control>
+                            <Checkbox.Label>{name}</Checkbox.Label>
+                          </Checkbox.Root>
+                        </Box>
+                      );
+                    }
+
+                    if (kindOptions.includes(kind) && children) {
+                      return (
+                        <>
+                          {nodeState.isBranch ? (
+                            <TreeView.BranchControl
+                              onClick={() =>
+                                handleKindExpand(name, namespace, kind)
+                              }
+                            >
+                              {nodeState.expanded ? (
+                                <LuSquareMinus />
+                              ) : (
+                                <LuSquarePlus />
+                              )}
+                              <TreeView.BranchText>{kind}</TreeView.BranchText>
+                            </TreeView.BranchControl>
+                          ) : (
+                            <TreeView.Item>
+                              <TreeView.ItemText>{kind}</TreeView.ItemText>
+                            </TreeView.Item>
+                          )}
+                        </>
+                      );
+                    }
+
+                    if (kindOptions.includes(kind) && !children) {
+                      if (isPlaceholder) return null;
+
+                      const isChecked =
+                        !!checkedResources[namespace]?.[kind]?.includes(name);
+
+                      return (
+                        <Flex direction="row">
+                          <Checkbox.Root
+                            checked={isChecked}
+                            disabled={!isDuplicated}
+                            onCheckedChange={(detail: CheckedChangeDetails) => {
+                              updateCheckedResource(
+                                namespace,
+                                kind,
+                                name,
+                                detail.checked
+                              );
+                            }}
+                          >
+                            <Checkbox.HiddenInput />
+                            <Checkbox.Control>
+                              <Checkbox.Indicator />
+                            </Checkbox.Control>
+                          </Checkbox.Root>
+                          <TreeView.Item>
+                            <TreeView.ItemText>{name}</TreeView.ItemText>
+                          </TreeView.Item>
+                        </Flex>
+                      );
+                    }
+
+                    return null;
+                  }}
                 />
               </TreeView.Tree>
             </TreeView.Root>
-            <Accordion.Root
-              multiple
-              value={expandedNamespaces}
-              onValueChange={(details) => setExpandedNamespaces(details.value)}
-              lazyMount={true}
-            >
-              <Stack gap="2">
-                {syncNamespaceList.map((namespace) => {
-                  const name = namespace.name;
-                  return (
-                    <Accordion.Item key={name} value={name}>
-                      <HStack>
-                        {namespace.isDuplicated === true ? (
-                          <Checkbox.Root
-                            checked={checkedNamespaces.includes(name)}
-                            onCheckedChange={(checked) =>
-                              handleCheckedNamespaceChange(checked, name)
-                            }
-                            width="100%"
-                            disabled={true}
-                          >
-                            <Checkbox.HiddenInput />
-                            <Checkbox.Control>
-                              <Checkbox.Indicator />
-                            </Checkbox.Control>
-                            <Checkbox.Label>{name}</Checkbox.Label>
-                          </Checkbox.Root>
-                        ) : (
-                          <Checkbox.Root
-                            checked={checkedNamespaces.includes(name)}
-                            onCheckedChange={(checked) =>
-                              handleCheckedNamespaceChange(checked, name)
-                            }
-                            width="100%"
-                          >
-                            <Checkbox.HiddenInput />
-                            <Checkbox.Control>
-                              <Checkbox.Indicator />
-                            </Checkbox.Control>
-                            <Checkbox.Label>{name}</Checkbox.Label>
-                          </Checkbox.Root>
-                        )}
-                        <Accordion.ItemTrigger>
-                          <Accordion.ItemIndicator>
-                            {expandedNamespaces.includes(name) ? (
-                              <FaMinus />
-                            ) : (
-                              <FaPlus />
-                            )}
-                          </Accordion.ItemIndicator>
-                        </Accordion.ItemTrigger>
-                      </HStack>
-                      <Accordion.ItemContent>
-                        <Accordion.ItemBody>
-                          <Stack marginLeft="20%">
-                            <KindList
-                              clusterId={clusterId}
-                              namespace={namespace}
-                              checkedResources={checkedResources}
-                              setCheckedResources={setCheckedResources}
-                            />
-                          </Stack>
-                        </Accordion.ItemBody>
-                      </Accordion.ItemContent>
-                    </Accordion.Item>
-                  );
-                })}
-              </Stack>
-            </Accordion.Root>
           </Drawer.Body>
           <Drawer.Footer>
             <Drawer.ActionTrigger asChild>
@@ -322,7 +404,10 @@ function ClusterResourceSyncDrawer({
             </Drawer.ActionTrigger>
             <Button
               variant="blue"
-              disabled={applySyncMutationCount > 0}
+              disabled={
+                generateSyncPostData().createNamespace.length < 1 &&
+                generateSyncPostData().data.length < 1
+              }
               onClick={() => handleApplySync.mutate()}
             >
               Apply
@@ -334,171 +419,5 @@ function ClusterResourceSyncDrawer({
         </Drawer.Content>
       </Drawer.Positioner>
     </Portal>
-  );
-}
-
-function KindList({
-  clusterId,
-  namespace,
-  checkedResources,
-  setCheckedResources,
-}: {
-  clusterId: string;
-  namespace: Sync;
-  checkedResources: Record<string, Record<string, string[]>>;
-  setCheckedResources: React.Dispatch<
-    React.SetStateAction<Record<string, Record<string, string[]>>>
-  >;
-}) {
-  const kindOptions = [
-    "Deployment",
-    "StatefulSet",
-    "DaemonSet",
-    "CronJob",
-    "Job",
-  ];
-
-  const [expandedKinds, setExpandedKinds] = useState<Record<string, string[]>>(
-    {}
-  );
-
-  const [resourceData, setResourceData] = useState<
-    Record<string, Record<string, any[]>>
-  >({});
-
-  const handleKindExpand = (namespace: string, kinds: string[]) => {
-    setExpandedKinds((prev) => ({ ...prev, [namespace]: kinds }));
-
-    kinds.forEach((kind) => {
-      if (!resourceData[namespace]?.[kind]) {
-        getSyncListApi({
-          clusterId,
-          kind: kind.toLowerCase(),
-          namespace,
-        }).then((res) => {
-          setResourceData((prev) => ({
-            ...prev,
-            [namespace]: {
-              ...prev[namespace],
-              [kind]: res,
-            },
-          }));
-        });
-      }
-    });
-  };
-
-  return (
-    <Accordion.Root
-      multiple
-      lazyMount={true}
-      value={expandedKinds[namespace.name] || []}
-      onValueChange={(details) =>
-        handleKindExpand(namespace.name, details.value)
-      }
-    >
-      <Stack gap="3">
-        {kindOptions.map((kind) => (
-          <Accordion.Item key={kind} value={kind}>
-            <HStack>
-              {kind}
-              <Accordion.ItemTrigger>
-                <Accordion.ItemIndicator>
-                  {kind ? <FaMinus /> : <FaPlus />}
-                </Accordion.ItemIndicator>
-              </Accordion.ItemTrigger>
-            </HStack>
-            <Accordion.ItemContent>
-              <Accordion.ItemBody pl="8">
-                <Stack marginLeft="20%">
-                  <NamespaceResources
-                    clusterId={clusterId}
-                    namespace={namespace.name}
-                    kind={kind}
-                    checkedResource={
-                      checkedResources[namespace.name]?.[kind] || []
-                    }
-                    onChange={(newChecked) => {
-                      setCheckedResources((prev) => ({
-                        ...prev,
-                        [namespace.name]: {
-                          ...prev[namespace.name],
-                          [kind]: newChecked,
-                        },
-                      }));
-                    }}
-                  />
-                </Stack>
-              </Accordion.ItemBody>
-            </Accordion.ItemContent>
-          </Accordion.Item>
-        ))}
-      </Stack>
-    </Accordion.Root>
-  );
-}
-
-function NamespaceResources({
-  clusterId,
-  namespace,
-  kind,
-  checkedResource,
-  onChange,
-}: {
-  clusterId: string;
-  namespace: string;
-  kind: string;
-  checkedResource: string[];
-  onChange: (val: string[]) => void;
-}) {
-  const { data: resourceList } = useSuspenseQuery({
-    queryKey: ["getClusterResourceSyncApi", clusterId, namespace, kind],
-    queryFn: () =>
-      getSyncListApi({
-        clusterId,
-        kind: kind,
-        namespace,
-      }),
-  });
-
-  // const handleCheck = (
-  //   namespace: string,
-  //   kind: string,
-  //   name: string,
-  //   checked: boolean
-  // ) => {
-  //   setCheckedResources((prev) => ({
-  //     ...prev,
-  //     [namespace]: {
-  //       ...prev[namespace],
-  //       [kind]: checked
-  //         ? [...(prev[namespace]?.[kind] || []), name]
-  //         : (prev[namespace]?.[kind] || []).filter((n) => n !== name),
-  //     },
-  //   }));
-  // };
-
-  return (
-    <Stack pl="4">
-      {resourceList.map((resource: any) => (
-        <Checkbox.Root
-          key={resource.name}
-          checked={checkedResource.includes(resource.name)}
-          onCheckedChange={(checked) => {
-            onChange(
-              checked
-                ? [...checkedResource, resource.name]
-                : checkedResource.filter((n) => n !== resource.name)
-            );
-          }}
-        >
-          <Checkbox.HiddenInput />
-          <Checkbox.Control>
-            <Checkbox.Indicator />
-          </Checkbox.Control>
-          <Checkbox.Label>{resource.name}</Checkbox.Label>
-        </Checkbox.Root>
-      ))}
-    </Stack>
   );
 }
