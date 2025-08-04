@@ -1,30 +1,30 @@
-import { Button } from "@/components/Button";
-import { Dialog } from "@/components/Dialog";
-import { CloseButton } from "@/components/CloseButton";
-import { Portal } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button } from '@/components/Button';
+import { Dialog } from '@/components/Dialog';
+import { CloseButton } from '@/components/CloseButton';
+import { Portal } from '@chakra-ui/react';
+import { useState } from 'react';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
-import { deleteNamespaceApi } from "@/apis/namespace";
-import { toaster } from "@/components/Toaster";
+} from '@tanstack/react-query';
+import { deleteNamespaceApi } from '@/apis/namespace';
+import { toaster } from '@/components/Toaster';
 
 export default function NamespaceDeleteButton({ name }: { name: string }) {
   const [open, setOpen] = useState(false);
   const deleteNamespaceMutationCount = useIsMutating({
-    mutationKey: ["handleDeleteNamespace", name],
+    mutationKey: ['handleDeleteNamespace', name],
   });
 
   return (
     <Dialog.Root
-      variant="alert"
+      variant='alert'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Dialog.Trigger>
-        <Button variant="redGhost" disabled={deleteNamespaceMutationCount > 0}>
+        <Button variant='redGhost' disabled={deleteNamespaceMutationCount > 0}>
           Delete
         </Button>
       </Dialog.Trigger>
@@ -47,13 +47,13 @@ function DeleteNamespaceConfirmDialog({
 }) {
   const queryClient = useQueryClient();
   const handleDeleteNamespace = useMutation({
-    mutationKey: ["handleDeleteNamespace", name],
+    mutationKey: ['handleDeleteNamespace', name],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `${name}를 삭제하고 있습니다.`,
         });
         await deleteNamespaceApi({ name });
@@ -61,12 +61,12 @@ function DeleteNamespaceConfirmDialog({
         toaster.success({
           description: `${name}가 삭제되었습니다.`,
         });
-        queryClient.invalidateQueries({ queryKey: ["getNamespaceListApi"] });
+        queryClient.invalidateQueries({ queryKey: ['getNamespaceListApi'] });
       } catch (error: any) {
         toaster.error({
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
-        queryClient.invalidateQueries({ queryKey: ["getNamespaceListApi"] });
+        queryClient.invalidateQueries({ queryKey: ['getNamespaceListApi'] });
       } finally {
         if (loadingToaster) {
           toaster.remove(loadingToaster);
@@ -79,16 +79,16 @@ function DeleteNamespaceConfirmDialog({
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content variant="alert">
-          <Dialog.Body variant="alert" marginTop="8%">
+        <Dialog.Content variant='alert'>
+          <Dialog.Body variant='alert' marginTop='8%'>
             {name}를 삭제하시겠습니까?
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
-              <Button variant="redOutline">Cancel</Button>
+              <Button variant='redOutline'>Cancel</Button>
             </Dialog.ActionTrigger>
             <Button
-              variant="red"
+              variant='red'
               onClick={() => handleDeleteNamespace.mutate()}
             >
               Delete

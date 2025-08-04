@@ -1,5 +1,5 @@
-import { Collapsible as ChakraCollapsible } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { Collapsible as ChakraCollapsible } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
 type CollapsibleSubComponent =
   | typeof ChakraCollapsible.Root
@@ -10,22 +10,16 @@ type CollapsibleProps<T extends CollapsibleSubComponent> = ComponentProps<T>;
 
 export const Collapsible = {
   Root: ({ ...props }: CollapsibleProps<typeof ChakraCollapsible.Root>) => (
-    <ChakraCollapsible.Root width="100%" {...props}></ChakraCollapsible.Root>
+    <ChakraCollapsible.Root width='100%' {...props} />
   ),
   Trigger: ({
     ...props
   }: CollapsibleProps<typeof ChakraCollapsible.Trigger>) => (
-    <ChakraCollapsible.Trigger
-      boxSize="10"
-      {...props}
-    ></ChakraCollapsible.Trigger>
+    <ChakraCollapsible.Trigger boxSize='10' {...props} />
   ),
   Content: ({
     ...props
   }: CollapsibleProps<typeof ChakraCollapsible.Content>) => (
-    <ChakraCollapsible.Content
-      background="gray.100"
-      {...props}
-    ></ChakraCollapsible.Content>
+    <ChakraCollapsible.Content background='gray.100' {...props} />
   ),
 };

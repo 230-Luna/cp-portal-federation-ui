@@ -1,4 +1,4 @@
-import { Placement, ResourceSelector } from "./propagationPolicyModel";
+import { Placement, ResourceSelector } from './propagationPolicyModel';
 
 export interface ListMeta {
   totalItems: number;
@@ -7,8 +7,8 @@ export interface ListMeta {
 export interface ClusterPropagationPolicy {
   name: string;
   uid: string;
-  conflictResolution: "Abort" | "Overwrite";
-  accessLevel: "full" | "readonly";
+  conflictResolution: 'Abort' | 'Overwrite';
+  accessLevel: 'full' | 'readonly';
   relatedClusters: string[];
   relatedResources: string[];
 }

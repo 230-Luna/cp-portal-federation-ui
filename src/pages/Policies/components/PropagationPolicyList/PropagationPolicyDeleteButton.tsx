@@ -1,15 +1,15 @@
-import { deletePropagationPolicyApi } from "@/apis/propagationPolicy";
-import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
-import { Dialog } from "@/components/Dialog";
-import { toaster } from "@/components/Toaster";
-import { Portal } from "@chakra-ui/react";
+import { deletePropagationPolicyApi } from '@/apis/propagationPolicy';
+import { Button } from '@/components/Button';
+import { CloseButton } from '@/components/CloseButton';
+import { Dialog } from '@/components/Dialog';
+import { toaster } from '@/components/Toaster';
+import { Portal } from '@chakra-ui/react';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
-import { useState } from "react";
+} from '@tanstack/react-query';
+import { useState } from 'react';
 
 export default function PropagationPolicyDeleteButton({
   namespace,
@@ -20,18 +20,18 @@ export default function PropagationPolicyDeleteButton({
 }) {
   const [open, setOpen] = useState(false);
   const deletePropagationPolicyMutationCount = useIsMutating({
-    mutationKey: ["handleDeletePropagationPolicy", namespace, name],
+    mutationKey: ['handleDeletePropagationPolicy', namespace, name],
   });
 
   return (
     <Dialog.Root
-      variant="alert"
+      variant='alert'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Dialog.Trigger>
         <Button
-          variant="redGhost"
+          variant='redGhost'
           disabled={deletePropagationPolicyMutationCount > 0}
         >
           Delete
@@ -59,13 +59,13 @@ function DeletePropagationPolicyConfirmDialog({
 }) {
   const queryClient = useQueryClient();
   const handleDeletePropagationPolicy = useMutation({
-    mutationKey: ["handleDeletePropagationPolicy", namespace, name],
+    mutationKey: ['handleDeletePropagationPolicy', namespace, name],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `${name}를 삭제하고 있습니다.`,
         });
         await deletePropagationPolicyApi({ namespace, name });
@@ -74,7 +74,7 @@ function DeletePropagationPolicyConfirmDialog({
           description: `${name}가 삭제되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["getPropagationPolicyListApi"],
+          queryKey: ['getPropagationPolicyListApi'],
         });
       } catch {
         toaster.error({
@@ -92,16 +92,16 @@ function DeletePropagationPolicyConfirmDialog({
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content variant="alert">
-          <Dialog.Body variant="alert" marginTop="8%">
+        <Dialog.Content variant='alert'>
+          <Dialog.Body variant='alert' marginTop='8%'>
             {name}를 삭제하겠습니까?
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
-              <Button variant="redOutline">Cancel</Button>
+              <Button variant='redOutline'>Cancel</Button>
             </Dialog.ActionTrigger>
             <Button
-              variant="red"
+              variant='red'
               onClick={() => handleDeletePropagationPolicy.mutate()}
             >
               Delete

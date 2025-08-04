@@ -1,12 +1,12 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import FederationInfo from "./components/FederationInfo";
-import HostClusterInfo from "./components/HostClusterInfo";
-import MemberClusterInfo from "./components/MemberClusterInfo";
-import { getOverviewApi } from "@/apis/overview";
+import { useSuspenseQuery } from '@tanstack/react-query';
+import FederationInfo from './components/FederationInfo';
+import HostClusterInfo from './components/HostClusterInfo';
+import MemberClusterInfo from './components/MemberClusterInfo';
+import { getOverviewApi } from '@/apis/overview';
 
 export default function Overview() {
   const { data: overview } = useSuspenseQuery({
-    queryKey: ["getOverviewApi"],
+    queryKey: ['getOverviewApi'],
     queryFn: () => getOverviewApi(),
   });
 

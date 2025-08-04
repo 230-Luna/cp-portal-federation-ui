@@ -1,7 +1,7 @@
-import { CheckboxCard as ChakraCheckboxCard } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { CheckboxCard as ChakraCheckboxCard } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
-type Variant = "large";
+type Variant = 'large';
 
 type CheckboxCardSubComponent =
   | typeof ChakraCheckboxCard.Root
@@ -14,14 +14,14 @@ type CheckboxCardSubComponent =
 
 type CheckboxCardProps<T extends CheckboxCardSubComponent> = Omit<
   ComponentProps<T>,
-  "variant"
+  'variant'
 > & {
   variant?: Variant;
 } & (T extends typeof ChakraCheckboxCard.Root
     ? {
         chakraVariant?: ComponentProps<
           typeof ChakraCheckboxCard.Root
-        >["variant"];
+        >['variant'];
       }
     : {});
 
@@ -29,7 +29,7 @@ const rootStyleConfig: Record<
   Variant,
   ComponentProps<typeof ChakraCheckboxCard.Root>
 > = {
-  large: { size: "lg" },
+  large: { size: 'lg' },
 };
 
 export const CheckboxCard = {
@@ -39,8 +39,8 @@ export const CheckboxCard = {
     ...props
   }: CheckboxCardProps<typeof ChakraCheckboxCard.Root>) => (
     <ChakraCheckboxCard.Root
-      colorPalette="blue"
-      width="auto"
+      colorPalette='blue'
+      width='auto'
       {...(variant != null ? rootStyleConfig[variant] : {})}
       {...(chakraVariant != null ? { variant: chakraVariant } : {})}
       {...props}

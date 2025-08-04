@@ -1,5 +1,5 @@
-import { RadioCard as ChakraRadioCard } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { RadioCard as ChakraRadioCard } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
 type RadioCardSubComponent =
   | typeof ChakraRadioCard.Root
@@ -16,15 +16,11 @@ type RadioCardProps<T extends RadioCardSubComponent> = ComponentProps<T>;
 
 export const RadioCard = {
   Root: ({ ...props }: RadioCardProps<typeof ChakraRadioCard.Root>) => (
-    <ChakraRadioCard.Root
-      width="100%"
-      colorPalette="blue"
-      {...props}
-    ></ChakraRadioCard.Root>
+    <ChakraRadioCard.Root width='100%' colorPalette='blue' {...props} />
   ),
   Label: ChakraRadioCard.Label,
   Item: ({ ...props }: RadioCardProps<typeof ChakraRadioCard.Item>) => (
-    <ChakraRadioCard.Item width="100%" {...props}></ChakraRadioCard.Item>
+    <ChakraRadioCard.Item width='100%' {...props} />
   ),
   ItemHiddenInput: ChakraRadioCard.ItemHiddenInput,
   ItemControl: ChakraRadioCard.ItemControl,

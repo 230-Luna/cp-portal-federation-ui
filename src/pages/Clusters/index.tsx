@@ -1,34 +1,34 @@
-import { Flex } from "@/components/Flex";
-import SearchBar from "@/components/SearchBar";
-import ClusterJoinButton from "@/pages/Clusters/components/ClusterJoinButton";
-import ClusterList from "@/pages/Clusters/components/ClusterList";
-import { ErrorBoundary } from "react-error-boundary";
-import { Suspense, useEffect } from "react";
-import SortSelect from "@/components/SortSelect";
-import { useSearchParams } from "react-router-dom";
+import { Flex } from '@/components/Flex';
+import SearchBar from '@/components/SearchBar';
+import ClusterJoinButton from '@/pages/Clusters/components/ClusterJoinButton';
+import ClusterList from '@/pages/Clusters/components/ClusterList';
+import { ErrorBoundary } from 'react-error-boundary';
+import { Suspense, useEffect } from 'react';
+import SortSelect from '@/components/SortSelect';
+import { useSearchParams } from 'react-router-dom';
 
 export default function Clusters() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    searchParams.delete("filterBy");
-    searchParams.delete("page");
-    searchParams.delete("sortBy");
+    searchParams.delete('filterBy');
+    searchParams.delete('page');
+    searchParams.delete('sortBy');
     setSearchParams(searchParams);
   }, []);
 
   return (
     <>
-      <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
+      <Flex justify='flex-end' marginTop='9px' marginBottom='50px'>
         <SearchBar />
         <ClusterJoinButton />
       </Flex>
-      <Flex justify="flex-end">
-        <SortSelect level="cluster" />
+      <Flex justify='flex-end'>
+        <SortSelect level='cluster' />
       </Flex>
 
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
-        <Suspense fallback="">
+        <Suspense fallback=''>
           <ClusterList />
         </Suspense>
       </ErrorBoundary>

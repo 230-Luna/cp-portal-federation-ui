@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/Button";
+import React from 'react';
+import { Button } from '@/components/Button';
 
 interface StatefulSetDeleteButtonProps {
   statefulSetName: string;
@@ -11,7 +11,7 @@ export default function StatefulSetDeleteButton({
   onDelete,
 }: StatefulSetDeleteButtonProps) {
   return (
-    <Button variant="redOutline" size="sm" onClick={onDelete}>
+    <Button variant='redOutline' size='sm' onClick={onDelete}>
       Delete
     </Button>
   );

@@ -1,10 +1,10 @@
-import { Heading } from "@/components/Heading";
-import { Card } from "@/components/Card";
-import { Status, Variant } from "@/components/Status";
-import { Flex } from "@/components/Flex";
-import { Stack } from "@chakra-ui/react";
-import { ProgressWithMarker } from "@/components/ProgressWithMarker";
-import { MemberClusterStatus } from "@/models/overviewModel";
+import { Heading } from '@/components/Heading';
+import { Card } from '@/components/Card';
+import { Status, Variant } from '@/components/Status';
+import { Flex } from '@/components/Flex';
+import { Stack } from '@chakra-ui/react';
+import { ProgressWithMarker } from '@/components/ProgressWithMarker';
+import { MemberClusterStatus } from '@/models/overviewModel';
 
 export default function MemberClusterInfo({
   memberClusters,
@@ -13,13 +13,13 @@ export default function MemberClusterInfo({
 }) {
   return (
     <>
-      <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
+      <Heading variant='leftSide' marginTop='1%' marginBottom='1.2%'>
         Member Cluster Info
       </Heading>
-      <Flex overflowX="auto" maxHeight="550px">
+      <Flex overflowX='auto' maxHeight='550px'>
         {memberClusters.length > 0
-          ? memberClusters.map((memberCluster) => (
-              <Card.Root variant="medium" key={memberCluster.name}>
+          ? memberClusters.map(memberCluster => (
+              <Card.Root variant='medium' key={memberCluster.name}>
                 <Card.Header>
                   <Card.Title>
                     <Flex>
@@ -34,19 +34,19 @@ export default function MemberClusterInfo({
                     {memberCluster.nodeSummary.totalNum}
                   </Card.Description>
                 </Card.Header>
-                <Card.Body variant="medium">
+                <Card.Body variant='medium'>
                   <Stack>
                     <ProgressWithMarker
                       realTimeUsage={memberCluster.realTimeUsage.cpu}
                       requestUsage={memberCluster.requestUsage.cpu}
-                      kind="CPU"
-                      label={true}
+                      kind='CPU'
+                      label
                     />
                     <ProgressWithMarker
                       realTimeUsage={memberCluster.realTimeUsage.memory}
                       requestUsage={memberCluster.requestUsage.memory}
-                      kind="Memory"
-                      label={true}
+                      kind='Memory'
+                      label
                     />
                   </Stack>
                 </Card.Body>

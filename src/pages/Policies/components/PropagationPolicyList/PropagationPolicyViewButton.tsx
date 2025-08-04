@@ -1,19 +1,19 @@
 import {
   getPropagationPolicyDetailApi,
   updatePropagationPolicyApi,
-} from "@/apis/propagationPolicy";
-import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
-import { toaster } from "@/components/Toaster";
-import { Box, Drawer, Portal } from "@chakra-ui/react";
+} from '@/apis/propagationPolicy';
+import { Button } from '@/components/Button';
+import { CloseButton } from '@/components/CloseButton';
+import { toaster } from '@/components/Toaster';
+import { Box, Drawer, Portal } from '@chakra-ui/react';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-import { monaco, MonacoDiffEditor } from "react-monaco-editor";
+} from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
+import { monaco, MonacoDiffEditor } from 'react-monaco-editor';
 
 export default function PropagationPolicyViewButton({
   namespace,
@@ -26,12 +26,12 @@ export default function PropagationPolicyViewButton({
 
   return (
     <Drawer.Root
-      size="full"
+      size='full'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="blueGhost">View</Button>
+        <Button variant='blueGhost'>View</Button>
       </Drawer.Trigger>
       {open === true ? (
         <PropagationPolicyYamlViwerDrawer
@@ -53,13 +53,13 @@ function PropagationPolicyYamlViwerDrawer({
   name: string;
   onClose: () => void;
 }) {
-  const [propagationPolicyData, setPropagationPolicyData] = useState("");
+  const [propagationPolicyData, setPropagationPolicyData] = useState('');
   const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
 
   const queryClient = useQueryClient();
 
   const { data: propagationPolicyDetail } = useSuspenseQuery({
-    queryKey: ["getPropagationPolicyDetailApi", namespace, name],
+    queryKey: ['getPropagationPolicyDetailApi', namespace, name],
     queryFn: () => getPropagationPolicyDetailApi({ namespace, name }),
   });
 
@@ -70,13 +70,13 @@ function PropagationPolicyYamlViwerDrawer({
   }, [propagationPolicyDetail]);
 
   const handleEditPropagationPolicy = useMutation({
-    mutationKey: ["handleEditPropagationPolicy", namespace, name],
+    mutationKey: ['handleEditPropagationPolicy', namespace, name],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `Policy를 수정하고 있습니다.`,
         });
         await updatePropagationPolicyApi({
@@ -89,13 +89,13 @@ function PropagationPolicyYamlViwerDrawer({
           description: `${name} Policy가 수정되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["getPropagationPolicyListApi"],
+          queryKey: ['getPropagationPolicyListApi'],
         });
       } catch (error: any) {
         console.error(error.response.data.message);
         toaster.error({
-          type: "error",
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          type: 'error',
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
       } finally {
         if (loadingToaster) {
@@ -106,7 +106,7 @@ function PropagationPolicyYamlViwerDrawer({
   });
 
   const editPropagationPolicyMutationCount = useIsMutating({
-    mutationKey: ["handleEditPropagationPolicy", namespace, name],
+    mutationKey: ['handleEditPropagationPolicy', namespace, name],
   });
 
   const handleEditorChange = (value: string | undefined) => {
@@ -128,18 +128,18 @@ function PropagationPolicyYamlViwerDrawer({
             <Drawer.Title>{propagationPolicyDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <Box height="92%">
+            <Box height='92%'>
               <MonacoDiffEditor
                 original={propagationPolicyDetail.yaml}
                 value={propagationPolicyDetail.yaml}
                 onChange={handleEditorChange}
                 editorDidMount={handleEditorMount}
-                language="yaml"
-                height="100%"
+                language='yaml'
+                height='100%'
                 options={{
                   scrollbar: {
-                    vertical: "auto",
-                    horizontal: "auto",
+                    vertical: 'auto',
+                    horizontal: 'auto',
                     handleMouseWheel: true,
                   },
                   overviewRulerLanes: 0,
@@ -152,10 +152,10 @@ function PropagationPolicyYamlViwerDrawer({
           </Drawer.Body>
           <Drawer.Footer>
             <Drawer.ActionTrigger asChild>
-              <Button variant="blueOutline">Cancel</Button>
+              <Button variant='blueOutline'>Cancel</Button>
             </Drawer.ActionTrigger>
             <Button
-              variant="blue"
+              variant='blue'
               disabled={editPropagationPolicyMutationCount > 0}
               onClick={() => handleEditPropagationPolicy.mutate()}
             >

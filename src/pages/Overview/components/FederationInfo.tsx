@@ -1,6 +1,6 @@
-import { Heading } from "@/components/Heading";
-import { Table } from "@/components/Table";
-import { ClusterResourceStatus } from "@/models/overviewModel";
+import { Heading } from '@/components/Heading';
+import { Table } from '@/components/Table';
+import { ClusterResourceStatus } from '@/models/overviewModel';
 
 export default function FederationInfo({
   resources,
@@ -9,7 +9,7 @@ export default function FederationInfo({
 }) {
   return (
     <>
-      <Heading variant="leftSide" marginTop="1%" marginBottom="1.2%">
+      <Heading variant='leftSide' marginTop='1%' marginBottom='1.2%'>
         Resource Info
       </Heading>
       <Table.Root>
@@ -23,7 +23,7 @@ export default function FederationInfo({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          <Table.Row key="resourceInfo">
+          <Table.Row key='resourceInfo'>
             <Table.Cell>{resources.propagationPolicyNum}</Table.Cell>
             <Table.Cell>{resources.namespaceNum}</Table.Cell>
             <Table.Cell>{resources.workloadNum}</Table.Cell>

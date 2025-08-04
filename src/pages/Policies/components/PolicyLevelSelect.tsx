@@ -1,7 +1,7 @@
-import { SegmentGroup } from "@/components/SegmentGroup";
-import { SegmentGroupValueChangeDetails } from "@chakra-ui/react";
+import { SegmentGroup } from '@/components/SegmentGroup';
+import { SegmentGroupValueChangeDetails } from '@chakra-ui/react';
 
-export type Level = "namespace" | "cluster";
+export type Level = 'namespace' | 'cluster';
 
 export default function PolicyLevelSelect({
   value,
@@ -20,11 +20,11 @@ export default function PolicyLevelSelect({
   return (
     <SegmentGroup.Root
       value={value}
-      variant="medium"
+      variant='medium'
       onValueChange={handleValueChange}
     >
       <SegmentGroup.Indicator />
-      <SegmentGroup.Items items={["namespace", "cluster"]} />
+      <SegmentGroup.Items items={['namespace', 'cluster']} />
     </SegmentGroup.Root>
   );
 }

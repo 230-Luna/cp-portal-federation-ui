@@ -1,19 +1,19 @@
 import {
   getClusterPropagationPolicyDetailApi,
   updateClusterPropagationPolicyApi,
-} from "@/apis/clusterPropagationPolicy";
-import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
-import { toaster } from "@/components/Toaster";
-import { Box, Drawer, Portal } from "@chakra-ui/react";
-import { monaco, MonacoDiffEditor } from "react-monaco-editor";
+} from '@/apis/clusterPropagationPolicy';
+import { Button } from '@/components/Button';
+import { CloseButton } from '@/components/CloseButton';
+import { toaster } from '@/components/Toaster';
+import { Box, Drawer, Portal } from '@chakra-ui/react';
+import { monaco, MonacoDiffEditor } from 'react-monaco-editor';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+} from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 
 export default function ClusterPropagationPolicyViewButton({
   name,
@@ -24,12 +24,12 @@ export default function ClusterPropagationPolicyViewButton({
 
   return (
     <Drawer.Root
-      size="full"
+      size='full'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="blueGhost">View</Button>
+        <Button variant='blueGhost'>View</Button>
       </Drawer.Trigger>
       {open === true ? (
         <ClusterPropagationPolicyYamlViwerDrawer
@@ -49,14 +49,14 @@ function ClusterPropagationPolicyYamlViwerDrawer({
   onClose: () => void;
 }) {
   const [clusterPropagationPolicyData, setClusterPropagationPolicyData] =
-    useState("");
+    useState('');
 
   const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
 
   const queryClient = useQueryClient();
 
   const { data: clusterPropagationPolicyDetail } = useSuspenseQuery({
-    queryKey: ["getClusterPropagationPolicyDetailApi", name],
+    queryKey: ['getClusterPropagationPolicyDetailApi', name],
     queryFn: () => getClusterPropagationPolicyDetailApi({ name }),
   });
 
@@ -67,13 +67,13 @@ function ClusterPropagationPolicyYamlViwerDrawer({
   }, [clusterPropagationPolicyDetail]);
 
   const handleEditClusterPropagationPolicy = useMutation({
-    mutationKey: ["handleEditClusterPropagationPolicy", name],
+    mutationKey: ['handleEditClusterPropagationPolicy', name],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `Policy를 수정하고 있습니다.`,
         });
         await updateClusterPropagationPolicyApi({
@@ -85,13 +85,13 @@ function ClusterPropagationPolicyYamlViwerDrawer({
           description: `${name} Policy가 수정되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["getClusterPropagationPlicyListApi"],
+          queryKey: ['getClusterPropagationPlicyListApi'],
         });
       } catch (error: any) {
         console.error(error.response.data.message);
         toaster.error({
-          type: "error",
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          type: 'error',
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
       } finally {
         if (loadingToaster) {
@@ -102,7 +102,7 @@ function ClusterPropagationPolicyYamlViwerDrawer({
   });
 
   const editClusterPropagationPolicyMutationCount = useIsMutating({
-    mutationKey: ["handleEditClusterPropagationPolicy", name],
+    mutationKey: ['handleEditClusterPropagationPolicy', name],
   });
 
   const handleEditorChange = (value: string | undefined) => {
@@ -126,7 +126,7 @@ function ClusterPropagationPolicyYamlViwerDrawer({
             <Drawer.Title>{clusterPropagationPolicyDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <Box height="92%">
+            <Box height='92%'>
               <MonacoDiffEditor
                 original={clusterPropagationPolicyDetail.yaml}
                 value={clusterPropagationPolicyData}
@@ -134,8 +134,8 @@ function ClusterPropagationPolicyYamlViwerDrawer({
                 editorDidMount={handleEditorDidMount}
                 options={{
                   scrollbar: {
-                    vertical: "visible",
-                    horizontal: "visible",
+                    vertical: 'visible',
+                    horizontal: 'visible',
                   },
                   overviewRulerLanes: 0,
                   scrollBeyondLastLine: false,
@@ -146,10 +146,10 @@ function ClusterPropagationPolicyYamlViwerDrawer({
           </Drawer.Body>
           <Drawer.Footer>
             <Drawer.ActionTrigger asChild>
-              <Button variant="blueOutline">Cancel</Button>
+              <Button variant='blueOutline'>Cancel</Button>
             </Drawer.ActionTrigger>
             <Button
-              variant="blue"
+              variant='blue'
               disabled={editClusterPropagationPolicyMutationCount > 0}
               onClick={() => handleEditClusterPropagationPolicy.mutate()}
             >

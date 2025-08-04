@@ -3,13 +3,13 @@ export interface ListMeta {
 }
 
 export type WorkloadKind =
-  | "deployment"
-  | "statefulset"
-  | "daemonset"
-  | "cronjob"
-  | "job"
-  | "configmap"
-  | "secret";
+  | 'deployment'
+  | 'statefulset'
+  | 'daemonset'
+  | 'cronjob'
+  | 'job'
+  | 'configmap'
+  | 'secret';
 
 export interface Policy {
   isClusterScope: boolean;

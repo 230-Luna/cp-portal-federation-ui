@@ -1,4 +1,4 @@
-import { ResourceKindLowercase } from "./resourceModel";
+import { ResourceKindLowercase } from './resourceModel';
 
 export interface Sync {
   name: string;

@@ -1,4 +1,4 @@
-import { ResourceKind } from "./resourceModel";
+import { ResourceKind } from './resourceModel';
 
 export interface ListMeta {
   totalItems: number;
@@ -8,8 +8,8 @@ export interface PropagationPolicy {
   namespace: string;
   name: string;
   uid: string;
-  conflictResolution: "Abort" | "Overwrite";
-  accessLevel: "full" | "readonly";
+  conflictResolution: 'Abort' | 'Overwrite';
+  accessLevel: 'full' | 'readonly';
   relatedClusters: string[];
   relatedResources: string[];
 }
@@ -51,8 +51,8 @@ export interface WeightPreference {
 }
 
 export interface ReplicaScheduling {
-  replicaSchedulingType?: "Divided" | "Duplicated";
-  replicaDivisionpreference?: "Aggregated" | "Weighted";
+  replicaSchedulingType?: 'Divided' | 'Duplicated';
+  replicaDivisionpreference?: 'Aggregated' | 'Weighted';
   staticWeightList?: WeightPreference[];
 }
 export interface Placement {

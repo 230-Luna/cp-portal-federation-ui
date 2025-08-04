@@ -1,14 +1,14 @@
-import { CloseButton as ChakraCloseButton } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { CloseButton as ChakraCloseButton } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
-type Variant = "inbox";
+type Variant = 'inbox';
 
 type CloseButtonProps = Omit<
   ComponentProps<typeof ChakraCloseButton>,
-  "variant"
+  'variant'
 > & {
   variant?: Variant;
-  chakraVariant?: ComponentProps<typeof ChakraCloseButton>["variant"];
+  chakraVariant?: ComponentProps<typeof ChakraCloseButton>['variant'];
 };
 
 const closeButtonStyleConfig: Record<
@@ -16,10 +16,10 @@ const closeButtonStyleConfig: Record<
   ComponentProps<typeof ChakraCloseButton>
 > = {
   inbox: {
-    size: "sm",
-    position: "absolute",
-    top: "2",
-    right: "2",
+    size: 'sm',
+    position: 'absolute',
+    top: '2',
+    right: '2',
   },
 };
 

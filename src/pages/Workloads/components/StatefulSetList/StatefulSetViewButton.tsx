@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/Button";
+import React from 'react';
+import { Button } from '@/components/Button';
 
 interface StatefulSetViewButtonProps {
   statefulSetName: string;
@@ -11,7 +11,7 @@ export default function StatefulSetViewButton({
   onClick,
 }: StatefulSetViewButtonProps) {
   return (
-    <Button variant="blueOutline" size="sm" onClick={onClick}>
+    <Button variant='blueOutline' size='sm' onClick={onClick}>
       View
     </Button>
   );

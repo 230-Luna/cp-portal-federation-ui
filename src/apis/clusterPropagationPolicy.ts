@@ -1,15 +1,15 @@
-import { httpClient } from "@/utils/httpClient";
+import { httpClient } from '@/utils/httpClient';
 import {
   ClusterPropagationPolicies,
   ClusterPropagationPolicyDetail,
   CreateClusterPropagationPolicy,
-} from "@/models/clusterPropagationPolicyModel";
+} from '@/models/clusterPropagationPolicyModel';
 
 export async function getClusterPropagationPolicyListApi({
   filterBy,
   page = 1,
   itemsPerPage = 10,
-  sort = "d,creationTimestamp",
+  sort = 'd,creationTimestamp',
 }: {
   filterBy?: string;
   page?: number;
@@ -19,15 +19,15 @@ export async function getClusterPropagationPolicyListApi({
   const params = new URLSearchParams();
 
   if (filterBy) {
-    params.append("filterBy", `name,${filterBy}`);
+    params.append('filterBy', `name,${filterBy}`);
   }
 
   if (sort) {
-    params.append("sortBy", sort);
+    params.append('sortBy', sort);
   }
 
-  params.append("page", page.toString());
-  params.append("itemsPerPage", itemsPerPage.toString());
+  params.append('page', page.toString());
+  params.append('itemsPerPage', itemsPerPage.toString());
 
   const CLUSTER_PROPAGATION_POLICY_API_URL = `/api/v1/clusterpropagationpolicy?${params.toString()}`;
 

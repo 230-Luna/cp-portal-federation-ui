@@ -1,33 +1,33 @@
-import { getResourceNamespaceListApi } from "@/apis/resource";
-import { NativeSelect } from "@chakra-ui/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { getResourceNamespaceListApi } from '@/apis/resource';
+import { NativeSelect } from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function NamespaceSelect() {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSelectValueChange = (value: string) => {
     setValue(value);
-    searchParams.set("namespace", value);
+    searchParams.set('namespace', value);
     setSearchParams(searchParams);
   };
 
   const { data: resourceNamespaceList } = useSuspenseQuery({
-    queryKey: ["getResourceNamespaceListApi", "namespaceSelect"],
+    queryKey: ['getResourceNamespaceListApi', 'namespaceSelect'],
     queryFn: () => getResourceNamespaceListApi({}),
   });
 
   return (
-    <NativeSelect.Root size="md" width="200px">
+    <NativeSelect.Root size='md' width='200px'>
       <NativeSelect.Field
-        name="namespaces"
-        placeholder="Select Namespace"
+        name='namespaces'
+        placeholder='Select Namespace'
         value={value}
-        onChange={(event) => handleSelectValueChange(event.target.value)}
+        onChange={event => handleSelectValueChange(event.target.value)}
       >
-        {resourceNamespaceList.namespaces.map((namespace) => (
+        {resourceNamespaceList.namespaces.map(namespace => (
           <option value={namespace} key={namespace}>
             {namespace}
           </option>

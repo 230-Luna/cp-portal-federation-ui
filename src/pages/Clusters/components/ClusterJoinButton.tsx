@@ -1,41 +1,41 @@
-import { Grid } from "@/components/Grid";
-import { Button } from "@/components/Button";
-import { Dialog } from "@/components/Dialog";
-import { Heading } from "@/components/Heading";
-import { CheckboxCard } from "@/components/CheckboxCard";
-import { CloseButton } from "@/components/CloseButton";
-import { CheckboxGroup, Portal } from "@chakra-ui/react";
-import { FaPlus } from "react-icons/fa";
-import { toaster } from "@/components/Toaster";
-import { Suspense, useState } from "react";
+import { Grid } from '@/components/Grid';
+import { Button } from '@/components/Button';
+import { Dialog } from '@/components/Dialog';
+import { Heading } from '@/components/Heading';
+import { CheckboxCard } from '@/components/CheckboxCard';
+import { CloseButton } from '@/components/CloseButton';
+import { CheckboxGroup, Portal } from '@chakra-ui/react';
+import { FaPlus } from 'react-icons/fa';
+import { toaster } from '@/components/Toaster';
+import { Suspense, useState } from 'react';
 import {
   getRegisterableClusterListApi,
   registerClustersApi,
-} from "@/apis/cluster";
+} from '@/apis/cluster';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from "@tanstack/react-query";
-import { Text } from "@/components/Text";
+} from '@tanstack/react-query';
+import { Text } from '@/components/Text';
 
 export default function ClusterJoinButton() {
   const [open, setOpen] = useState(false);
   const clusterJoinMutationCount = useIsMutating({
-    mutationKey: ["handleRegisterCluster"],
+    mutationKey: ['handleRegisterCluster'],
   });
 
   return (
     <Dialog.Root
-      variant="resourceSetUp"
+      variant='resourceSetUp'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Dialog.Trigger>
         <Button
-          colorPalette="blue"
-          variant="largeBlue"
+          colorPalette='blue'
+          variant='largeBlue'
           disabled={clusterJoinMutationCount > 0}
         >
           <FaPlus /> Join
@@ -55,13 +55,13 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
 
   const handleRegisterCluster = useMutation({
-    mutationKey: ["handleRegisterCluster"],
+    mutationKey: ['handleRegisterCluster'],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `멤버 클러스터를 추가하고 있습니다.`,
         });
         const response = await registerClustersApi({
@@ -77,22 +77,22 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
           }) => {
             if (cluster.code !== 201) {
               toaster.create({
-                type: "error",
+                type: 'error',
                 description: `${cluster.name}가 멤버클러스터 등록에 실패하였습니다.`,
               });
             } else {
               toaster.create({
-                type: "success",
+                type: 'success',
                 description: `${cluster.name}가 멤버클러스터로 등록되었습니다.`,
               });
             }
           }
         );
-        queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
+        queryClient.invalidateQueries({ queryKey: ['getClusterListApi'] });
       } catch (error: any) {
         toaster.error({
-          type: "error",
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          type: 'error',
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
       } finally {
         if (loadingToaster) {
@@ -106,12 +106,12 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content variant="resourceSetUp" margin="10px auto">
-          <Heading variant="center" marginTop="2%">
+        <Dialog.Content variant='resourceSetUp' margin='10px auto'>
+          <Heading variant='center' marginTop='2%'>
             Cluster Join
           </Heading>
-          <Dialog.Body variant="resourceSetUp" margin="2%">
-            <Suspense fallback="">
+          <Dialog.Body variant='resourceSetUp' margin='2%'>
+            <Suspense fallback=''>
               <RegisterableClusters
                 onValueChange={setSelectedData}
                 onRegisterableClustersChange={setIsExistRegisterableClusters}
@@ -120,11 +120,11 @@ function ClusterJoinDialog({ onClose }: { onClose: () => void }) {
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
-              <Button variant="blueOutline">Cancel</Button>
+              <Button variant='blueOutline'>Cancel</Button>
             </Dialog.ActionTrigger>
             {isExistRegisterableClusters === true ? (
               <Button
-                variant="blue"
+                variant='blue'
                 loading={handleRegisterCluster.isPending}
                 onClick={() => handleRegisterCluster.mutate()}
               >
@@ -149,7 +149,7 @@ function RegisterableClusters({
   onRegisterableClustersChange: (registerableClusters: boolean) => void;
 }) {
   const { data: registerableClusterList } = useSuspenseQuery({
-    queryKey: ["registerableClusterList"],
+    queryKey: ['registerableClusterList'],
     queryFn: () => getRegisterableClusterListApi(),
   });
 
@@ -159,9 +159,9 @@ function RegisterableClusters({
 
   return (
     <Grid>
-      <CheckboxGroup onValueChange={(value) => onValueChange(value)}>
+      <CheckboxGroup onValueChange={value => onValueChange(value)}>
         {registerableClusterList.clusters != null ? (
-          registerableClusterList.clusters.map((cluster) => (
+          registerableClusterList.clusters.map(cluster => (
             <CheckboxCard.Root
               key={cluster.clusterId}
               value={cluster.clusterId}
@@ -176,7 +176,7 @@ function RegisterableClusters({
             </CheckboxCard.Root>
           ))
         ) : (
-          <Text variant="small">등록 가능한 클러스터가 없습니다.</Text>
+          <Text variant='small'>등록 가능한 클러스터가 없습니다.</Text>
         )}
       </CheckboxGroup>
     </Grid>

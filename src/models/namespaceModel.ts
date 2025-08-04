@@ -4,7 +4,7 @@ export interface ListMeta {
 
 export interface Namespace {
   name: string;
-  status: "Active" | "Terminating";
+  status: 'Active' | 'Terminating';
   created: string;
 }
 

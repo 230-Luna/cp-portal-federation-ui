@@ -1,6 +1,6 @@
-import { SegmentGroup } from "@/components/SegmentGroup";
-import { ResourceKindLowercase, ResourceKind } from "@/models/resourceModel";
-import { SegmentGroupValueChangeDetails } from "@chakra-ui/react";
+import { SegmentGroup } from '@/components/SegmentGroup';
+import { ResourceKindLowercase, ResourceKind } from '@/models/resourceModel';
+import { SegmentGroupValueChangeDetails } from '@chakra-ui/react';
 
 export default function WorkloadLevelSelect({
   value,
@@ -20,11 +20,11 @@ export default function WorkloadLevelSelect({
 
   const getDisplayName = (lowercase: ResourceKindLowercase): ResourceKind => {
     const mapping: Record<ResourceKindLowercase, ResourceKind> = {
-      deployment: "Deployment",
-      statefulset: "StatefulSet",
-      daemonset: "DaemonSet",
-      cronjob: "CronJob",
-      job: "Job",
+      deployment: 'Deployment',
+      statefulset: 'StatefulSet',
+      daemonset: 'DaemonSet',
+      cronjob: 'CronJob',
+      job: 'Job',
     };
     return mapping[lowercase];
   };
@@ -32,12 +32,12 @@ export default function WorkloadLevelSelect({
   return (
     <SegmentGroup.Root
       value={getDisplayName(value)}
-      variant="medium"
+      variant='medium'
       onValueChange={handleValueChange}
     >
       <SegmentGroup.Indicator />
       <SegmentGroup.Items
-        items={["Deployment", "StatefulSet", "DaemonSet", "CronJob", "Job"]}
+        items={['Deployment', 'StatefulSet', 'DaemonSet', 'CronJob', 'Job']}
       />
     </SegmentGroup.Root>
   );

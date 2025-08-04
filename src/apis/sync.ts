@@ -1,5 +1,5 @@
-import { Sync, SyncPostBody } from "@/models/sync";
-import { httpClient } from "@/utils/httpClient";
+import { Sync, SyncPostBody } from '@/models/sync';
+import { httpClient } from '@/utils/httpClient';
 
 export async function getSyncListApi({
   clusterId,
@@ -13,11 +13,11 @@ export async function getSyncListApi({
   const params = new URLSearchParams();
 
   if (kind) {
-    params.append("kind", kind.toLowerCase());
+    params.append('kind', kind.toLowerCase());
   }
 
   if (namespace) {
-    params.append("namespace", namespace.toLowerCase());
+    params.append('namespace', namespace.toLowerCase());
   }
 
   return httpClient.get<Sync[]>(

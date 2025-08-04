@@ -1,7 +1,7 @@
-import { Card as ChakraCard } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { Card as ChakraCard } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
-type Variant = "wide" | "medium" | "small";
+type Variant = 'wide' | 'medium' | 'small';
 
 type CardSubComponent =
   | typeof ChakraCard.Root
@@ -13,11 +13,11 @@ type CardSubComponent =
 
 type CardProps<T extends CardSubComponent> = Omit<
   ComponentProps<T>,
-  "variant"
+  'variant'
 > & {
   variant: Variant;
 } & (T extends typeof ChakraCard.Root
-    ? { chakraVariant?: ComponentProps<typeof ChakraCard.Root>["variant"] }
+    ? { chakraVariant?: ComponentProps<typeof ChakraCard.Root>['variant'] }
     : {});
 
 const rootStyleConfig: Record<
@@ -25,21 +25,21 @@ const rootStyleConfig: Record<
   ComponentProps<typeof ChakraCard.Root>
 > = {
   wide: {
-    color: "#47494d",
-    size: "lg",
+    color: '#47494d',
+    size: 'lg',
   },
   medium: {
-    variant: "elevated",
-    height: "270px",
-    width: "345px",
+    variant: 'elevated',
+    height: '270px',
+    width: '345px',
   },
   small: {
-    variant: "outline",
-    width: "350px",
-    maxW: "350px",
-    maxH: "200px",
-    position: "relative",
-    overflow: "auto",
+    variant: 'outline',
+    width: '350px',
+    maxW: '350px',
+    maxH: '200px',
+    position: 'relative',
+    overflow: 'auto',
   },
 };
 
@@ -50,8 +50,8 @@ const bodyStyleConfig: Record<
   wide: {},
   medium: {},
   small: {
-    gap: "1",
-    overflowX: "hidden",
+    gap: '1',
+    overflowX: 'hidden',
   },
 };
 

@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/Button";
+import React from 'react';
+import { Button } from '@/components/Button';
 
 interface CronJobViewButtonProps {
   cronJobName: string;
@@ -11,7 +11,7 @@ export default function CronJobViewButton({
   onClick,
 }: CronJobViewButtonProps) {
   return (
-    <Button variant="blueOutline" size="sm" onClick={onClick}>
+    <Button variant='blueOutline' size='sm' onClick={onClick}>
       View
     </Button>
   );

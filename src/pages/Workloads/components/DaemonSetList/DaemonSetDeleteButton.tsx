@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/Button";
+import React from 'react';
+import { Button } from '@/components/Button';
 
 interface DaemonSetDeleteButtonProps {
   daemonSetName: string;
@@ -11,7 +11,7 @@ export default function DaemonSetDeleteButton({
   onDelete,
 }: DaemonSetDeleteButtonProps) {
   return (
-    <Button variant="redOutline" size="sm" onClick={onDelete}>
+    <Button variant='redOutline' size='sm' onClick={onDelete}>
       Delete
     </Button>
   );

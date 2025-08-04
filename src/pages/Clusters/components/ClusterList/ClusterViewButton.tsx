@@ -1,10 +1,10 @@
-import { getClusterDetailApi } from "@/apis/cluster";
-import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
-import { useQuery } from "@tanstack/react-query";
-import { Box, Drawer, Portal } from "@chakra-ui/react";
-import Editor from "@monaco-editor/react";
-import { useState } from "react";
+import { getClusterDetailApi } from '@/apis/cluster';
+import { Button } from '@/components/Button';
+import { CloseButton } from '@/components/CloseButton';
+import { useQuery } from '@tanstack/react-query';
+import { Box, Drawer, Portal } from '@chakra-ui/react';
+import Editor from '@monaco-editor/react';
+import { useState } from 'react';
 
 export default function ClusterViewButton({
   clusterId,
@@ -15,12 +15,12 @@ export default function ClusterViewButton({
 
   return (
     <Drawer.Root
-      size="xl"
+      size='xl'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="blueGhost">View</Button>
+        <Button variant='blueGhost'>View</Button>
       </Drawer.Trigger>
       {open === true ? <ClusterYamlViwerDrawer clusterId={clusterId} /> : null}
     </Drawer.Root>
@@ -29,7 +29,7 @@ export default function ClusterViewButton({
 
 function ClusterYamlViwerDrawer({ clusterId }: { clusterId: string }) {
   const { data: clusterDetail } = useQuery({
-    queryKey: ["getClusterDetailApi", clusterId],
+    queryKey: ['getClusterDetailApi', clusterId],
     queryFn: () => getClusterDetailApi({ clusterId }),
   });
 
@@ -42,16 +42,16 @@ function ClusterYamlViwerDrawer({ clusterId }: { clusterId: string }) {
             <Drawer.Title>{clusterDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <Box height="92vh">
+            <Box height='92vh'>
               <Editor
-                height="90vh"
-                defaultLanguage="yaml"
+                height='90vh'
+                defaultLanguage='yaml'
                 defaultValue={clusterDetail.yaml}
                 options={{
                   readOnly: true,
                   scrollbar: {
-                    vertical: "hidden",
-                    horizontal: "hidden",
+                    vertical: 'hidden',
+                    horizontal: 'hidden',
                     handleMouseWheel: true,
                   },
                   overviewRulerLanes: 0,

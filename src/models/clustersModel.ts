@@ -22,9 +22,9 @@ export interface Cluster {
   name: string;
   uid: string;
   kubernetesVersion: string;
-  status: "ready" | "not ready";
+  status: 'ready' | 'not ready';
   nodeSummary: NodeSummary;
-  syncMode: "Push" | "Pull";
+  syncMode: 'Push' | 'Pull';
   realTimeUsage: RealTimeUsage;
   requestUsage: RequestUsage;
 }

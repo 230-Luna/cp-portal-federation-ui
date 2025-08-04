@@ -1,8 +1,8 @@
-import { getResourceNamespaceListApi } from "@/apis/resource";
-import { Button } from "@/components/Button";
-import { Heading } from "@/components/Heading";
-import { Input } from "@/components/Input";
-import { RadioCard } from "@/components/RadioCard";
+import { getResourceNamespaceListApi } from '@/apis/resource';
+import { Button } from '@/components/Button';
+import { Heading } from '@/components/Heading';
+import { Input } from '@/components/Input';
+import { RadioCard } from '@/components/RadioCard';
 import {
   Badge,
   ButtonGroup,
@@ -14,25 +14,25 @@ import {
   RadioCardValueChangeDetails,
   Switch,
   Tag,
-} from "@chakra-ui/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { MouseEvent, useId, useState } from "react";
-import { FaMinus, FaPlus } from "react-icons/fa";
-import { HiCheck, HiX } from "react-icons/hi";
-import { Tooltip } from "@/components/Tooltip";
-import { useController, useFormContext, useWatch } from "react-hook-form";
-import { Field } from "@/components/Field";
+} from '@chakra-ui/react';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { MouseEvent, useId, useState } from 'react';
+import { FaMinus, FaPlus } from 'react-icons/fa';
+import { HiCheck, HiX } from 'react-icons/hi';
+import { Tooltip } from '@/components/Tooltip';
+import { useController, useFormContext, useWatch } from 'react-hook-form';
+import { Field } from '@/components/Field';
 
 export default function Metadata({ onNext }: { onNext: () => void }) {
-  const watchLevel = useWatch({ name: "level" });
+  const watchLevel = useWatch({ name: 'level' });
 
   return (
     <>
-      <Heading variant="center" marginTop="2%" marginBottom="3%">
+      <Heading variant='center' marginTop='2%' marginBottom='3%'>
         Metadata
       </Heading>
       <LevelSelectRadioField />
-      {watchLevel === "namespace" ? <NamespaceSelectField /> : null}
+      {watchLevel === 'namespace' ? <NamespaceSelectField /> : null}
       <NameInputField />
       <LabelCollapsibleInputField />
       <AnnotationCollapsibleInputField />
@@ -48,21 +48,21 @@ function LevelSelectRadioField() {
     field,
     fieldState: { error },
   } = useController({
-    name: "level",
+    name: 'level',
     control,
-    rules: { required: "level을 선택하세요" },
+    rules: { required: 'level을 선택하세요' },
   });
 
-  const watchLevel: string = useWatch({ name: "level" });
+  const watchLevel: string = useWatch({ name: 'level' });
 
   const handleValueChange = (details: RadioCardValueChangeDetails) => {
     if (details.value !== null) {
-      if (details.value === "namespace") {
+      if (details.value === 'namespace') {
         field.onChange(details.value);
       }
-      if (details.value === "cluster") {
+      if (details.value === 'cluster') {
         field.onChange(details.value);
-        setValue("data.metadata.namespace", "");
+        setValue('data.metadata.namespace', '');
       }
     }
   };
@@ -74,19 +74,19 @@ function LevelSelectRadioField() {
         <Field.RequiredIndicator />
       </Field.Label>
       <RadioCard.Root
-        name="level"
+        name='level'
         defaultValue={watchLevel}
-        onValueChange={(details) => handleValueChange(details)}
+        onValueChange={details => handleValueChange(details)}
       >
-        <HStack gap="5">
-          <RadioCard.Item key="namespace" value="namespace">
+        <HStack gap='5'>
+          <RadioCard.Item key='namespace' value='namespace'>
             <RadioCard.ItemHiddenInput />
             <RadioCard.ItemControl>
               <RadioCard.ItemText>Namespace</RadioCard.ItemText>
               <RadioCard.ItemIndicator />
             </RadioCard.ItemControl>
           </RadioCard.Item>
-          <RadioCard.Item key="cluster" value="cluster">
+          <RadioCard.Item key='cluster' value='cluster'>
             <RadioCard.ItemHiddenInput />
             <RadioCard.ItemControl>
               <RadioCard.ItemText>Cluster</RadioCard.ItemText>
@@ -102,7 +102,7 @@ function LevelSelectRadioField() {
 
 function NamespaceSelectField() {
   const { data: resourceNamespaceList } = useSuspenseQuery({
-    queryKey: ["getResourceNamespaceListApi", "metadata", "namespace"],
+    queryKey: ['getResourceNamespaceListApi', 'metadata', 'namespace'],
     queryFn: () => {
       return getResourceNamespaceListApi({});
     },
@@ -113,17 +113,17 @@ function NamespaceSelectField() {
     field,
     fieldState: { error },
   } = useController({
-    name: "data.metadata.namespace",
+    name: 'data.metadata.namespace',
     control,
-    rules: { required: "namespace를 선택하세요" },
+    rules: { required: 'namespace를 선택하세요' },
   });
 
   return (
     <Field.Root
       required
       invalid={Boolean(error)}
-      variant="vertical"
-      height="90px"
+      variant='vertical'
+      height='90px'
     >
       <Field.Label>
         Namespace
@@ -133,14 +133,14 @@ function NamespaceSelectField() {
         <NativeSelect.Field
           name={field.name}
           value={field.value}
-          onChange={(e) => {
+          onChange={e => {
             field.onChange(e);
           }}
           ref={field.ref}
           onBlur={field.onBlur}
-          placeholder="Select Namespace"
+          placeholder='Select Namespace'
         >
-          {resourceNamespaceList.namespaces.map((namespace) => (
+          {resourceNamespaceList.namespaces.map(namespace => (
             <option value={namespace} key={namespace}>
               {namespace}
             </option>
@@ -160,14 +160,14 @@ function NameInputField() {
     field,
     fieldState: { error },
   } = useController({
-    name: "data.metadata.name",
+    name: 'data.metadata.name',
     control,
     rules: {
-      required: "name을 입력하세요",
-      validate: (value) => {
+      required: 'name을 입력하세요',
+      validate: value => {
         const regex = /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/;
-        if (!value) return "name을 입력하세요";
-        if (value.length > 253) return "최대 길이는 253자입니다";
+        if (!value) return 'name을 입력하세요';
+        if (value.length > 253) return '최대 길이는 253자입니다';
         if (!regex.test(value))
           return "영어 소문자, 숫자, '-'를 포함할 수 있고, 시작과 끝은 영어 소문자 또는 숫자여야 합니다";
         return true;
@@ -176,16 +176,16 @@ function NameInputField() {
   });
 
   return (
-    <Field.Root required invalid={Boolean(error)} height="117px">
+    <Field.Root required invalid={Boolean(error)} height='117px'>
       <Field.Label>
         Name
         <Field.RequiredIndicator />
       </Field.Label>
-      <Input {...field} placeholder="이름 입력" size="xl" />
+      <Input {...field} placeholder='이름 입력' size='xl' />
       {error ? (
         <Field.ErrorText>{error.message}</Field.ErrorText>
       ) : (
-        <Field.HelperText></Field.HelperText>
+        <Field.HelperText />
       )}
     </Field.Root>
   );
@@ -194,20 +194,20 @@ function NameInputField() {
 function LabelCollapsibleInputField() {
   const { control } = useFormContext();
   const { field } = useController({
-    name: "data.metadata.labels",
+    name: 'data.metadata.labels',
     control,
   });
 
-  const [keyInput, setKeyInput] = useState("");
-  const [valueInput, setValueInput] = useState("");
+  const [keyInput, setKeyInput] = useState('');
+  const [valueInput, setValueInput] = useState('');
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
   const labels: string[] = field.value || [];
 
-  const [isKeyValid, setIsKeyValid] = useState<false | "empty" | "invalid">(
+  const [isKeyValid, setIsKeyValid] = useState<false | 'empty' | 'invalid'>(
     false
   );
-  const [isValueValid, setIsValueValid] = useState<false | "empty" | "invalid">(
+  const [isValueValid, setIsValueValid] = useState<false | 'empty' | 'invalid'>(
     false
   );
   const [labelLimitExceeded, setLabelLimitExceeded] = useState(false);
@@ -221,7 +221,7 @@ function LabelCollapsibleInputField() {
 
     let hasError = false;
 
-    const isDuplicate = labels.some((label) =>
+    const isDuplicate = labels.some(label =>
       label.startsWith(`${trimmedKey}=`)
     );
     const willExceedLimit = !isDuplicate && labels.length >= 20;
@@ -234,23 +234,23 @@ function LabelCollapsibleInputField() {
     }
 
     if (!trimmedKey) {
-      setIsKeyValid("empty");
+      setIsKeyValid('empty');
       hasError = true;
     } else if (trimmedKey.length > 63 || !labelKeyValueRegex.test(trimmedKey)) {
-      setIsKeyValid("invalid");
+      setIsKeyValid('invalid');
       hasError = true;
     } else {
       setIsKeyValid(false);
     }
 
     if (!trimmedValue) {
-      setIsValueValid("empty");
+      setIsValueValid('empty');
       hasError = true;
     } else if (
       trimmedValue.length > 63 ||
       !labelKeyValueRegex.test(trimmedValue)
     ) {
-      setIsValueValid("invalid");
+      setIsValueValid('invalid');
       hasError = true;
     } else {
       setIsValueValid(false);
@@ -259,38 +259,38 @@ function LabelCollapsibleInputField() {
     if (hasError) return;
 
     const updated = [
-      ...labels.filter((label) => !label.startsWith(`${trimmedKey}=`)),
+      ...labels.filter(label => !label.startsWith(`${trimmedKey}=`)),
       `${trimmedKey}=${trimmedValue}`,
     ];
     field.onChange(updated);
 
-    setKeyInput("");
-    setValueInput("");
+    setKeyInput('');
+    setValueInput('');
     setIsKeyValid(false);
     setIsValueValid(false);
     setLabelLimitExceeded(false);
   };
 
   const handleDeleteLabelClick = (label: string) => {
-    const updated = labels.filter((originLabel) => originLabel !== label);
+    const updated = labels.filter(originLabel => originLabel !== label);
     field.onChange(updated);
     setLabelLimitExceeded(false);
   };
 
   return (
-    <Flex padding="1.5% 0">
-      <Field.Root variant="horizontal" invalid={labelLimitExceeded}>
+    <Flex padding='1.5% 0'>
+      <Field.Root variant='horizontal' invalid={labelLimitExceeded}>
         <Collapsible.Root
           open={isCollapsibleOpen}
           onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
-          width="100%"
+          width='100%'
         >
-          <HStack gap="3">
+          <HStack gap='3'>
             <Field.Label>
               Labels
               <Field.RequiredIndicator
                 fallback={
-                  <Badge size="xs" variant="surface">
+                  <Badge size='xs' variant='surface'>
                     Optional
                   </Badge>
                 }
@@ -299,10 +299,10 @@ function LabelCollapsibleInputField() {
             <Collapsible.Trigger>
               {isCollapsibleOpen === true ? <FaMinus /> : <FaPlus />}
             </Collapsible.Trigger>
-            <Flex gap={1} wrap="wrap" width="80%">
-              {labels.map((label) => (
+            <Flex gap={1} wrap='wrap' width='80%'>
+              {labels.map(label => (
                 <Tooltip showArrow content={label} key={label}>
-                  <Tag.Root key={label} maxW="300px">
+                  <Tag.Root key={label} maxW='300px'>
                     <Tag.Label>{label}</Tag.Label>
                     <Tag.EndElement>
                       <Tag.CloseTrigger
@@ -319,24 +319,24 @@ function LabelCollapsibleInputField() {
               Label은 최대 20개까지 추가할 수 있습니다.
             </Field.ErrorText>
           ) : (
-            <HStack height="20px"></HStack>
+            <HStack height='20px' />
           )}
           <Collapsible.Content>
             <Fieldset.Root>
-              <Flex alignItems="end">
+              <Flex alignItems='end'>
                 <Fieldset.Content>
-                  <HStack gap="4" margin="2%">
-                    <Field.Root required invalid={!!isKeyValid} height="120px">
+                  <HStack gap='4' margin='2%'>
+                    <Field.Root required invalid={!!isKeyValid} height='120px'>
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
                       <Input
                         value={keyInput}
-                        onChange={(event) => setKeyInput(event.target.value)}
+                        onChange={event => setKeyInput(event.target.value)}
                       />
-                      {isKeyValid === "empty" ? (
+                      {isKeyValid === 'empty' ? (
                         <Field.ErrorText>Key를 입력하세요</Field.ErrorText>
-                      ) : isKeyValid === "invalid" ? (
+                      ) : isKeyValid === 'invalid' ? (
                         <Field.ErrorText>
                           1~63자의 영문자 또는 숫자로 시작하고 끝나야 하며, '-',
                           '.', '_'를 포함할 수 있습니다.
@@ -346,18 +346,18 @@ function LabelCollapsibleInputField() {
                     <Field.Root
                       required
                       invalid={!!isValueValid}
-                      height="120px"
+                      height='120px'
                     >
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
                       <Input
                         value={valueInput}
-                        onChange={(event) => setValueInput(event.target.value)}
+                        onChange={event => setValueInput(event.target.value)}
                       />
-                      {isValueValid === "empty" ? (
+                      {isValueValid === 'empty' ? (
                         <Field.ErrorText>Value를 입력하세요</Field.ErrorText>
-                      ) : isValueValid === "invalid" ? (
+                      ) : isValueValid === 'invalid' ? (
                         <Field.ErrorText>
                           1~63자의 영문자 또는 숫자로 시작하고 끝나야 하며, '-',
                           '.', '_'를 포함할 수 있습니다.
@@ -367,9 +367,9 @@ function LabelCollapsibleInputField() {
                   </HStack>
                 </Fieldset.Content>
                 <Button
-                  variant="mediumBlue"
+                  variant='mediumBlue'
                   onClick={handleAddLabelClick}
-                  margin="2.5%"
+                  margin='2.5%'
                 >
                   <FaPlus />
                 </Button>
@@ -385,20 +385,20 @@ function LabelCollapsibleInputField() {
 function AnnotationCollapsibleInputField() {
   const { control } = useFormContext();
   const { field } = useController({
-    name: "data.metadata.annotations",
+    name: 'data.metadata.annotations',
     control,
   });
 
-  const [keyInput, setKeyInput] = useState("");
-  const [valueInput, setValueInput] = useState("");
+  const [keyInput, setKeyInput] = useState('');
+  const [valueInput, setValueInput] = useState('');
   const [isCollapsibleOpen, setIsCollapsibleOpen] = useState(false);
 
   const annotations: string[] = field.value || [];
 
-  const [isKeyValid, setIsKeyValid] = useState<false | "empty" | "invalid">(
+  const [isKeyValid, setIsKeyValid] = useState<false | 'empty' | 'invalid'>(
     false
   );
-  const [isValueValid, setIsValueValid] = useState<false | "empty" | "invalid">(
+  const [isValueValid, setIsValueValid] = useState<false | 'empty' | 'invalid'>(
     false
   );
   const [annotationLimitExceeded, setAnnotationLimitExceeded] = useState(false);
@@ -412,7 +412,7 @@ function AnnotationCollapsibleInputField() {
 
     let hasError = false;
 
-    const isDuplicate = annotations.some((annotation) =>
+    const isDuplicate = annotations.some(annotation =>
       annotation.startsWith(`${trimmedKey}=`)
     );
     const willExceedLimit = !isDuplicate && annotations.length >= 20;
@@ -425,23 +425,23 @@ function AnnotationCollapsibleInputField() {
     }
 
     if (!trimmedKey) {
-      setIsKeyValid("empty");
+      setIsKeyValid('empty');
       hasError = true;
     } else if (
       trimmedKey.length > 63 ||
       !annotationKeyValueRegex.test(trimmedKey)
     ) {
-      setIsKeyValid("invalid");
+      setIsKeyValid('invalid');
       hasError = true;
     } else {
       setIsKeyValid(false);
     }
 
     if (!trimmedValue) {
-      setIsValueValid("empty");
+      setIsValueValid('empty');
       hasError = true;
     } else if (!annotationKeyValueRegex.test(trimmedValue)) {
-      setIsValueValid("invalid");
+      setIsValueValid('invalid');
       hasError = true;
     } else {
       setIsValueValid(false);
@@ -451,14 +451,14 @@ function AnnotationCollapsibleInputField() {
 
     const updated = [
       ...annotations.filter(
-        (annotation) => !annotation.startsWith(`${trimmedKey}=`)
+        annotation => !annotation.startsWith(`${trimmedKey}=`)
       ),
       `${trimmedKey}=${trimmedValue}`,
     ];
     field.onChange(updated);
 
-    setKeyInput("");
-    setValueInput("");
+    setKeyInput('');
+    setValueInput('');
     setIsKeyValid(false);
     setIsValueValid(false);
     setAnnotationLimitExceeded(false);
@@ -466,26 +466,26 @@ function AnnotationCollapsibleInputField() {
 
   const handleDeleteAnnotationClick = (annotation: string) => {
     const updated = annotations.filter(
-      (originAnnotation) => originAnnotation !== annotation
+      originAnnotation => originAnnotation !== annotation
     );
     field.onChange(updated);
     setAnnotationLimitExceeded(false);
   };
 
   return (
-    <Flex padding="1.5% 0">
-      <Field.Root variant="horizontal" invalid={annotationLimitExceeded}>
+    <Flex padding='1.5% 0'>
+      <Field.Root variant='horizontal' invalid={annotationLimitExceeded}>
         <Collapsible.Root
           open={isCollapsibleOpen}
           onOpenChange={() => setIsCollapsibleOpen(!isCollapsibleOpen)}
-          width="100%"
+          width='100%'
         >
-          <HStack gap="3">
+          <HStack gap='3'>
             <Field.Label>
               Annotations
               <Field.RequiredIndicator
                 fallback={
-                  <Badge size="xs" variant="surface">
+                  <Badge size='xs' variant='surface'>
                     Optional
                   </Badge>
                 }
@@ -494,10 +494,10 @@ function AnnotationCollapsibleInputField() {
             <Collapsible.Trigger>
               {isCollapsibleOpen === true ? <FaMinus /> : <FaPlus />}
             </Collapsible.Trigger>
-            <Flex gap={1} wrap="wrap" width="80%">
-              {annotations.map((annotation) => (
+            <Flex gap={1} wrap='wrap' width='80%'>
+              {annotations.map(annotation => (
                 <Tooltip showArrow content={annotation} key={annotation}>
-                  <Tag.Root key={annotation} maxW="270px">
+                  <Tag.Root key={annotation} maxW='270px'>
                     <Tag.Label>{annotation}</Tag.Label>
                     <Tag.EndElement>
                       <Tag.CloseTrigger
@@ -514,24 +514,24 @@ function AnnotationCollapsibleInputField() {
               Annotation은 최대 20개까지 추가할 수 있습니다.
             </Field.ErrorText>
           ) : (
-            <HStack height="20px"></HStack>
+            <HStack height='20px' />
           )}
           <Collapsible.Content>
             <Fieldset.Root>
-              <Flex alignItems="end">
+              <Flex alignItems='end'>
                 <Fieldset.Content>
-                  <HStack gap="4" margin="2%">
-                    <Field.Root required invalid={!!isKeyValid} height="120px">
+                  <HStack gap='4' margin='2%'>
+                    <Field.Root required invalid={!!isKeyValid} height='120px'>
                       <Field.Label>
                         Key <Field.RequiredIndicator />
                       </Field.Label>
                       <Input
                         value={keyInput}
-                        onChange={(event) => setKeyInput(event.target.value)}
+                        onChange={event => setKeyInput(event.target.value)}
                       />
-                      {isKeyValid === "empty" ? (
+                      {isKeyValid === 'empty' ? (
                         <Field.ErrorText>Key를 입력하세요</Field.ErrorText>
-                      ) : isKeyValid === "invalid" ? (
+                      ) : isKeyValid === 'invalid' ? (
                         <Field.ErrorText>
                           1~63자의 영문자 또는 숫자로 시작하고 끝나야 하며, '-',
                           '.', '_'를 포함할 수 있습니다.
@@ -541,18 +541,18 @@ function AnnotationCollapsibleInputField() {
                     <Field.Root
                       required
                       invalid={!!isValueValid}
-                      height="120px"
+                      height='120px'
                     >
                       <Field.Label>
                         Value <Field.RequiredIndicator />
                       </Field.Label>
                       <Input
                         value={valueInput}
-                        onChange={(event) => setValueInput(event.target.value)}
+                        onChange={event => setValueInput(event.target.value)}
                       />
-                      {isValueValid === "empty" ? (
+                      {isValueValid === 'empty' ? (
                         <Field.ErrorText>Value를 입력하세요</Field.ErrorText>
-                      ) : isValueValid === "invalid" ? (
+                      ) : isValueValid === 'invalid' ? (
                         <Field.ErrorText>
                           영문자 또는 숫자로 시작하고 끝나야 하며, '-', '.',
                           '_'를 포함할 수 있습니다.
@@ -562,9 +562,9 @@ function AnnotationCollapsibleInputField() {
                   </HStack>
                 </Fieldset.Content>
                 <Button
-                  variant="mediumBlue"
+                  variant='mediumBlue'
                   onClick={handleAnnotationClick}
-                  margin="2.5%"
+                  margin='2.5%'
                 >
                   <FaPlus />
                 </Button>
@@ -580,7 +580,7 @@ function AnnotationCollapsibleInputField() {
 function PrserveResourceOnDeletionField() {
   const { control } = useFormContext();
   const { field } = useController({
-    name: "data.metadata.preserveResourceOnDeletion",
+    name: 'data.metadata.preserveResourceOnDeletion',
     control,
   });
   const id = useId();
@@ -590,24 +590,24 @@ function PrserveResourceOnDeletionField() {
     <Tooltip
       showArrow
       ids={{ trigger: id }}
-      content="해당 policy를 삭제할 때 멤버 클러스터에 전파되어있는 리소스들을 같이 삭제할지 선택하는 옵션"
+      content='해당 policy를 삭제할 때 멤버 클러스터에 전파되어있는 리소스들을 같이 삭제할지 선택하는 옵션'
     >
       <Switch.Root
         ids={{ root: id }}
         checked={isChecked}
-        onCheckedChange={(event) => field.onChange(event.checked)}
-        marginTop="3%"
-        size="lg"
-        colorPalette="blue"
+        onCheckedChange={event => field.onChange(event.checked)}
+        marginTop='3%'
+        size='lg'
+        colorPalette='blue'
         required
       >
-        <Switch.Label fontSize="20px">
+        <Switch.Label fontSize='20px'>
           Preserve Resource On Deletion
         </Switch.Label>
         <Switch.HiddenInput />
         <Switch.Control>
           <Switch.Thumb>
-            <Switch.ThumbIndicator fallback={<HiX color="black" />}>
+            <Switch.ThumbIndicator fallback={<HiX color='black' />}>
               <HiCheck />
             </Switch.ThumbIndicator>
           </Switch.Thumb>
@@ -619,13 +619,13 @@ function PrserveResourceOnDeletionField() {
 
 function StepActionButtons({ onClick }: { onClick: () => void }) {
   return (
-    <ButtonGroup width="100%" marginTop="3%">
-      <Flex justifyContent="flex-end" width="100%">
+    <ButtonGroup width='100%' marginTop='3%'>
+      <Flex justifyContent='flex-end' width='100%'>
         <Button
           onClick={() => onClick()}
-          variant="blueSurface"
-          marginLeft="5px"
-          marginRight="5px"
+          variant='blueSurface'
+          marginLeft='5px'
+          marginRight='5px'
         >
           Next
         </Button>

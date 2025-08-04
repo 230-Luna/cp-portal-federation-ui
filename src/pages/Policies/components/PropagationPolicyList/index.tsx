@@ -1,30 +1,30 @@
-import { Table } from "@/components/Table";
-import { Flex } from "@/components/Flex";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Box, Tag, VStack } from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
-import { getPropagationPolicyListApi } from "@/apis/propagationPolicy";
-import { PropagationPolicy } from "@/models/propagationPolicyModel";
-import PropagationPolicyDeleteButton from "./PropagationPolicyDeleteButton";
-import PropagationPolicyViewButton from "./PropagationPolicyViewButton";
-import Pagination from "@/components/Pagination";
-import { Heading } from "@/components/Heading";
+import { Table } from '@/components/Table';
+import { Flex } from '@/components/Flex';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Box, Tag, VStack } from '@chakra-ui/react';
+import { useSearchParams } from 'react-router-dom';
+import { getPropagationPolicyListApi } from '@/apis/propagationPolicy';
+import { PropagationPolicy } from '@/models/propagationPolicyModel';
+import PropagationPolicyDeleteButton from './PropagationPolicyDeleteButton';
+import PropagationPolicyViewButton from './PropagationPolicyViewButton';
+import Pagination from '@/components/Pagination';
+import { Heading } from '@/components/Heading';
 
 export default function PropagationPolicyList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
-  const sortBy = searchParams.get("sortBy") || undefined;
-  const filterBy = searchParams.get("filterBy") || undefined;
-  const namespace = searchParams.get("namespace") || undefined;
-  const currentPage = Number(searchParams.get("page") ?? "1");
+  const sortBy = searchParams.get('sortBy') || undefined;
+  const filterBy = searchParams.get('filterBy') || undefined;
+  const namespace = searchParams.get('namespace') || undefined;
+  const currentPage = Number(searchParams.get('page') ?? '1');
   const setCurrentPage = (page: number) => {
-    searchParams.set("page", page.toString());
+    searchParams.set('page', page.toString());
     setSearchParams(searchParams);
   };
 
   const { data: propagationPolicyList } = useSuspenseQuery({
     queryKey: [
-      "getPropagationPolicyListApi",
+      'getPropagationPolicyListApi',
       namespace,
       filterBy,
       currentPage,
@@ -33,10 +33,10 @@ export default function PropagationPolicyList() {
     ],
     queryFn: () => {
       return getPropagationPolicyListApi({
-        namespace: namespace,
-        filterBy: filterBy,
+        namespace,
+        filterBy,
         page: currentPage,
-        itemsPerPage: itemsPerPage,
+        itemsPerPage,
         sort: sortBy,
       });
     },
@@ -44,7 +44,7 @@ export default function PropagationPolicyList() {
 
   if (propagationPolicyList.propagationPolicies.length === 0) {
     return (
-      <Heading variant="center" marginTop="10%">
+      <Heading variant='center' marginTop='10%'>
         결과가 없습니다.
       </Heading>
     );
@@ -85,7 +85,7 @@ export default function PropagationPolicyList() {
                   </VStack>
                 </Table.Cell>
                 <Table.Cell>
-                  <Flex justify="space-evenly">
+                  <Flex justify='space-evenly'>
                     <PropagationPolicyViewButton
                       namespace={propagationPolicy.namespace}
                       name={propagationPolicy.name}
@@ -105,7 +105,7 @@ export default function PropagationPolicyList() {
         totalItemCount={propagationPolicyList.listMeta.totalItems}
         itemsPerPage={itemsPerPage}
         currentPage={currentPage}
-        onPageChange={(page) => setCurrentPage(page)}
+        onPageChange={page => setCurrentPage(page)}
       />
     </>
   );

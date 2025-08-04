@@ -1,15 +1,15 @@
-import { Button } from "@/components/Button";
-import { Dialog } from "@/components/Dialog";
-import { CloseButton } from "@/components/CloseButton";
-import { Portal } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button } from '@/components/Button';
+import { Dialog } from '@/components/Dialog';
+import { CloseButton } from '@/components/CloseButton';
+import { Portal } from '@chakra-ui/react';
+import { useState } from 'react';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
-import { deleteClusterApi } from "@/apis/cluster";
-import { toaster } from "@/components/Toaster";
+} from '@tanstack/react-query';
+import { deleteClusterApi } from '@/apis/cluster';
+import { toaster } from '@/components/Toaster';
 
 export default function ClusterExcludeButton({
   clusterId,
@@ -20,17 +20,17 @@ export default function ClusterExcludeButton({
 }) {
   const [open, setOpen] = useState(false);
   const excludeClusterMutationCount = useIsMutating({
-    mutationKey: ["handleExcludeCluster", clusterId],
+    mutationKey: ['handleExcludeCluster', clusterId],
   });
 
   return (
     <Dialog.Root
-      variant="alert"
+      variant='alert'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Dialog.Trigger>
-        <Button variant="redGhost" disabled={excludeClusterMutationCount > 0}>
+        <Button variant='redGhost' disabled={excludeClusterMutationCount > 0}>
           Exclude
         </Button>
       </Dialog.Trigger>
@@ -56,13 +56,13 @@ function ExcludeClusterConfirmDialog({
 }) {
   const queryClient = useQueryClient();
   const handleExcludeCluster = useMutation({
-    mutationKey: ["handleExcludeCluster", clusterId],
+    mutationKey: ['handleExcludeCluster', clusterId],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `${clusterName}를 멤버 클러스터에서 제외하고 있습니다.`,
         });
         await deleteClusterApi({ clusterId });
@@ -70,12 +70,12 @@ function ExcludeClusterConfirmDialog({
         toaster.success({
           description: `${clusterName}가 멤버 클러스터에서 제외되었습니다.`,
         });
-        queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
+        queryClient.invalidateQueries({ queryKey: ['getClusterListApi'] });
       } catch (error: any) {
         toaster.error({
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
-        queryClient.invalidateQueries({ queryKey: ["getClusterListApi"] });
+        queryClient.invalidateQueries({ queryKey: ['getClusterListApi'] });
       } finally {
         if (loadingToaster) {
           toaster.remove(loadingToaster);
@@ -88,15 +88,15 @@ function ExcludeClusterConfirmDialog({
     <Portal>
       <Dialog.Backdrop />
       <Dialog.Positioner>
-        <Dialog.Content variant="alert">
-          <Dialog.Body variant="alert" marginTop="8%">
+        <Dialog.Content variant='alert'>
+          <Dialog.Body variant='alert' marginTop='8%'>
             {clusterName}를 멤버 클러스터에서 제외시키겠습니까?
           </Dialog.Body>
           <Dialog.Footer>
             <Dialog.ActionTrigger>
-              <Button variant="redOutline">Cancel</Button>
+              <Button variant='redOutline'>Cancel</Button>
             </Dialog.ActionTrigger>
-            <Button variant="red" onClick={() => handleExcludeCluster.mutate()}>
+            <Button variant='red' onClick={() => handleExcludeCluster.mutate()}>
               Exclude
             </Button>
           </Dialog.Footer>

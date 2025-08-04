@@ -1,28 +1,28 @@
-import { Table } from "@/components/Table";
-import { Flex } from "@/components/Flex";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import Pagination from "@/components/Pagination";
-import { useSearchParams } from "react-router-dom";
-import { Heading } from "@/components/Heading";
-import { getNamespaceListApi } from "@/apis/namespace";
-import { Namespace } from "@/models/namespaceModel";
-import NamespaceViewButton from "./NamespaceViewButton";
-import NamespaceDeleteButton from "./NamespaceDeleteButton";
+import { Table } from '@/components/Table';
+import { Flex } from '@/components/Flex';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import Pagination from '@/components/Pagination';
+import { useSearchParams } from 'react-router-dom';
+import { Heading } from '@/components/Heading';
+import { getNamespaceListApi } from '@/apis/namespace';
+import { Namespace } from '@/models/namespaceModel';
+import NamespaceViewButton from './NamespaceViewButton';
+import NamespaceDeleteButton from './NamespaceDeleteButton';
 
 export default function NamespaceList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
-  const sortBy = searchParams.get("sortBy") || undefined;
-  const filterBy = searchParams.get("filterBy") || undefined;
-  const currentPage = Number(searchParams.get("page") ?? "1");
+  const sortBy = searchParams.get('sortBy') || undefined;
+  const filterBy = searchParams.get('filterBy') || undefined;
+  const currentPage = Number(searchParams.get('page') ?? '1');
   const setCurrentPage = (page: number) => {
-    searchParams.set("page", page.toString());
+    searchParams.set('page', page.toString());
     setSearchParams(searchParams);
   };
 
   const { data: namespaceList } = useSuspenseQuery({
     queryKey: [
-      "getNamespaceListApi",
+      'getNamespaceListApi',
       filterBy,
       currentPage,
       itemsPerPage,
@@ -30,16 +30,16 @@ export default function NamespaceList() {
     ],
     queryFn: () => {
       return getNamespaceListApi({
-        filterBy: filterBy,
+        filterBy,
         page: currentPage,
-        itemsPerPage: itemsPerPage,
+        itemsPerPage,
         sort: sortBy,
       });
     },
   });
   if (namespaceList.namespaces.length === 0) {
     return (
-      <Heading variant="center" marginTop="10%">
+      <Heading variant='center' marginTop='10%'>
         네임스페이스가 없습니다.
       </Heading>
     );
@@ -62,7 +62,7 @@ export default function NamespaceList() {
               <Table.Cell>{namespace.status}</Table.Cell>
               <Table.Cell>{namespace.created}</Table.Cell>
               <Table.Cell>
-                <Flex justify="space-evenly">
+                <Flex justify='space-evenly'>
                   <NamespaceViewButton name={namespace.name} />
                   <NamespaceDeleteButton name={namespace.name} />
                 </Flex>
@@ -75,7 +75,7 @@ export default function NamespaceList() {
         totalItemCount={namespaceList.listMeta.totalItems}
         itemsPerPage={itemsPerPage}
         currentPage={currentPage}
-        onPageChange={(page) => setCurrentPage(page)}
+        onPageChange={page => setCurrentPage(page)}
       />
     </>
   );

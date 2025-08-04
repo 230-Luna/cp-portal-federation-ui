@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/Button";
+import React from 'react';
+import { Button } from '@/components/Button';
 
 interface DaemonSetViewButtonProps {
   daemonSetName: string;
@@ -11,7 +11,7 @@ export default function DaemonSetViewButton({
   onClick,
 }: DaemonSetViewButtonProps) {
   return (
-    <Button variant="blueOutline" size="sm" onClick={onClick}>
+    <Button variant='blueOutline' size='sm' onClick={onClick}>
       View
     </Button>
   );

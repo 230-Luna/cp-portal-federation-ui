@@ -1,22 +1,22 @@
-import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
-import { useQuery } from "@tanstack/react-query";
-import { Box, Drawer, Portal } from "@chakra-ui/react";
-import Editor from "@monaco-editor/react";
-import { useState } from "react";
-import { getNamespaceDetailApi } from "@/apis/namespace";
+import { Button } from '@/components/Button';
+import { CloseButton } from '@/components/CloseButton';
+import { useQuery } from '@tanstack/react-query';
+import { Box, Drawer, Portal } from '@chakra-ui/react';
+import Editor from '@monaco-editor/react';
+import { useState } from 'react';
+import { getNamespaceDetailApi } from '@/apis/namespace';
 
 export default function NamespaceViewButton({ name }: { name: string }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Drawer.Root
-      size="lg"
+      size='lg'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="blueGhost">View</Button>
+        <Button variant='blueGhost'>View</Button>
       </Drawer.Trigger>
       {open === true ? <NamespaceYamlViwerDrawer name={name} /> : null}
     </Drawer.Root>
@@ -25,7 +25,7 @@ export default function NamespaceViewButton({ name }: { name: string }) {
 
 function NamespaceYamlViwerDrawer({ name }: { name: string }) {
   const { data: namespaceDetail } = useQuery({
-    queryKey: ["getNamespaceDetailApi", name],
+    queryKey: ['getNamespaceDetailApi', name],
     queryFn: () => getNamespaceDetailApi({ name }),
   });
 
@@ -38,16 +38,16 @@ function NamespaceYamlViwerDrawer({ name }: { name: string }) {
             <Drawer.Title>{namespaceDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
-            <Box height="92vh">
+            <Box height='92vh'>
               <Editor
-                height="90vh"
-                defaultLanguage="yaml"
+                height='90vh'
+                defaultLanguage='yaml'
                 defaultValue={namespaceDetail.yaml}
                 options={{
                   readOnly: true,
                   scrollbar: {
-                    vertical: "hidden",
-                    horizontal: "hidden",
+                    vertical: 'hidden',
+                    horizontal: 'hidden',
                     handleMouseWheel: true,
                   },
                   overviewRulerLanes: 0,

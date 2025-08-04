@@ -1,16 +1,16 @@
-import { httpClient } from "@/utils/httpClient";
+import { httpClient } from '@/utils/httpClient';
 import {
   Namespaces,
   NamespaceDetail,
   CreateNamespaceRequest,
   DeleteNamespaceResponse,
-} from "@/models/namespaceModel";
+} from '@/models/namespaceModel';
 
 export async function getNamespaceListApi({
   filterBy,
   page = 1,
   itemsPerPage = 10,
-  sort = "d,creationTimestamp",
+  sort = 'd,creationTimestamp',
 }: {
   filterBy?: string;
   page?: number;
@@ -20,18 +20,18 @@ export async function getNamespaceListApi({
   const params = new URLSearchParams();
 
   if (filterBy) {
-    params.append("filterBy", `name,${filterBy}`);
+    params.append('filterBy', `name,${filterBy}`);
   }
 
   if (sort) {
-    params.append("sortBy", sort);
+    params.append('sortBy', sort);
   }
 
   if (page) {
-    params.append("page", page.toString());
+    params.append('page', page.toString());
   }
   if (itemsPerPage) {
-    params.append("itemsPerPage", itemsPerPage.toString());
+    params.append('itemsPerPage', itemsPerPage.toString());
   }
 
   const NAMESPACE_API_URL = `/api/v1/namespace?${params.toString()}`;

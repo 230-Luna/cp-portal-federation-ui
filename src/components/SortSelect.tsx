@@ -3,24 +3,24 @@ import {
   Portal,
   Select,
   SelectValueChangeDetails,
-} from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
+} from '@chakra-ui/react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function SortSelect({ level }: { level: string }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   let sortOptions: Record<string, string> = {
-    newest: "d,creationTimestamp",
-    oldest: "a,creationTimestamp",
-    name: "a,name",
+    newest: 'd,creationTimestamp',
+    oldest: 'a,creationTimestamp',
+    name: 'a,name',
   };
 
-  if (level === "namespace") {
-    sortOptions = { ...sortOptions, namespace: "a,namespace" };
+  if (level === 'namespace') {
+    sortOptions = { ...sortOptions, namespace: 'a,namespace' };
   }
 
   const handleSelectValueChange = (details: SelectValueChangeDetails) => {
-    searchParams.set("sortBy", sortOptions[details.value[0]]);
+    searchParams.set('sortBy', sortOptions[details.value[0]]);
     setSearchParams(searchParams);
   };
 
@@ -31,16 +31,16 @@ export default function SortSelect({ level }: { level: string }) {
   return (
     <Select.Root
       collection={sortCollection}
-      defaultValue={["newest"]}
+      defaultValue={['newest']}
       onValueChange={handleSelectValueChange}
-      size="sm"
-      width="120px"
-      marginBottom="10px"
+      size='sm'
+      width='120px'
+      marginBottom='10px'
     >
       <Select.HiddenSelect />
       <Select.Control>
         <Select.Trigger>
-          <Select.ValueText placeholder="" />
+          <Select.ValueText placeholder='' />
         </Select.Trigger>
         <Select.IndicatorGroup>
           <Select.Indicator />
@@ -49,7 +49,7 @@ export default function SortSelect({ level }: { level: string }) {
       <Portal>
         <Select.Positioner>
           <Select.Content>
-            {sortCollection.items.map((item) => (
+            {sortCollection.items.map(item => (
               <Select.Item item={item} key={item}>
                 {item}
                 <Select.ItemIndicator />

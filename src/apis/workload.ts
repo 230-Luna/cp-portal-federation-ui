@@ -1,4 +1,4 @@
-import { httpClient } from "@/utils/httpClient";
+import { httpClient } from '@/utils/httpClient';
 import {
   Workloads,
   WorkloadKind,
@@ -6,7 +6,7 @@ import {
   CreateWorkloadRequest,
   UpdateWorkloadRequest,
   WorkloadResponse,
-} from "@/models/workloadModel";
+} from '@/models/workloadModel';
 
 export async function getWorkloadListApi({
   kind,
@@ -14,7 +14,7 @@ export async function getWorkloadListApi({
   filterBy,
   page = 1,
   itemsPerPage = 10,
-  sort = "d,creationTimestamp",
+  sort = 'd,creationTimestamp',
 }: {
   kind: WorkloadKind;
   namespace?: string;
@@ -26,22 +26,22 @@ export async function getWorkloadListApi({
   const params = new URLSearchParams();
 
   if (namespace) {
-    params.append("namespace", namespace);
+    params.append('namespace', namespace);
   }
 
   if (filterBy) {
-    params.append("filterBy", `name,${filterBy}`);
+    params.append('filterBy', `name,${filterBy}`);
   }
 
   if (sort) {
-    params.append("sortBy", sort);
+    params.append('sortBy', sort);
   }
 
   if (page) {
-    params.append("page", page.toString());
+    params.append('page', page.toString());
   }
   if (itemsPerPage) {
-    params.append("itemsPerPage", itemsPerPage.toString());
+    params.append('itemsPerPage', itemsPerPage.toString());
   }
 
   const WORKLOAD_API_URL = `/api/v1/resource/${kind}?${params.toString()}`;

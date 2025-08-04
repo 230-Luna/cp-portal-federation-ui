@@ -1,7 +1,7 @@
-import { getSyncListApi, postSyncListApi } from "@/apis/sync";
-import { Button } from "@/components/Button";
-import { CloseButton } from "@/components/CloseButton";
-import { toaster } from "@/components/Toaster";
+import { getSyncListApi, postSyncListApi } from '@/apis/sync';
+import { Button } from '@/components/Button';
+import { CloseButton } from '@/components/CloseButton';
+import { toaster } from '@/components/Toaster';
 import {
   Box,
   Checkbox,
@@ -9,32 +9,32 @@ import {
   Drawer,
   Portal,
   TreeView,
-} from "@chakra-ui/react";
+} from '@chakra-ui/react';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
   useSuspenseQuery,
-} from "@tanstack/react-query";
-import { CheckedChangeDetails, CheckedState } from "@zag-js/checkbox";
-import { useMemo, useState } from "react";
-import { SyncPostBody } from "@/models/sync";
-import { ResourceKindLowercase } from "@/models/resourceModel";
-import { LuSquareMinus, LuSquarePlus } from "react-icons/lu";
+} from '@tanstack/react-query';
+import { CheckedChangeDetails, CheckedState } from '@zag-js/checkbox';
+import { useMemo, useState } from 'react';
+import { SyncPostBody } from '@/models/sync';
+import { ResourceKindLowercase } from '@/models/resourceModel';
+import { LuSquareMinus, LuSquarePlus } from 'react-icons/lu';
 
 const KIND_OPTIONS = [
-  "Deployment",
-  "StatefulSet",
-  "DaemonSet",
-  "CronJob",
-  "Job",
+  'Deployment',
+  'StatefulSet',
+  'DaemonSet',
+  'CronJob',
+  'Job',
 ] as const;
 
-const DRAWER_SIZE = "lg" as const;
-const TREE_SIZE = "md" as const;
-const TREE_MAX_WIDTH = "sm" as const;
+const DRAWER_SIZE = 'lg' as const;
+const TREE_SIZE = 'md' as const;
+const TREE_MAX_WIDTH = 'sm' as const;
 
-type ClusterStatus = "ready" | "not ready" | "unknown";
+type ClusterStatus = 'ready' | 'not ready' | 'unknown';
 type KindOption = (typeof KIND_OPTIONS)[number];
 
 interface ClusterSyncButtonProps {
@@ -78,19 +78,19 @@ export default function ClusterSyncButton({
   const [open, setOpen] = useState(false);
 
   const applySyncMutationCount = useIsMutating({
-    mutationKey: ["handleApplySync", clusterId],
+    mutationKey: ['handleApplySync', clusterId],
   });
 
-  const isDisabled = clusterStatus !== "ready" || applySyncMutationCount > 0;
+  const isDisabled = clusterStatus !== 'ready' || applySyncMutationCount > 0;
 
   return (
     <Drawer.Root
       size={DRAWER_SIZE}
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="blackGhost" disabled={isDisabled}>
+        <Button variant='blackGhost' disabled={isDisabled}>
           Sync
         </Button>
       </Drawer.Trigger>
@@ -125,13 +125,13 @@ function ClusterResourceSyncDrawer({
     name: string,
     checked: CheckedState
   ) => {
-    setCheckedResources((prev) => {
+    setCheckedResources(prev => {
       const current = prev[namespace]?.[kind] || [];
       const newNamespace = { ...(prev[namespace] || {}) };
       const updatedList =
         checked === true
           ? Array.from(new Set([...current, name]))
-          : current.filter((n) => n !== name);
+          : current.filter(n => n !== name);
 
       const newCheckedResources = {
         ...prev,
@@ -143,12 +143,12 @@ function ClusterResourceSyncDrawer({
 
       if (checked === true) {
         const namespaceInfo = syncResourceList?.find(
-          (ns) => ns.name === namespace
+          ns => ns.name === namespace
         );
         const isNamespaceDisabled = namespaceInfo?.isDuplicated;
 
         if (!isNamespaceDisabled) {
-          setCheckedNamespaces((prevNamespaces) => {
+          setCheckedNamespaces(prevNamespaces => {
             if (!prevNamespaces.includes(namespace)) {
               return [...prevNamespaces, namespace];
             }
@@ -158,11 +158,11 @@ function ClusterResourceSyncDrawer({
       } else {
         const hasRemainingResources = Object.values(
           newCheckedResources[namespace] || {}
-        ).some((resources) => resources.length > 0);
+        ).some(resources => resources.length > 0);
 
         if (!hasRemainingResources) {
-          setCheckedNamespaces((prevNamespaces) =>
-            prevNamespaces.filter((n) => n !== namespace)
+          setCheckedNamespaces(prevNamespaces =>
+            prevNamespaces.filter(n => n !== namespace)
           );
         }
       }
@@ -183,7 +183,7 @@ function ClusterResourceSyncDrawer({
       namespace,
       kind: kind.toLowerCase(),
     });
-    setResourceTreeMap((prev) => ({
+    setResourceTreeMap(prev => ({
       ...prev,
       [namespace]: {
         ...prev[namespace],
@@ -204,7 +204,7 @@ function ClusterResourceSyncDrawer({
       namespace,
       kind: kind.toLowerCase(),
     });
-    setResourceTreeMap((prev) => ({
+    setResourceTreeMap(prev => ({
       ...prev,
       [namespace]: {
         ...prev[namespace],
@@ -218,35 +218,35 @@ function ClusterResourceSyncDrawer({
     name: string
   ) => {
     if (checked === true) {
-      setCheckedNamespaces((prev) => [...prev, name]);
+      setCheckedNamespaces(prev => [...prev, name]);
     } else {
       const hasSelectedResources =
         checkedResources[name] &&
         Object.values(checkedResources[name]).some(
-          (resources) => resources.length > 0
+          resources => resources.length > 0
         );
 
       if (hasSelectedResources) {
         return;
       }
 
-      setCheckedNamespaces((prev) => prev.filter((n) => n !== name));
+      setCheckedNamespaces(prev => prev.filter(n => n !== name));
     }
   };
 
   const treeData = useMemo(() => {
-    return syncResourceList.map((namespace) => ({
+    return syncResourceList.map(namespace => ({
       id: `ns-${namespace.name}`,
       name: namespace.name,
-      kind: "namespace",
+      kind: 'namespace',
       isDuplicated: namespace.isDuplicated,
-      children: KIND_OPTIONS.map((kind) => ({
+      children: KIND_OPTIONS.map(kind => ({
         id: `${namespace.name}-${kind.toLowerCase()}`,
         name: kind,
         kind,
         namespace: namespace.name,
         children: resourceTreeMap[namespace.name]?.[kind]
-          ? resourceTreeMap[namespace.name][kind].map((resource) => ({
+          ? resourceTreeMap[namespace.name][kind].map(resource => ({
               id: `${namespace.name}-${kind}-${resource.name}`,
               name: resource.name,
               kind,
@@ -256,7 +256,7 @@ function ClusterResourceSyncDrawer({
           : [
               {
                 id: `placeholder-${namespace.name}-${kind}`,
-                name: "loading...",
+                name: 'loading...',
                 kind,
                 namespace: namespace.name,
                 isPlaceholder: true,
@@ -268,27 +268,27 @@ function ClusterResourceSyncDrawer({
 
   const collection = useMemo(() => {
     return createTreeCollection({
-      rootNode: { id: "root", name: "ROOT", children: treeData },
-      nodeToValue: (node) => node.id,
-      nodeToString: (node) => node.name,
+      rootNode: { id: 'root', name: 'ROOT', children: treeData },
+      nodeToValue: node => node.id,
+      nodeToString: node => node.name,
     });
   }, [treeData]);
 
   const generateSyncPostData = (): SyncPostBody => {
     const namespaces = Object.keys(checkedResources).filter(
-      (namespace) => Object.keys(checkedResources[namespace]).length > 0
+      namespace => Object.keys(checkedResources[namespace]).length > 0
     );
 
     const enabledNamespaces = new Set([
-      ...checkedNamespaces.filter((namespace) => {
+      ...checkedNamespaces.filter(namespace => {
         const namespaceInfo = syncResourceList?.find(
-          (ns) => ns.name === namespace
+          ns => ns.name === namespace
         );
         return !namespaceInfo?.isDuplicated;
       }),
-      ...namespaces.filter((namespace) => {
+      ...namespaces.filter(namespace => {
         const namespaceInfo = syncResourceList?.find(
-          (ns) => ns.name === namespace
+          ns => ns.name === namespace
         );
         return !namespaceInfo?.isDuplicated;
       }),
@@ -296,7 +296,7 @@ function ClusterResourceSyncDrawer({
 
     return {
       createNamespace: Array.from(enabledNamespaces),
-      data: namespaces.map((namespace) => {
+      data: namespaces.map(namespace => {
         const kinds = checkedResources[namespace];
         return {
           namespace,
@@ -329,7 +329,7 @@ function ClusterResourceSyncDrawer({
     const { children, isPlaceholder, kind, name, isDuplicated, namespace } =
       node;
 
-    if (kind === "namespace") {
+    if (kind === 'namespace') {
       return (
         <NamespaceNode
           node={node}
@@ -409,8 +409,8 @@ function ClusterResourceSyncDrawer({
 
 function useSyncResourceList(clusterId: string) {
   return useSuspenseQuery({
-    queryKey: ["getSyncListApi", clusterId, "namespace"],
-    queryFn: () => getSyncListApi({ clusterId, kind: "namespace" }),
+    queryKey: ['getSyncListApi', clusterId, 'namespace'],
+    queryFn: () => getSyncListApi({ clusterId, kind: 'namespace' }),
   });
 }
 
@@ -422,13 +422,13 @@ function useSyncMutation(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ["handleApplySync", clusterId],
+    mutationKey: ['handleApplySync', clusterId],
     mutationFn: async (data: SyncPostBody) => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `${clusterName}와 Sync하고 있습니다.`,
         });
         const response = await postSyncListApi({
@@ -440,13 +440,13 @@ function useSyncMutation(
           description: `Sync를 완료했습니다.\n총 요청 수: ${response.totalResource}개\n성공: ${response.successResource}개\n실패: ${response.failResource}개`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["getClusterListApi"],
+          queryKey: ['getClusterListApi'],
         });
       } catch (error: any) {
         console.error(error.response.data.message);
         toaster.error({
-          type: "error",
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          type: 'error',
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
       } finally {
         if (loadingToaster) {
@@ -477,10 +477,10 @@ function NamespaceNode({
   const { name, isDuplicated } = node;
 
   return (
-    <Box display="flex" alignItems="center" gap={2}>
+    <Box display='flex' alignItems='center' gap={2}>
       <TreeView.BranchControl
         onClick={() =>
-          onNamespaceExpand(name, name, "namespace" as ResourceKindLowercase)
+          onNamespaceExpand(name, name, 'namespace' as ResourceKindLowercase)
         }
       >
         {nodeState.expanded ? <LuSquareMinus /> : <LuSquarePlus />}
@@ -488,7 +488,7 @@ function NamespaceNode({
       <Checkbox.Root
         checked={checkedNamespaces.includes(name)}
         disabled={isDuplicated}
-        onCheckedChange={(detail) =>
+        onCheckedChange={detail =>
           onCheckedNamespaceChange(detail.checked, name)
         }
       >
@@ -552,19 +552,19 @@ function ResourceNode({
 
   return (
     <Box
-      as="div"
-      display="flex"
-      alignItems="center"
-      gap="2"
-      width="100%"
-      cursor={!isDuplicated ? "pointer" : "default"}
-      _hover={!isDuplicated ? { bg: "gray.50" } : {}}
-      pl="14"
-      pr="2"
-      py="1"
-      borderRadius="md"
-      fontSize="sm"
-      position="relative"
+      as='div'
+      display='flex'
+      alignItems='center'
+      gap='2'
+      width='100%'
+      cursor={!isDuplicated ? 'pointer' : 'default'}
+      _hover={!isDuplicated ? { bg: 'gray.50' } : {}}
+      pl='14'
+      pr='2'
+      py='1'
+      borderRadius='md'
+      fontSize='sm'
+      position='relative'
     >
       <Checkbox.Root
         checked={isChecked}
@@ -593,11 +593,11 @@ function DrawerFooter({
   return (
     <Drawer.Footer>
       <Drawer.ActionTrigger asChild>
-        <Button variant="blueOutline" onClick={onCancel}>
+        <Button variant='blueOutline' onClick={onCancel}>
           Cancel
         </Button>
       </Drawer.ActionTrigger>
-      <Button variant="blue" disabled={isApplyDisabled} onClick={onApply}>
+      <Button variant='blue' disabled={isApplyDisabled} onClick={onApply}>
         Apply
       </Button>
     </Drawer.Footer>

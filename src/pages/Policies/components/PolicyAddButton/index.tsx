@@ -1,24 +1,24 @@
-import { Button } from "@/components/Button";
-import { Dialog } from "@/components/Dialog";
-import { CloseButton } from "@/components/CloseButton";
-import { DialogOpenChangeDetails, Portal } from "@chakra-ui/react";
-import { Suspense, useState } from "react";
-import { FaPlus } from "react-icons/fa";
-import Metadata from "./Metadata";
-import ResourceSelectors from "./ResourceSelectors";
-import Placement from "./Placement";
-import { Progress } from "@/components/Progress";
+import { Button } from '@/components/Button';
+import { Dialog } from '@/components/Dialog';
+import { CloseButton } from '@/components/CloseButton';
+import { DialogOpenChangeDetails, Portal } from '@chakra-ui/react';
+import { Suspense, useState } from 'react';
+import { FaPlus } from 'react-icons/fa';
+import Metadata from './Metadata';
+import ResourceSelectors from './ResourceSelectors';
+import Placement from './Placement';
+import { Progress } from '@/components/Progress';
 import {
   useIsMutating,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
-import { FormProvider, useForm } from "react-hook-form";
-import { toaster } from "@/components/Toaster";
-import { createPropagationPolicyApi } from "@/apis/propagationPolicy";
-import { ResourceSelector } from "@/models/propagationPolicyModel";
+} from '@tanstack/react-query';
+import { FormProvider, useForm } from 'react-hook-form';
+import { toaster } from '@/components/Toaster';
+import { createPropagationPolicyApi } from '@/apis/propagationPolicy';
+import { ResourceSelector } from '@/models/propagationPolicyModel';
 
-type Step = "Metadata" | "ResourceSelectors" | "Placement";
+type Step = 'Metadata' | 'ResourceSelectors' | 'Placement';
 
 export type FormValues = {
   level: string;
@@ -41,18 +41,18 @@ export type FormValues = {
 export default function PolicyAddButton() {
   const [open, setOpen] = useState(false);
 
-  const steps = ["Metadata", "ResourceSelectors", "Placement"];
-  const [currentStep, setCurrentStep] = useState<Step>("Metadata");
+  const steps = ['Metadata', 'ResourceSelectors', 'Placement'];
+  const [currentStep, setCurrentStep] = useState<Step>('Metadata');
   const currentStepIndex = steps.indexOf(currentStep);
 
   const formData = useForm<FormValues>({
-    mode: "onBlur",
+    mode: 'onBlur',
     defaultValues: {
-      level: "namespace",
+      level: 'namespace',
       data: {
         metadata: {
-          name: "",
-          namespace: "",
+          name: '',
+          namespace: '',
           labels: [],
           annotations: [],
           preserveResourceOnDeletion: false,
@@ -66,14 +66,14 @@ export default function PolicyAddButton() {
     },
   });
 
-  const [lastSelecteddLevel, setLastSelectedLevel] = useState("namespace");
+  const [lastSelecteddLevel, setLastSelectedLevel] = useState('namespace');
   const [resetData, setResetData] = useState(false);
 
   const queryClient = useQueryClient();
 
   const handleSubmitForm = useMutation({
     mutationKey: [
-      "createPropagationPolicyApi",
+      'createPropagationPolicyApi',
       formData.getValues().level,
       formData.getValues().data.metadata.name,
     ],
@@ -83,7 +83,7 @@ export default function PolicyAddButton() {
       try {
         setOpen(false);
         loadingToaster = toaster.create({
-          type: "loading",
+          type: 'loading',
           description: `Policy를 추가하고 있습니다.`,
         });
 
@@ -97,13 +97,13 @@ export default function PolicyAddButton() {
           description: `${name} Policy가 추가되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ["getPropagationPolicyListApi"],
+          queryKey: ['getPropagationPolicyListApi'],
         });
       } catch (error: any) {
         console.error(error.response.data.message);
         toaster.error({
-          type: "error",
-          description: `${error.response.data.message || "알 수 없는 오류"}`,
+          type: 'error',
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
       } finally {
         if (loadingToaster) {
@@ -116,7 +116,7 @@ export default function PolicyAddButton() {
 
   const policyAddMutationCount = useIsMutating({
     mutationKey: [
-      "createPropagationPolicyApi",
+      'createPropagationPolicyApi',
       formData.getValues().level,
       formData.getValues().data.metadata.name,
     ],
@@ -137,7 +137,7 @@ export default function PolicyAddButton() {
         }: 하나 이상의 클러스터를 선택해주세요.`;
       }
 
-      if (typeof weight !== "number" || weight <= 0) {
+      if (typeof weight !== 'number' || weight <= 0) {
         return `WeightPreference 항목 ${i + 1}: Weight는 0보다 커야 합니다.`;
       }
     }
@@ -149,71 +149,71 @@ export default function PolicyAddButton() {
     <Dialog.Root
       open={open}
       onOpenChange={(details: DialogOpenChangeDetails) => setOpen(details.open)}
-      variant="resourceSetUp"
+      variant='resourceSetUp'
       closeOnInteractOutside={false}
-      onExitComplete={() => setCurrentStep("Metadata")}
-      scrollBehavior="outside"
+      onExitComplete={() => setCurrentStep('Metadata')}
+      scrollBehavior='outside'
     >
       <Dialog.Trigger>
-        <Button variant="largeBlue" disabled={policyAddMutationCount > 0}>
+        <Button variant='largeBlue' disabled={policyAddMutationCount > 0}>
           <FaPlus /> Add
         </Button>
       </Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content variant="resourceSetUp" margin="10px auto">
-            <Dialog.Body variant="resourceSetUp" margin="5%">
+          <Dialog.Content variant='resourceSetUp' margin='10px auto'>
+            <Dialog.Body variant='resourceSetUp' margin='5%'>
               <Progress value={((currentStepIndex + 1) / steps.length) * 100} />
               <FormProvider {...formData}>
-                {currentStep === "Metadata" && (
+                {currentStep === 'Metadata' && (
                   <Metadata
                     onNext={async () => {
                       const isValid = await formData.trigger([
-                        "level",
-                        "data.metadata.name",
-                        "data.metadata.namespace",
+                        'level',
+                        'data.metadata.name',
+                        'data.metadata.namespace',
                       ]);
                       if (!isValid) {
                         return;
                       }
 
-                      const currentLevel = formData.getValues("level");
+                      const currentLevel = formData.getValues('level');
                       if (currentLevel !== lastSelecteddLevel) {
                         setResetData(true);
                         setLastSelectedLevel(currentLevel);
                       } else {
                         setResetData(false);
                       }
-                      setCurrentStep("ResourceSelectors");
+                      setCurrentStep('ResourceSelectors');
                     }}
                   />
                 )}
-                {currentStep === "ResourceSelectors" && (
+                {currentStep === 'ResourceSelectors' && (
                   <Suspense fallback={null}>
                     <ResourceSelectors
                       onPrev={() => {
                         setResetData(false);
-                        setCurrentStep("Metadata");
+                        setCurrentStep('Metadata');
                       }}
                       onNext={async () => {
                         const isValid = await formData.trigger(
-                          "data.resourceSelectors"
+                          'data.resourceSelectors'
                         );
                         if (!isValid) {
                           return;
                         }
-                        setCurrentStep("Placement");
+                        setCurrentStep('Placement');
                       }}
                       resetData={resetData}
                     />
                   </Suspense>
                 )}
-                {currentStep === "Placement" && (
+                {currentStep === 'Placement' && (
                   <Placement
                     onPrev={() => {
                       setResetData(false);
-                      setCurrentStep("ResourceSelectors");
+                      setCurrentStep('ResourceSelectors');
                     }}
                     onSubmit={async () => {
                       const isValid = await formData.trigger();

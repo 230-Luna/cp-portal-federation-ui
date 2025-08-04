@@ -1,7 +1,7 @@
-import { SegmentGroup as ChakraSegmentGroup } from "@chakra-ui/react";
-import type { ComponentProps } from "react";
+import { SegmentGroup as ChakraSegmentGroup } from '@chakra-ui/react';
+import type { ComponentProps } from 'react';
 
-type Variant = "small" | "medium" | "large";
+type Variant = 'small' | 'medium' | 'large';
 
 type SegmentSubComponent =
   | typeof ChakraSegmentGroup.Root
@@ -19,10 +19,10 @@ const rootStyleConfig: Record<
   Variant,
   ComponentProps<typeof ChakraSegmentGroup.Root>
 > = {
-  small: { size: "sm" },
-  medium: { size: "md" },
+  small: { size: 'sm' },
+  medium: { size: 'md' },
   large: {
-    size: "md",
+    size: 'md',
   },
 };
 
@@ -34,38 +34,32 @@ export const SegmentGroup = {
     <ChakraSegmentGroup.Root
       {...(variant != null ? rootStyleConfig[variant] : {})}
       {...props}
-    ></ChakraSegmentGroup.Root>
+    />
   ),
   Indicator: ({
     ...props
   }: SegmentProps<typeof ChakraSegmentGroup.Indicator>) => (
     <ChakraSegmentGroup.Indicator
-      background="white"
-      borderRadius="md"
+      background='white'
+      borderRadius='md'
       {...props}
-    ></ChakraSegmentGroup.Indicator>
+    />
   ),
   Items: ({ ...props }: SegmentProps<typeof ChakraSegmentGroup.Items>) => {
     const { items, ...restProps } = props;
-    return <ChakraSegmentGroup.Items {...props}></ChakraSegmentGroup.Items>;
+    return <ChakraSegmentGroup.Items {...props} />;
   },
   Item: ({ ...props }: SegmentProps<typeof ChakraSegmentGroup.Item>) => {
-    return <ChakraSegmentGroup.Item {...props}></ChakraSegmentGroup.Item>;
+    return <ChakraSegmentGroup.Item {...props} />;
   },
   ItemText: ({
     ...props
   }: SegmentProps<typeof ChakraSegmentGroup.ItemText>) => {
-    return (
-      <ChakraSegmentGroup.ItemText {...props}></ChakraSegmentGroup.ItemText>
-    );
+    return <ChakraSegmentGroup.ItemText {...props} />;
   },
   ItemHiddenInput: ({
     ...props
   }: SegmentProps<typeof ChakraSegmentGroup.ItemHiddenInput>) => {
-    return (
-      <ChakraSegmentGroup.ItemHiddenInput
-        {...props}
-      ></ChakraSegmentGroup.ItemHiddenInput>
-    );
+    return <ChakraSegmentGroup.ItemHiddenInput {...props} />;
   },
 };

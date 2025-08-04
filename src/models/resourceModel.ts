@@ -10,15 +10,15 @@ export interface Labels {
 }
 
 export type ResourceKind =
-  | "Deployment"
-  | "StatefulSet"
-  | "DaemonSet"
-  | "CronJob"
-  | "Job";
+  | 'Deployment'
+  | 'StatefulSet'
+  | 'DaemonSet'
+  | 'CronJob'
+  | 'Job';
 
 export type ResourceKindLowercase =
-  | "deployment"
-  | "statefulset"
-  | "daemonset"
-  | "cronjob"
-  | "job";
+  | 'deployment'
+  | 'statefulset'
+  | 'daemonset'
+  | 'cronjob'
+  | 'job';

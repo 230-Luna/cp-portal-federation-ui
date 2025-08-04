@@ -1,5 +1,5 @@
-import React from "react";
-import { Button } from "@/components/Button";
+import React from 'react';
+import { Button } from '@/components/Button';
 
 interface CronJobDeleteButtonProps {
   cronJobName: string;
@@ -11,7 +11,7 @@ export default function CronJobDeleteButton({
   onDelete,
 }: CronJobDeleteButtonProps) {
   return (
-    <Button variant="redOutline" size="sm" onClick={onDelete}>
+    <Button variant='redOutline' size='sm' onClick={onDelete}>
       Delete
     </Button>
   );

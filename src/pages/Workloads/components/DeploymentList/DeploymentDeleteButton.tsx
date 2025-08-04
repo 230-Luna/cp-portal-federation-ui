@@ -1,6 +1,6 @@
-import { Button } from "@/components/Button";
-import { Drawer } from "@chakra-ui/react";
-import { useState } from "react";
+import { Button } from '@/components/Button';
+import { Drawer } from '@chakra-ui/react';
+import { useState } from 'react';
 
 export default function DeploymentDeleteButton({
   namespace,
@@ -13,12 +13,12 @@ export default function DeploymentDeleteButton({
 
   return (
     <Drawer.Root
-      size="full"
+      size='full'
       open={open}
-      onOpenChange={(details) => setOpen(details.open)}
+      onOpenChange={details => setOpen(details.open)}
     >
       <Drawer.Trigger asChild>
-        <Button variant="redOutline" size="sm">
+        <Button variant='redOutline' size='sm'>
           Delete
         </Button>
       </Drawer.Trigger>
@@ -43,9 +43,9 @@ function DeploymentDeleteDrawer({
   onClose: () => void;
 }) {
   return (
-    <Drawer.Root size="full" open={true} onOpenChange={onClose}>
+    <Drawer.Root size='full' open onOpenChange={onClose}>
       <Drawer.Trigger asChild>
-        <Button variant="redOutline" size="sm">
+        <Button variant='redOutline' size='sm'>
           Delete
         </Button>
       </Drawer.Trigger>

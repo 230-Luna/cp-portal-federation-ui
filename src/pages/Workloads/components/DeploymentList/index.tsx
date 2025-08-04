@@ -1,30 +1,30 @@
-import { Table } from "@/components/Table";
-import { Flex } from "@/components/Flex";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Box, Tag, VStack } from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
-import { getWorkloadListApi } from "@/apis/workload";
-import { Workload } from "@/models/workloadModel";
-import DeploymentDeleteButton from "./DeploymentDeleteButton";
-import DeploymentViewButton from "./DeploymentViewButton";
-import Pagination from "@/components/Pagination";
-import { Heading } from "@/components/Heading";
+import { Table } from '@/components/Table';
+import { Flex } from '@/components/Flex';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { Box, Tag, VStack } from '@chakra-ui/react';
+import { useSearchParams } from 'react-router-dom';
+import { getWorkloadListApi } from '@/apis/workload';
+import { Workload } from '@/models/workloadModel';
+import DeploymentDeleteButton from './DeploymentDeleteButton';
+import DeploymentViewButton from './DeploymentViewButton';
+import Pagination from '@/components/Pagination';
+import { Heading } from '@/components/Heading';
 
 export default function DeploymentList() {
   const itemsPerPage = 10;
   const [searchParams, setSearchParams] = useSearchParams();
-  const sortBy = searchParams.get("sortBy") || undefined;
-  const filterBy = searchParams.get("filterBy") || undefined;
-  const namespace = searchParams.get("namespace") || undefined;
-  const currentPage = Number(searchParams.get("page") ?? "1");
+  const sortBy = searchParams.get('sortBy') || undefined;
+  const filterBy = searchParams.get('filterBy') || undefined;
+  const namespace = searchParams.get('namespace') || undefined;
+  const currentPage = Number(searchParams.get('page') ?? '1');
   const setCurrentPage = (page: number) => {
-    searchParams.set("page", page.toString());
+    searchParams.set('page', page.toString());
     setSearchParams(searchParams);
   };
 
   const { data: deploymentList } = useSuspenseQuery({
     queryKey: [
-      "getDeploymentListApi",
+      'getDeploymentListApi',
       namespace,
       filterBy,
       currentPage,
@@ -33,11 +33,11 @@ export default function DeploymentList() {
     ],
     queryFn: () => {
       return getWorkloadListApi({
-        kind: "deployment",
-        namespace: namespace,
-        filterBy: filterBy,
+        kind: 'deployment',
+        namespace,
+        filterBy,
         page: currentPage,
-        itemsPerPage: itemsPerPage,
+        itemsPerPage,
         sort: sortBy,
       });
     },
@@ -45,7 +45,7 @@ export default function DeploymentList() {
 
   if (deploymentList.resources.length === 0) {
     return (
-      <Heading variant="center" marginTop="10%">
+      <Heading variant='center' marginTop='10%'>
         결과가 없습니다.
       </Heading>
     );
@@ -69,7 +69,7 @@ export default function DeploymentList() {
               <Table.Cell>{resource.name}</Table.Cell>
               <Table.Cell>{resource.policy.name}</Table.Cell>
               <Table.Cell>
-                <Flex justify="space-evenly">
+                <Flex justify='space-evenly'>
                   <DeploymentViewButton
                     namespace={resource.namespace}
                     name={resource.name}
@@ -88,7 +88,7 @@ export default function DeploymentList() {
         totalItemCount={deploymentList.listMeta.totalItems}
         itemsPerPage={itemsPerPage}
         currentPage={currentPage}
-        onPageChange={(page) => setCurrentPage(page)}
+        onPageChange={page => setCurrentPage(page)}
       />
     </>
   );
