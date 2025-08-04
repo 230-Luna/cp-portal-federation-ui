@@ -1,35 +1,32 @@
 import { Flex } from "@/components/Flex";
 import SearchBar from "@/components/SearchBar";
-import ClusterJoinButton from "@/pages/Clusters/components/ClusterJoinButton";
-import ClusterList from "@/pages/Clusters/components/ClusterList";
 import { ErrorBoundary } from "react-error-boundary";
 import { Suspense, useEffect } from "react";
 import SortSelect from "@/components/SortSelect";
 import { useSearchParams } from "react-router-dom";
+import NamespaceList from "../Namespaces/components/NamespaceList";
+import NamespaceAddButton from "../Namespaces/components/NamespaceAddButton";
 
-export default function Clusters() {
+export default function ConfigMapsAndSecrets() {
   const [searchParams, setSearchParams] = useSearchParams();
-
   useEffect(() => {
     searchParams.delete("filterBy");
     searchParams.delete("page");
     searchParams.delete("sortBy");
     setSearchParams(searchParams);
   }, []);
-
   return (
     <>
       <Flex justify="flex-end" marginTop="9px" marginBottom="50px">
         <SearchBar />
-        <ClusterJoinButton />
+        <NamespaceAddButton />
       </Flex>
       <Flex justify="flex-end">
-        <SortSelect level="cluster" />
+        <SortSelect level="namespace" />
       </Flex>
-
       <ErrorBoundary fallbackRender={({ error }) => <div>{error.message}</div>}>
         <Suspense fallback="">
-          <ClusterList />
+          <NamespaceList />
         </Suspense>
       </ErrorBoundary>
     </>

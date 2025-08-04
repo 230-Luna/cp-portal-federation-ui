@@ -8,6 +8,9 @@ import { BrowserRouter, useLocation, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import PageNotFound from "@/error/PageNotFound";
 import { match } from "ts-pattern";
+import Namespaces from "./pages/Namespaces";
+import Workloads from "./pages/Workloads";
+import ConfigMapsAndSecrets from "./pages/ConfigMapsAndSecrets";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +58,11 @@ function FederationTabs() {
         <Tabs.Trigger value="/cpfedui/overview">Overview</Tabs.Trigger>
         <Tabs.Trigger value="/cpfedui/clusters">Clusters</Tabs.Trigger>
         <Tabs.Trigger value="/cpfedui/policies">Policies</Tabs.Trigger>
+        <Tabs.Trigger value="/cpfedui/namespaces">Namespaces</Tabs.Trigger>
+        <Tabs.Trigger value="/cpfedui/workloads">Workloads</Tabs.Trigger>
+        <Tabs.Trigger value="/cpfedui/configmapsandsecrets">
+          ConfigMaps&Secrets
+        </Tabs.Trigger>
       </Tabs.List>
 
       {match(currentTab)
@@ -71,6 +79,21 @@ function FederationTabs() {
         .with("/cpfedui/policies", () => (
           <Tabs.Content value="/cpfedui/policies">
             <Policies />
+          </Tabs.Content>
+        ))
+        .with("/cpfedui/namespaces", () => (
+          <Tabs.Content value="/cpfedui/namespaces">
+            <Namespaces />
+          </Tabs.Content>
+        ))
+        .with("/cpfedui/workloads", () => (
+          <Tabs.Content value="/cpfedui/workloads">
+            <Workloads />
+          </Tabs.Content>
+        ))
+        .with("/cpfedui/configmapsandsecrets", () => (
+          <Tabs.Content value="/cpfedui/configmapsandsecrets">
+            <ConfigMapsAndSecrets />
           </Tabs.Content>
         ))
         .otherwise(() => (

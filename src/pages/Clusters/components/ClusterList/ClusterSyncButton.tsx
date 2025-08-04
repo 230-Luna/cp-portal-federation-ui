@@ -70,6 +70,342 @@ interface CheckedResources {
     [kind: string]: string[];
   };
 }
+export default function ClusterSyncButton({
+  clusterStatus,
+  clusterId,
+  clusterName,
+}: ClusterSyncButtonProps) {
+  const [open, setOpen] = useState(false);
+
+  const applySyncMutationCount = useIsMutating({
+    mutationKey: ["handleApplySync", clusterId],
+  });
+
+  const isDisabled = clusterStatus !== "ready" || applySyncMutationCount > 0;
+
+  return (
+    <Drawer.Root
+      size={DRAWER_SIZE}
+      open={open}
+      onOpenChange={(details) => setOpen(details.open)}
+    >
+      <Drawer.Trigger asChild>
+        <Button variant="blackGhost" disabled={isDisabled}>
+          Sync
+        </Button>
+      </Drawer.Trigger>
+      {open && (
+        <ClusterResourceSyncDrawer
+          clusterId={clusterId}
+          clusterName={clusterName}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </Drawer.Root>
+  );
+}
+
+function ClusterResourceSyncDrawer({
+  clusterId,
+  clusterName,
+  onClose,
+}: ClusterResourceSyncDrawerProps) {
+  const { data: syncResourceList } = useSyncResourceList(clusterId);
+  const syncMutation = useSyncMutation(clusterId, clusterName, onClose);
+
+  const [checkedNamespaces, setCheckedNamespaces] = useState<string[]>([]);
+  const [checkedResources, setCheckedResources] = useState<CheckedResources>(
+    {}
+  );
+  const [resourceTreeMap, setResourceTreeMap] = useState<ResourceTreeMap>({});
+
+  const updateCheckedResource = (
+    namespace: string,
+    kind: string,
+    name: string,
+    checked: CheckedState
+  ) => {
+    setCheckedResources((prev) => {
+      const current = prev[namespace]?.[kind] || [];
+      const newNamespace = { ...(prev[namespace] || {}) };
+      const updatedList =
+        checked === true
+          ? Array.from(new Set([...current, name]))
+          : current.filter((n) => n !== name);
+
+      const newCheckedResources = {
+        ...prev,
+        [namespace]: {
+          ...newNamespace,
+          [kind]: updatedList,
+        },
+      };
+
+      if (checked === true) {
+        const namespaceInfo = syncResourceList?.find(
+          (ns) => ns.name === namespace
+        );
+        const isNamespaceDisabled = namespaceInfo?.isDuplicated;
+
+        if (!isNamespaceDisabled) {
+          setCheckedNamespaces((prevNamespaces) => {
+            if (!prevNamespaces.includes(namespace)) {
+              return [...prevNamespaces, namespace];
+            }
+            return prevNamespaces;
+          });
+        }
+      } else {
+        const hasRemainingResources = Object.values(
+          newCheckedResources[namespace] || {}
+        ).some((resources) => resources.length > 0);
+
+        if (!hasRemainingResources) {
+          setCheckedNamespaces((prevNamespaces) =>
+            prevNamespaces.filter((n) => n !== namespace)
+          );
+        }
+      }
+
+      return newCheckedResources;
+    });
+  };
+
+  const handleNamespaceExpand = async (
+    name: string,
+    namespace: string,
+    kind: ResourceKindLowercase
+  ) => {
+    if (resourceTreeMap[namespace]?.[name]) return;
+
+    const res = await getSyncListApi({
+      clusterId,
+      namespace,
+      kind: kind.toLowerCase(),
+    });
+    setResourceTreeMap((prev) => ({
+      ...prev,
+      [namespace]: {
+        ...prev[namespace],
+        [kind]: res,
+      },
+    }));
+  };
+
+  const handleKindExpand = async (
+    name: string,
+    namespace: string,
+    kind: ResourceKindLowercase
+  ) => {
+    if (resourceTreeMap[namespace]?.[name]) return;
+
+    const res = await getSyncListApi({
+      clusterId,
+      namespace,
+      kind: kind.toLowerCase(),
+    });
+    setResourceTreeMap((prev) => ({
+      ...prev,
+      [namespace]: {
+        ...prev[namespace],
+        [kind]: res,
+      },
+    }));
+  };
+
+  const handleCheckedNamespaceChange = (
+    checked: CheckedState,
+    name: string
+  ) => {
+    if (checked === true) {
+      setCheckedNamespaces((prev) => [...prev, name]);
+    } else {
+      const hasSelectedResources =
+        checkedResources[name] &&
+        Object.values(checkedResources[name]).some(
+          (resources) => resources.length > 0
+        );
+
+      if (hasSelectedResources) {
+        return;
+      }
+
+      setCheckedNamespaces((prev) => prev.filter((n) => n !== name));
+    }
+  };
+
+  const treeData = useMemo(() => {
+    return syncResourceList.map((namespace) => ({
+      id: `ns-${namespace.name}`,
+      name: namespace.name,
+      kind: "namespace",
+      isDuplicated: namespace.isDuplicated,
+      children: KIND_OPTIONS.map((kind) => ({
+        id: `${namespace.name}-${kind.toLowerCase()}`,
+        name: kind,
+        kind,
+        namespace: namespace.name,
+        children: resourceTreeMap[namespace.name]?.[kind]
+          ? resourceTreeMap[namespace.name][kind].map((resource) => ({
+              id: `${namespace.name}-${kind}-${resource.name}`,
+              name: resource.name,
+              kind,
+              namespace: namespace.name,
+              isDuplicated: resource.isDuplicated,
+            }))
+          : [
+              {
+                id: `placeholder-${namespace.name}-${kind}`,
+                name: "loading...",
+                kind,
+                namespace: namespace.name,
+                isPlaceholder: true,
+              },
+            ],
+      })),
+    }));
+  }, [syncResourceList, resourceTreeMap]);
+
+  const collection = useMemo(() => {
+    return createTreeCollection({
+      rootNode: { id: "root", name: "ROOT", children: treeData },
+      nodeToValue: (node) => node.id,
+      nodeToString: (node) => node.name,
+    });
+  }, [treeData]);
+
+  const generateSyncPostData = (): SyncPostBody => {
+    const namespaces = Object.keys(checkedResources).filter(
+      (namespace) => Object.keys(checkedResources[namespace]).length > 0
+    );
+
+    const enabledNamespaces = new Set([
+      ...checkedNamespaces.filter((namespace) => {
+        const namespaceInfo = syncResourceList?.find(
+          (ns) => ns.name === namespace
+        );
+        return !namespaceInfo?.isDuplicated;
+      }),
+      ...namespaces.filter((namespace) => {
+        const namespaceInfo = syncResourceList?.find(
+          (ns) => ns.name === namespace
+        );
+        return !namespaceInfo?.isDuplicated;
+      }),
+    ]);
+
+    return {
+      createNamespace: Array.from(enabledNamespaces),
+      data: namespaces.map((namespace) => {
+        const kinds = checkedResources[namespace];
+        return {
+          namespace,
+          list: Object.entries(kinds)
+            .filter(([_, resources]) => resources.length > 0)
+            .map(([kind, resources]) => ({
+              kind: kind.toLowerCase() as ResourceKindLowercase,
+              list: resources,
+            })),
+        };
+      }),
+    };
+  };
+
+  const syncPostData = generateSyncPostData();
+  const isApplyDisabled =
+    syncPostData.createNamespace.length < 1 && syncPostData.data.length < 1;
+
+  const handleApply = () => {
+    syncMutation.mutate(syncPostData);
+  };
+
+  const renderNode = ({
+    node,
+    nodeState,
+  }: {
+    node: TreeNode;
+    nodeState: any;
+  }) => {
+    const { children, isPlaceholder, kind, name, isDuplicated, namespace } =
+      node;
+
+    if (kind === "namespace") {
+      return (
+        <NamespaceNode
+          node={node}
+          nodeState={nodeState}
+          checkedNamespaces={checkedNamespaces}
+          onNamespaceExpand={handleNamespaceExpand}
+          onCheckedNamespaceChange={handleCheckedNamespaceChange}
+        />
+      );
+    }
+
+    if (KIND_OPTIONS.includes(kind as KindOption) && children) {
+      return (
+        <KindNode
+          node={node}
+          nodeState={nodeState}
+          onKindExpand={handleKindExpand}
+        />
+      );
+    }
+
+    if (KIND_OPTIONS.includes(kind as KindOption) && !children) {
+      if (isPlaceholder) return null;
+
+      const isChecked = !!checkedResources[namespace!]?.[kind]?.includes(name);
+
+      return (
+        <ResourceNode
+          node={node}
+          isChecked={isChecked}
+          isDuplicated={isDuplicated!}
+          onCheckedChange={(detail: CheckedChangeDetails) => {
+            updateCheckedResource(namespace!, kind, name, detail.checked);
+          }}
+        />
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <Portal>
+      <Drawer.Backdrop />
+      <Drawer.Positioner>
+        <Drawer.Content>
+          <Drawer.Header>
+            <Drawer.Title>{clusterName}</Drawer.Title>
+          </Drawer.Header>
+          <Drawer.Body>
+            <TreeView.Root
+              maxW={TREE_MAX_WIDTH}
+              size={TREE_SIZE}
+              collection={collection}
+            >
+              <TreeView.Tree>
+                <TreeView.Node
+                  indentGuide={<TreeView.BranchIndentGuide />}
+                  render={renderNode}
+                />
+              </TreeView.Tree>
+            </TreeView.Root>
+          </Drawer.Body>
+          <DrawerFooter
+            onCancel={onClose}
+            onApply={handleApply}
+            isApplyDisabled={isApplyDisabled}
+          />
+          <Drawer.CloseTrigger asChild>
+            <CloseButton />
+          </Drawer.CloseTrigger>
+        </Drawer.Content>
+      </Drawer.Positioner>
+    </Portal>
+  );
+}
 
 function useSyncResourceList(clusterId: string) {
   return useSuspenseQuery({
@@ -95,13 +431,13 @@ function useSyncMutation(
           type: "loading",
           description: `${clusterName}와 Sync하고 있습니다.`,
         });
-        await postSyncListApi({
+        const response = await postSyncListApi({
           clusterId,
           data,
         });
         toaster.remove(loadingToaster);
         toaster.success({
-          description: `${clusterName}와 성공적으로 Sync되었습니다.`,
+          description: `Sync를 완료했습니다.\n총 요청 수: ${response.totalResource}개\n성공: ${response.successResource}개\n실패: ${response.failResource}개`,
         });
         queryClient.invalidateQueries({
           queryKey: ["getClusterListApi"],
@@ -265,287 +601,5 @@ function DrawerFooter({
         Apply
       </Button>
     </Drawer.Footer>
-  );
-}
-
-export default function ClusterSyncButton({
-  clusterStatus,
-  clusterId,
-  clusterName,
-}: ClusterSyncButtonProps) {
-  const [open, setOpen] = useState(false);
-
-  const applySyncMutationCount = useIsMutating({
-    mutationKey: ["handleApplySync", clusterId],
-  });
-
-  const isDisabled = clusterStatus !== "ready" || applySyncMutationCount > 0;
-
-  return (
-    <Drawer.Root
-      size={DRAWER_SIZE}
-      open={open}
-      onOpenChange={(details) => setOpen(details.open)}
-    >
-      <Drawer.Trigger asChild>
-        <Button variant="blackGhost" disabled={isDisabled}>
-          Sync
-        </Button>
-      </Drawer.Trigger>
-      {open && (
-        <ClusterResourceSyncDrawer
-          clusterId={clusterId}
-          clusterName={clusterName}
-          onClose={() => setOpen(false)}
-        />
-      )}
-    </Drawer.Root>
-  );
-}
-
-function ClusterResourceSyncDrawer({
-  clusterId,
-  clusterName,
-  onClose,
-}: ClusterResourceSyncDrawerProps) {
-  const { data: syncResourceList } = useSyncResourceList(clusterId);
-  const syncMutation = useSyncMutation(clusterId, clusterName, onClose);
-
-  const [checkedNamespaces, setCheckedNamespaces] = useState<string[]>([]);
-  const [checkedResources, setCheckedResources] = useState<CheckedResources>(
-    {}
-  );
-  const [resourceTreeMap, setResourceTreeMap] = useState<ResourceTreeMap>({});
-
-  const updateCheckedResource = (
-    namespace: string,
-    kind: string,
-    name: string,
-    checked: CheckedState
-  ) => {
-    setCheckedResources((prev) => {
-      const current = prev[namespace]?.[kind] || [];
-      const newNamespace = { ...(prev[namespace] || {}) };
-      const updatedList =
-        checked === true
-          ? Array.from(new Set([...current, name]))
-          : current.filter((n) => n !== name);
-
-      return {
-        ...prev,
-        [namespace]: {
-          ...newNamespace,
-          [kind]: updatedList,
-        },
-      };
-    });
-  };
-
-  const handleNamespaceExpand = async (
-    name: string,
-    namespace: string,
-    kind: ResourceKindLowercase
-  ) => {
-    if (resourceTreeMap[namespace]?.[name]) return;
-
-    const res = await getSyncListApi({
-      clusterId,
-      namespace,
-      kind: kind.toLowerCase(),
-    });
-    setResourceTreeMap((prev) => ({
-      ...prev,
-      [namespace]: {
-        ...prev[namespace],
-        [kind]: res,
-      },
-    }));
-  };
-
-  const handleKindExpand = async (
-    name: string,
-    namespace: string,
-    kind: ResourceKindLowercase
-  ) => {
-    if (resourceTreeMap[namespace]?.[name]) return;
-
-    const res = await getSyncListApi({
-      clusterId,
-      namespace,
-      kind: kind.toLowerCase(),
-    });
-    setResourceTreeMap((prev) => ({
-      ...prev,
-      [namespace]: {
-        ...prev[namespace],
-        [kind]: res,
-      },
-    }));
-  };
-
-  const handleCheckedNamespaceChange = (
-    checked: CheckedState,
-    name: string
-  ) => {
-    setCheckedNamespaces((prev) =>
-      checked === true ? [...prev, name] : prev.filter((n) => n !== name)
-    );
-  };
-
-  const treeData = useMemo(() => {
-    return syncResourceList.map((namespace) => ({
-      id: `ns-${namespace.name}`,
-      name: namespace.name,
-      kind: "namespace",
-      isDuplicated: namespace.isDuplicated,
-      children: KIND_OPTIONS.map((kind) => ({
-        id: `${namespace.name}-${kind.toLowerCase()}`,
-        name: kind,
-        kind,
-        namespace: namespace.name,
-        children: resourceTreeMap[namespace.name]?.[kind]
-          ? resourceTreeMap[namespace.name][kind].map((resource) => ({
-              id: `${namespace.name}-${kind}-${resource.name}`,
-              name: resource.name,
-              kind,
-              namespace: namespace.name,
-              isDuplicated: resource.isDuplicated,
-            }))
-          : [
-              {
-                id: `placeholder-${namespace.name}-${kind}`,
-                name: "loading...",
-                kind,
-                namespace: namespace.name,
-                isPlaceholder: true,
-              },
-            ],
-      })),
-    }));
-  }, [syncResourceList, resourceTreeMap]);
-
-  const collection = useMemo(() => {
-    return createTreeCollection({
-      rootNode: { id: "root", name: "ROOT", children: treeData },
-      nodeToValue: (node) => node.id,
-      nodeToString: (node) => node.name,
-    });
-  }, [treeData]);
-
-  const generateSyncPostData = (): SyncPostBody => {
-    const namespaces = Object.keys(checkedResources).filter(
-      (namespace) => Object.keys(checkedResources[namespace]).length > 0
-    );
-
-    return {
-      createNamespace: checkedNamespaces,
-      data: namespaces.map((namespace) => {
-        const kinds = checkedResources[namespace];
-        return {
-          namespace,
-          list: Object.entries(kinds)
-            .filter(([_, resources]) => resources.length > 0)
-            .map(([kind, resources]) => ({
-              kind: kind.toLowerCase() as ResourceKindLowercase,
-              list: resources,
-            })),
-        };
-      }),
-    };
-  };
-
-  const syncPostData = generateSyncPostData();
-  const isApplyDisabled =
-    syncPostData.createNamespace.length < 1 && syncPostData.data.length < 1;
-
-  const handleApply = () => {
-    syncMutation.mutate(syncPostData);
-  };
-
-  const renderNode = ({
-    node,
-    nodeState,
-  }: {
-    node: TreeNode;
-    nodeState: any;
-  }) => {
-    const { children, isPlaceholder, kind, name, isDuplicated, namespace } =
-      node;
-
-    if (kind === "namespace") {
-      return (
-        <NamespaceNode
-          node={node}
-          nodeState={nodeState}
-          checkedNamespaces={checkedNamespaces}
-          onNamespaceExpand={handleNamespaceExpand}
-          onCheckedNamespaceChange={handleCheckedNamespaceChange}
-        />
-      );
-    }
-
-    if (KIND_OPTIONS.includes(kind as KindOption) && children) {
-      return (
-        <KindNode
-          node={node}
-          nodeState={nodeState}
-          onKindExpand={handleKindExpand}
-        />
-      );
-    }
-
-    if (KIND_OPTIONS.includes(kind as KindOption) && !children) {
-      if (isPlaceholder) return null;
-
-      const isChecked = !!checkedResources[namespace!]?.[kind]?.includes(name);
-
-      return (
-        <ResourceNode
-          node={node}
-          isChecked={isChecked}
-          isDuplicated={isDuplicated!}
-          onCheckedChange={(detail: CheckedChangeDetails) => {
-            updateCheckedResource(namespace!, kind, name, detail.checked);
-          }}
-        />
-      );
-    }
-
-    return null;
-  };
-
-  return (
-    <Portal>
-      <Drawer.Backdrop />
-      <Drawer.Positioner>
-        <Drawer.Content>
-          <Drawer.Header>
-            <Drawer.Title>{clusterName}</Drawer.Title>
-          </Drawer.Header>
-          <Drawer.Body>
-            <TreeView.Root
-              maxW={TREE_MAX_WIDTH}
-              size={TREE_SIZE}
-              collection={collection}
-            >
-              <TreeView.Tree>
-                <TreeView.Node
-                  indentGuide={<TreeView.BranchIndentGuide />}
-                  render={renderNode}
-                />
-              </TreeView.Tree>
-            </TreeView.Root>
-          </Drawer.Body>
-          <DrawerFooter
-            onCancel={onClose}
-            onApply={handleApply}
-            isApplyDisabled={isApplyDisabled}
-          />
-          <Drawer.CloseTrigger asChild>
-            <CloseButton />
-          </Drawer.CloseTrigger>
-        </Drawer.Content>
-      </Drawer.Positioner>
-    </Portal>
   );
 }

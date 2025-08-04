@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import useDebounce from "@/hooks/useDebounce";
 import { useSearchParams } from "react-router-dom";
 
-export default function SearchBar({ placeholder }: { placeholder: string }) {
+export default function SearchBar() {
   const [searchText, setSearchText] = useState("");
   const debouncedOnChange = useDebounce(searchText, 300);
 
@@ -35,7 +35,7 @@ export default function SearchBar({ placeholder }: { placeholder: string }) {
     >
       <Input
         ref={inputRef}
-        placeholder={placeholder}
+        placeholder="검색할 키워드를 입력하세요"
         value={searchText}
         onChange={(event) => setSearchText(event.target.value)}
         size="xl"

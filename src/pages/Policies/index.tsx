@@ -4,10 +4,12 @@ import PropagationPolicyList from "@/pages/Policies/components/PropagationPolicy
 import { Flex } from "@/components/Flex";
 import { Suspense, useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import LevelSelect, { Level } from "@/pages/Policies/components/LevelSelect";
+import PolicyLevelSelect, {
+  Level,
+} from "@/pages/Policies/components/PolicyLevelSelect";
 import NamespaceSelect from "@/pages/Policies/components/NamespaceSelect";
-import ClusterPropagationPolicyList from "./components/ClusterPropagationPolicyList";
-import SortSelect from "../../components/SortSelect";
+import ClusterPropagationPolicyList from "@/pages/Policies/components/ClusterPropagationPolicyList";
+import SortSelect from "@/components/SortSelect";
 import { useSearchParams } from "react-router-dom";
 
 export default function Policies() {
@@ -27,14 +29,14 @@ export default function Policies() {
         marginBottom="50px"
       >
         <Flex>
-          <LevelSelect
+          <PolicyLevelSelect
             value={policyLevel}
             onValueChange={(policyLevel) => setPolicyLevel(policyLevel)}
           />
           {policyLevel === "namespace" ? <NamespaceSelect /> : null}
         </Flex>
         <Flex justify="flex-end">
-          <SearchBar key={policyLevel} placeholder="Search Policies" />
+          <SearchBar key={policyLevel} />
           <PolicyAddButton />
         </Flex>
       </Flex>

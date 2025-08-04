@@ -14,7 +14,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
-import { DevTool } from "@hookform/devtools";
 import { toaster } from "@/components/Toaster";
 import { createPropagationPolicyApi } from "@/apis/propagationPolicy";
 import { ResourceSelector } from "@/models/propagationPolicyModel";
@@ -245,7 +244,6 @@ export default function PolicyAddButton() {
           </Dialog.Content>
         </Dialog.Positioner>
       </Portal>
-      <DevTool control={formData.control} placement="left" />
     </Dialog.Root>
   );
 }

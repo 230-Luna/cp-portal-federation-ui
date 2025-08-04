@@ -1,14 +1,13 @@
 import { SegmentGroup } from "@/components/SegmentGroup";
 import { SegmentGroupValueChangeDetails } from "@chakra-ui/react";
-import { useSearchParams } from "react-router-dom";
 
 export type Level = "namespace" | "cluster";
 
-export default function LevelSelect({
+export default function PolicyLevelSelect({
   value,
   onValueChange,
 }: {
-  value: string;
+  value: Level;
   onValueChange: (value: Level) => void;
 }) {
   const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
