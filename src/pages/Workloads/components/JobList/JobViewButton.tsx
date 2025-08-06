@@ -22,7 +22,7 @@ export default function JobViewButton({
 
   return (
     <Drawer.Root
-      size='full'
+      size='lg'
       open={open}
       onOpenChange={details => setOpen(details.open)}
     >
@@ -137,6 +137,7 @@ function JobYamlViwerDrawer({
                   },
                   overviewRulerLanes: 0,
                   scrollBeyondLastLine: false,
+                  wordWrap: 'on',
                   renderOverviewRuler: false,
                   renderSideBySide: false,
                 }}

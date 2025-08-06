@@ -22,7 +22,7 @@ export default function CronJobViewButton({
 
   return (
     <Drawer.Root
-      size='full'
+      size='lg'
       open={open}
       onOpenChange={details => setOpen(details.open)}
     >
@@ -137,6 +137,7 @@ function CronJobYamlViwerDrawer({
                   },
                   overviewRulerLanes: 0,
                   scrollBeyondLastLine: false,
+                  wordWrap: 'on',
                   renderOverviewRuler: false,
                   renderSideBySide: false,
                 }}

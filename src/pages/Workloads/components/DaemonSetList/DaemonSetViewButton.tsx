@@ -23,7 +23,7 @@ export default function DaemonSetViewButton({
 
   return (
     <Drawer.Root
-      size='full'
+      size='lg'
       open={open}
       onOpenChange={details => setOpen(details.open)}
     >
@@ -138,6 +138,7 @@ function DaemonSetYamlViwerDrawer({
                   },
                   overviewRulerLanes: 0,
                   scrollBeyondLastLine: false,
+                  wordWrap: 'on',
                   renderOverviewRuler: false,
                   renderSideBySide: false,
                 }}
@@ -150,7 +151,7 @@ function DaemonSetYamlViwerDrawer({
             </Drawer.ActionTrigger>
             <Button
               variant='blue'
-                disabled={editDaemonSetMutationCount > 0}
+              disabled={editDaemonSetMutationCount > 0}
               onClick={() => handleEditDaemonSet.mutate()}
             >
               Edit

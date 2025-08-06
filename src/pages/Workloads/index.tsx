@@ -2,7 +2,6 @@ import { Flex } from '@/components/Flex';
 import SearchBar from '@/components/SearchBar';
 import SortSelect from '@/components/SortSelect';
 import { WorkloadKindLowercase } from '@/models/resourceModel';
-import PolicyAddButton from '@/pages/Policies/components/PolicyAddButton';
 import { Suspense, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useSearchParams } from 'react-router-dom';
@@ -11,6 +10,7 @@ import DaemonSetList from './components/DaemonSetList';
 import DeploymentList from './components/DeploymentList';
 import JobList from './components/JobList';
 import StatefulSetList from './components/StatefulSetList';
+import WorkloadAddButton from './components/WorkloadAddButton';
 import WorkloadLevelSelect from './components/WorkloadLevelSelect';
 import WorkloadNamespaceSelect from './components/WorkloadNamespaceSelect';
 
@@ -40,7 +40,7 @@ export default function Workloads() {
         </Flex>
         <Flex justify='flex-end'>
           <SearchBar key={workloadLevel} />
-          <PolicyAddButton />
+          <WorkloadAddButton />
         </Flex>
       </Flex>
       <Flex justify='flex-end'>
