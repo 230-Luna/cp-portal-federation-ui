@@ -47,7 +47,7 @@ export default [
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'react/jsx-props-no-spreading': 'warn',
-      'react/jsx-no-bind': 'warn',
+      'react/jsx-no-bind': 'off',
       'react/jsx-key': 'error',
       'react/jsx-no-duplicate-props': 'error',
       'react/jsx-no-undef': 'error',
