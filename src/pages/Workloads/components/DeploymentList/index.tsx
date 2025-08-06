@@ -1,14 +1,13 @@
-import { Table } from '@/components/Table';
+import { getResourceListApi } from '@/apis/resource';
 import { Flex } from '@/components/Flex';
+import { Heading } from '@/components/Heading';
+import Pagination from '@/components/Pagination';
+import { Table } from '@/components/Table';
+import { Resource } from '@/models/resourceModel';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { Box, Tag, VStack } from '@chakra-ui/react';
 import { useSearchParams } from 'react-router-dom';
-import { getWorkloadListApi } from '@/apis/workload';
-import { Workload } from '@/models/workloadModel';
 import DeploymentDeleteButton from './DeploymentDeleteButton';
 import DeploymentViewButton from './DeploymentViewButton';
-import Pagination from '@/components/Pagination';
-import { Heading } from '@/components/Heading';
 
 export default function DeploymentList() {
   const itemsPerPage = 10;
@@ -32,7 +31,7 @@ export default function DeploymentList() {
       sortBy,
     ],
     queryFn: () => {
-      return getWorkloadListApi({
+      return getResourceListApi({
         kind: 'deployment',
         namespace,
         filterBy,
@@ -63,8 +62,8 @@ export default function DeploymentList() {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {deploymentList.resources.map((resource: Workload) => (
-            <Table.Row key={resource.name}>
+          {deploymentList.resources.map((resource: Resource) => (
+            <Table.Row key={`${resource.namespace}-${resource.name}`}>
               <Table.Cell>{resource.namespace}</Table.Cell>
               <Table.Cell>{resource.name}</Table.Cell>
               <Table.Cell>{resource.policy.name}</Table.Cell>

@@ -1,4 +1,4 @@
-import { ResourceKind } from './resourceModel';
+import { WorkloadKind } from './resourceModel';
 
 export interface ListMeta {
   totalItems: number;
@@ -39,7 +39,7 @@ export interface Metadata {
 }
 
 export interface ResourceSelector {
-  kind: ResourceKind;
+  kind: WorkloadKind;
   namespace?: string;
   name?: string;
   labelSelectors?: string[];

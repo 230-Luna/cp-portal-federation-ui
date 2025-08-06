@@ -11,7 +11,7 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { MonacoDiffEditor, monaco } from 'react-monaco-editor';
 
-export default function CronJobViewButton({
+export default function JobViewButton({
   namespace,
   name,
 }: {
@@ -30,7 +30,7 @@ export default function CronJobViewButton({
         <Button variant='blueGhost'>View</Button>
       </Drawer.Trigger>
       {open === true ? (
-        <CronJobYamlViwerDrawer
+        <JobYamlViwerDrawer
           namespace={namespace}
           name={name}
           onClose={() => setOpen(false)}
@@ -40,7 +40,7 @@ export default function CronJobViewButton({
   );
 }
 
-function CronJobYamlViwerDrawer({
+function JobYamlViwerDrawer({
   namespace,
   name,
   onClose,
@@ -49,41 +49,41 @@ function CronJobYamlViwerDrawer({
   name: string;
   onClose: () => void;
 }) {
-  const [cronJobData, setCronJobData] = useState('');
+  const [jobData, setJobData] = useState('');
   const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
 
   const queryClient = useQueryClient();
 
-  const { data: cronJobDetail } = useSuspenseQuery({
-    queryKey: ['getResourceDetailApi', 'cronjob', namespace, name],
-    queryFn: () => getResourceDetailApi({ kind: 'cronjob', namespace, name }),
+  const { data: jobDetail } = useSuspenseQuery({
+    queryKey: ['getResourceDetailApi', 'job', namespace, name],
+    queryFn: () => getResourceDetailApi({ kind: 'job', namespace, name }),
   });
 
   useEffect(() => {
-    if (cronJobDetail?.yaml) {
-      setCronJobData(cronJobDetail.yaml);
+    if (jobDetail?.yaml) {
+      setJobData(jobDetail.yaml);
     }
-  }, [cronJobDetail]);
+  }, [jobDetail]);
 
-  const handleEditCronJob = useMutation({
-    mutationKey: ['handleEditCronJob', 'cronjob', namespace, name],
+  const handleEditJob = useMutation({
+    mutationKey: ['handleEditJob', 'job', namespace, name],
     mutationFn: async () => {
       let loadingToaster;
       try {
         onClose();
         loadingToaster = toaster.create({
           type: 'loading',
-          description: `CronJob를 수정하고 있습니다.`,
+          description: `Job를 수정하고 있습니다.`,
         });
         await updateResourceApi({
-          data: cronJobData,
+          data: jobData,
         });
         toaster.remove(loadingToaster);
         toaster.success({
-          description: `${name} CronJob가 수정되었습니다.`,
+          description: `${name} Job가 수정되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ['getResourceDetailApi', 'cronjob', namespace, name],
+          queryKey: ['getResourceDetailApi', 'job', namespace, name],
         });
       } catch (error: any) {
         toaster.error({
@@ -97,13 +97,13 @@ function CronJobYamlViwerDrawer({
     },
   });
 
-  const editCronJobMutationCount = useIsMutating({
-    mutationKey: ['handleEditCronJob', 'cronjob', namespace, name],
+  const editJobMutationCount = useIsMutating({
+    mutationKey: ['handleEditJob', 'job', namespace, name],
   });
 
   const handleEditorChange = (value: string | undefined) => {
     if (value != null) {
-      setCronJobData(value);
+      setJobData(value);
     }
   };
   const handleEditorDidMount = (
@@ -112,19 +112,19 @@ function CronJobYamlViwerDrawer({
     editorRef.current = editor;
   };
 
-  return cronJobDetail == null ? null : (
+  return jobDetail == null ? null : (
     <Portal>
       <Drawer.Backdrop />
       <Drawer.Positioner>
         <Drawer.Content>
           <Drawer.Header>
-            <Drawer.Title>{cronJobDetail.name}</Drawer.Title>
+            <Drawer.Title>{jobDetail.name}</Drawer.Title>
           </Drawer.Header>
           <Drawer.Body>
             <Box height='92%'>
               <MonacoDiffEditor
-                original={cronJobDetail.yaml}
-                value={cronJobData}
+                original={jobDetail.yaml}
+                value={jobData}
                 onChange={handleEditorChange}
                 editorDidMount={handleEditorDidMount}
                 language='yaml'
@@ -149,8 +149,8 @@ function CronJobYamlViwerDrawer({
             </Drawer.ActionTrigger>
             <Button
               variant='blue'
-              disabled={editCronJobMutationCount > 0}
-              onClick={() => handleEditCronJob.mutate()}
+              disabled={editJobMutationCount > 0}
+              onClick={() => handleEditJob.mutate()}
             >
               Edit
             </Button>

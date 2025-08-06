@@ -1,25 +1,25 @@
 import { SegmentGroup } from '@/components/SegmentGroup';
-import { ResourceKindLowercase, ResourceKind } from '@/models/resourceModel';
+import { WorkloadKind, WorkloadKindLowercase } from '@/models/resourceModel';
 import { SegmentGroupValueChangeDetails } from '@chakra-ui/react';
 
 export default function WorkloadLevelSelect({
   value,
   onValueChange,
 }: {
-  value: ResourceKindLowercase;
-  onValueChange: (value: ResourceKindLowercase) => void;
+  value: WorkloadKindLowercase;
+  onValueChange: (value: WorkloadKindLowercase) => void;
 }) {
   const handleValueChange = (details: SegmentGroupValueChangeDetails) => {
     const displayValue = details.value as string;
     if (displayValue !== null) {
       const lowercaseValue =
-        displayValue.toLowerCase() as ResourceKindLowercase;
+        displayValue.toLowerCase() as WorkloadKindLowercase;
       onValueChange(lowercaseValue);
     }
   };
 
-  const getDisplayName = (lowercase: ResourceKindLowercase): ResourceKind => {
-    const mapping: Record<ResourceKindLowercase, ResourceKind> = {
+  const getDisplayName = (lowercase: WorkloadKindLowercase): WorkloadKind => {
+    const mapping: Record<WorkloadKindLowercase, WorkloadKind> = {
       deployment: 'Deployment',
       statefulset: 'StatefulSet',
       daemonset: 'DaemonSet',

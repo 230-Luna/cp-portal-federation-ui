@@ -6,7 +6,6 @@ import { Button } from '@/components/Button';
 import { CloseButton } from '@/components/CloseButton';
 import { toaster } from '@/components/Toaster';
 import { Box, Drawer, Portal } from '@chakra-ui/react';
-import { monaco, MonacoDiffEditor } from 'react-monaco-editor';
 import {
   useIsMutating,
   useMutation,
@@ -14,6 +13,7 @@ import {
   useSuspenseQuery,
 } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
+import { monaco, MonacoDiffEditor } from 'react-monaco-editor';
 
 export default function ClusterPropagationPolicyViewButton({
   name,
@@ -50,7 +50,6 @@ function ClusterPropagationPolicyYamlViwerDrawer({
 }) {
   const [clusterPropagationPolicyData, setClusterPropagationPolicyData] =
     useState('');
-
   const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
 
   const queryClient = useQueryClient();
@@ -88,9 +87,7 @@ function ClusterPropagationPolicyYamlViwerDrawer({
           queryKey: ['getClusterPropagationPlicyListApi'],
         });
       } catch (error: any) {
-        console.error(error.response.data.message);
         toaster.error({
-          type: 'error',
           description: `${error.response.data.message || '알 수 없는 오류'}`,
         });
       } finally {
@@ -132,14 +129,18 @@ function ClusterPropagationPolicyYamlViwerDrawer({
                 value={clusterPropagationPolicyData}
                 onChange={handleEditorChange}
                 editorDidMount={handleEditorDidMount}
+                language='yaml'
+                height='100%'
                 options={{
                   scrollbar: {
-                    vertical: 'visible',
-                    horizontal: 'visible',
+                    vertical: 'auto',
+                    horizontal: 'auto',
+                    handleMouseWheel: true,
                   },
                   overviewRulerLanes: 0,
                   scrollBeyondLastLine: false,
                   renderOverviewRuler: false,
+                  renderSideBySide: false,
                 }}
               />
             </Box>

@@ -1,7 +1,13 @@
-import { getWorkloadDetailApi } from '@/apis/workload';
+import { getResourceDetailApi, updateResourceApi } from '@/apis/resource';
 import { Button } from '@/components/Button';
-import { Box, Drawer } from '@chakra-ui/react';
-import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { toaster } from '@/components/Toaster';
+import { Box, CloseButton, Drawer, Portal } from '@chakra-ui/react';
+import {
+  useIsMutating,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { MonacoDiffEditor, monaco } from 'react-monaco-editor';
 
@@ -46,10 +52,12 @@ function DeploymentYamlViwerDrawer({
   const [deploymentData, setDeploymentData] = useState('');
   const editorRef = useRef<monaco.editor.IStandaloneDiffEditor | null>(null);
 
+  const queryClient = useQueryClient();
+
   const { data: deploymentDetail } = useSuspenseQuery({
-    queryKey: ['getWorkloadDetailApi', namespace, name],
+    queryKey: ['getResourceDetailApi', 'deployment', namespace, name],
     queryFn: () =>
-      getWorkloadDetailApi({ kind: 'deployment', namespace, name }),
+      getResourceDetailApi({ kind: 'deployment', namespace, name }),
   });
 
   useEffect(() => {
@@ -58,27 +66,101 @@ function DeploymentYamlViwerDrawer({
     }
   }, [deploymentDetail]);
 
-  const handleEditorChange = (value: string | undefined) => {
-    setDeploymentData(value || '');
-  };
+  const handleEditDeployment = useMutation({
+    mutationKey: ['handleEditDeployment', 'deployment', namespace, name],
+    mutationFn: async () => {
+      let loadingToaster;
+      try {
+        onClose();
+        loadingToaster = toaster.create({
+          type: 'loading',
+          description: `Deployment를 수정하고 있습니다.`,
+        });
+        await updateResourceApi({
+          data: deploymentData,
+        });
+        toaster.remove(loadingToaster);
+        toaster.success({
+          description: `${name} Deployment가 수정되었습니다.`,
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['getResourceDetailApi', 'deployment', namespace, name],
+        });
+      } catch (error: any) {
+        toaster.error({
+          description: `${error.response.data.message || '알 수 없는 오류'}`,
+        });
+      } finally {
+        if (loadingToaster) {
+          toaster.remove(loadingToaster);
+        }
+      }
+    },
+  });
 
-  const handleEditorMount = (editor: monaco.editor.IStandaloneDiffEditor) => {
+  const editDeploymentMutationCount = useIsMutating({
+    mutationKey: ['handleEditDeployment', 'deployment', namespace, name],
+  });
+
+  const handleEditorChange = (value: string | undefined) => {
+    if (value != null) {
+      setDeploymentData(value);
+    }
+  };
+  const handleEditorDidMount = (
+    editor: monaco.editor.IStandaloneDiffEditor
+  ) => {
     editorRef.current = editor;
   };
 
-  return (
-    <Drawer.Root size='full' open onOpenChange={onClose}>
-      <Drawer.Trigger asChild>
-        <Button variant='blueGhost'>View</Button>
-      </Drawer.Trigger>
-      <Drawer.Content>
-        <Box>
-          <MonacoDiffEditor
-            value={deploymentData}
-            onChange={handleEditorChange}
-          />
-        </Box>
-      </Drawer.Content>
-    </Drawer.Root>
+  return deploymentDetail == null ? null : (
+    <Portal>
+      <Drawer.Backdrop />
+      <Drawer.Positioner>
+        <Drawer.Content>
+          <Drawer.Header>
+            <Drawer.Title>{deploymentDetail.name}</Drawer.Title>
+          </Drawer.Header>
+          <Drawer.Body>
+            <Box height='92%'>
+              <MonacoDiffEditor
+                original={deploymentDetail.yaml}
+                value={deploymentData}
+                onChange={handleEditorChange}
+                editorDidMount={handleEditorDidMount}
+                language='yaml'
+                height='100%'
+                options={{
+                  scrollbar: {
+                    vertical: 'auto',
+                    horizontal: 'auto',
+                    handleMouseWheel: true,
+                  },
+                  overviewRulerLanes: 0,
+                  scrollBeyondLastLine: false,
+                  renderOverviewRuler: false,
+                  renderSideBySide: false,
+                }}
+              />
+            </Box>
+          </Drawer.Body>
+          <Drawer.Footer>
+            <Drawer.ActionTrigger asChild>
+              <Button variant='blueOutline'>Cancel</Button>
+            </Drawer.ActionTrigger>
+            <Button
+              variant='blue'
+              disabled={editDeploymentMutationCount > 0}
+              onClick={() => handleEditDeployment.mutate()}
+            >
+              Edit
+            </Button>
+          </Drawer.Footer>
+          <Drawer.CloseTrigger asChild>
+            <CloseButton />
+          </Drawer.CloseTrigger>
+        </Drawer.Content>
+      </Drawer.Positioner>
+    </Portal>
   );
 }

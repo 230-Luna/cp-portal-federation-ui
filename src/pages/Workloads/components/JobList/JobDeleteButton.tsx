@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-query';
 import { useState } from 'react';
 
-export default function DaemonSetDeleteButton({
+export default function JobDeleteButton({
   namespace,
   name,
 }: {
@@ -19,8 +19,8 @@ export default function DaemonSetDeleteButton({
   name: string;
 }) {
   const [open, setOpen] = useState(false);
-  const deleteDaemonSetMutationCount = useIsMutating({
-    mutationKey: ['handleDeleteDaemonSet', namespace, name],
+  const deleteJobMutationCount = useIsMutating({
+    mutationKey: ['handleDeleteJob', namespace, name],
   });
 
   return (
@@ -30,12 +30,12 @@ export default function DaemonSetDeleteButton({
       onOpenChange={details => setOpen(details.open)}
     >
       <Dialog.Trigger>
-        <Button variant='redGhost' disabled={deleteDaemonSetMutationCount > 0}>
+        <Button variant='redGhost' disabled={deleteJobMutationCount > 0}>
           Delete
         </Button>
       </Dialog.Trigger>
       {open === true ? (
-        <DeleteDaemonSetConfirmDialog
+        <DeleteJobConfirmDialog
           namespace={namespace}
           name={name}
           onClose={() => setOpen(false)}
@@ -45,7 +45,7 @@ export default function DaemonSetDeleteButton({
   );
 }
 
-function DeleteDaemonSetConfirmDialog({
+function DeleteJobConfirmDialog({
   namespace,
   name,
   onClose,
@@ -55,8 +55,8 @@ function DeleteDaemonSetConfirmDialog({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
-  const handleDeleteDaemonSet = useMutation({
-    mutationKey: ['handleDeleteDaemonSet', namespace, name],
+  const handleDeleteJob = useMutation({
+    mutationKey: ['handleDeleteJob', namespace, name],
     mutationFn: async () => {
       let loadingToaster;
       try {
@@ -65,13 +65,13 @@ function DeleteDaemonSetConfirmDialog({
           type: 'loading',
           description: `${name}를 삭제하고 있습니다.`,
         });
-        await deleteResourceApi({ kind: 'daemonset', namespace, name });
+        await deleteResourceApi({ kind: 'job', namespace, name });
         toaster.remove(loadingToaster);
         toaster.success({
           description: `${name}가 삭제되었습니다.`,
         });
         queryClient.invalidateQueries({
-          queryKey: ['getDaemonSetListApi'],
+          queryKey: ['getJobListApi'],
         });
       } catch {
         toaster.error({
@@ -99,7 +99,7 @@ function DeleteDaemonSetConfirmDialog({
             </Dialog.ActionTrigger>
             <Button
               variant='red'
-              onClick={() => handleDeleteDaemonSet.mutate()}
+              onClick={() => handleDeleteJob.mutate()}
             >
               Delete
             </Button>
